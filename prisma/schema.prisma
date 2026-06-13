@@ -142,7 +142,10 @@ model Completion {
   // catches anything that slips past.
   aiGenerationId     String?
   chosenMissionIndex Int? // 0-2
-  photoUrl           String?
+  // photoPath is the bucket-relative Supabase Storage key
+  // (e.g. "{userId}/{uuid}.jpg"), NOT a URL. The display URL is
+  // minted on read via a signed URL — see lib/supabase.ts.
+  photoPath          String?
   note               String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

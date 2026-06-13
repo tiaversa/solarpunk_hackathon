@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   ApiError,
   chooseMission,
   completeMission,
-  uploadPhoto,
   type MissionOption,
 } from "@/lib/api-client";
 import type { TopicId } from "@/lib/missionMatrix";
@@ -46,6 +45,11 @@ export function MissionList({
   const [note, setNote] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [completing, setCompleting] = useState(false);
+  // The DOM file input is the source of truth at submit time. Holding a ref
+  // means even if React re-renders mid-flow and clears `photoFile` state,
+  // we can still read the picked File from the actual <input>. Reduces a
+  // class of bugs where the user picks a file and the upload silently no-ops.
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
   async function onChoose(index: number) {
     if (busyIndex !== null) return;
@@ -74,8 +78,11 @@ export function MissionList({
     setCompleting(true);
     setError(null);
     try {
-      let photoBase64: string | undefined;
-      if (photoFile) photoBase64 = await uploadPhoto(photoFile);
+      // Prefer the DOM input over React state — see photoInputRef comment.
+      // Either source has the same File reference on a happy path; this just
+      // guarantees we don't lose the picked file to a stray re-render.
+      const file =
+        photoInputRef.current?.files?.[0] ?? photoFile ?? null;
 
       const result = await completeMission({
         topic,
@@ -83,7 +90,7 @@ export function MissionList({
         aiGenerationId,
         chosenIndex: index,
         note: note.trim() ? note.trim() : undefined,
-        photoBase64,
+        photoFile: file,
       });
 
       // Refresh server data so the level pill and topic grid catch up,
@@ -199,6 +206,7 @@ export function MissionList({
                   <label className="flex flex-col gap-1 text-xs font-medium text-leaf-700">
                     Photo (optional)
                     <input
+                      ref={photoInputRef}
                       type="file"
                       accept="image/*"
                       onChange={(e) =>
@@ -206,10 +214,26 @@ export function MissionList({
                       }
                       className="text-xs text-leaf-700"
                     />
-                    <span className="text-[10px] font-normal text-leaf-700/60">
-                      Requires <code>CLOUDINARY_URL</code> in <code>.env</code>.
-                      Without it, just leave this empty.
-                    </span>
+                    {photoFile && (
+                      <span className="flex items-center gap-2 text-[11px] font-normal text-leaf-700/80">
+                        <span>
+                          Selected: <strong>{photoFile.name}</strong> (
+                          {(photoFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPhotoFile(null);
+                            if (photoInputRef.current) {
+                              photoInputRef.current.value = "";
+                            }
+                          }}
+                          className="text-leaf-700 underline underline-offset-2 hover:no-underline"
+                        >
+                          Remove
+                        </button>
+                      </span>
+                    )}
                   </label>
                   <div className="flex justify-end gap-2">
                     <button
@@ -218,6 +242,9 @@ export function MissionList({
                         setShowCompletion(false);
                         setNote("");
                         setPhotoFile(null);
+                        if (photoInputRef.current) {
+                          photoInputRef.current.value = "";
+                        }
                       }}
                       disabled={completing}
                       className="rounded-lg px-3 py-1.5 text-sm font-medium text-leaf-700 hover:underline disabled:opacity-60"

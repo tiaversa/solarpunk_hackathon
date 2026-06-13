@@ -57,7 +57,14 @@ export type PendingAction =
       aiGenerationId: string;
       chosenMissionIndex: number;
       note: string | null;
-      photoBase64: string | null;
+      /**
+       * The picked image kept as a Blob until we're back online. Dexie
+       * stores Blob values natively (IndexedDB is structured-clone), so
+       * we avoid the ~33% size overhead of base64. On reconnect,
+       * OfflineSync uploads this to Supabase Storage and then submits
+       * the resulting path to /api/mission/complete.
+       */
+      photoBlob: Blob | null;
       createdAt: number;
     }
   | {

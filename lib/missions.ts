@@ -31,10 +31,6 @@ import {
 } from "@/lib/missionPrompt";
 import { matrixCellText, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, type Level } from "@/lib/levels";
-import {
-  isCloudStorageEnabled,
-  uploadJsonToColdStorage,
-} from "@/lib/cloudStorage";
 import { randomUUID } from "node:crypto";
 
 export const MISSION_OPTIONS_COUNT = 3;
@@ -199,53 +195,22 @@ async function generateAndPersist(
   const completedAt = new Date();
   const latencyMs = Date.now() - t0;
 
-  // ---- Cold storage split (Step 11b) ---------------------------------------
-  // When CLOUDINARY_URL is configured we upload the prompt + raw response
-  // to Cloudinary as JSON and store only the URL in the DB row. The
-  // inline columns stay null on success.
-  //
-  // Upload failures fall back to inline storage AND get recorded as
-  // `coldStorageError`, which is ONLY appended to the row's `error`
-  // column for audit. Crucially: cold-storage errors do NOT prevent the
-  // user's response. As long as Claude returned valid parsedOptions,
-  // missions are returned to the caller. Otherwise we'd be making the
-  // audit log a single point of failure for the product feature.
+  // AI prompt + raw response are persisted inline in the DB. Step 11b
+  // originally offloaded these to Cloudinary as `raw` blobs, but we
+  // dropped that path along with Cloudinary (rows stay small enough in
+  // practice). The schema still carries `promptSentUrl` /
+  // `rawResponseUrl` columns for backward compatibility; they stay null
+  // on new rows. If AI log volume ever becomes a real Postgres concern,
+  // re-introduce cold storage against Supabase Storage instead.
   const rowId = randomUUID();
-  let promptSentForRow: string | null = prompt;
-  let promptSentUrl: string | null = null;
-  let rawResponseForRow: Prisma.InputJsonValue | undefined = rawResponse;
-  let rawResponseUrl: string | null = null;
-  let coldStorageError: string | null = null;
-  if (isCloudStorageEnabled()) {
-    try {
-      promptSentUrl = await uploadJsonToColdStorage(
-        `prompt-${rowId}`,
-        { promptVersion: MISSION_PROMPT_VERSION, prompt },
-      );
-      promptSentForRow = null;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      coldStorageError = `cold-storage prompt upload failed: ${msg}`;
-    }
-    if (rawResponse !== undefined) {
-      try {
-        rawResponseUrl = await uploadJsonToColdStorage(
-          `raw-${rowId}`,
-          rawResponse,
-        );
-        rawResponseForRow = undefined;
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        coldStorageError = coldStorageError
-          ? `${coldStorageError}; cold-storage raw upload failed: ${msg}`
-          : `cold-storage raw upload failed: ${msg}`;
-      }
-    }
-  }
+  const promptSentForRow: string | null = prompt;
+  const promptSentUrl: string | null = null;
+  const rawResponseForRow: Prisma.InputJsonValue | undefined = rawResponse;
+  const rawResponseUrl: string | null = null;
 
-  const recordedError = [callError, coldStorageError]
-    .filter(Boolean)
-    .join("; ");
+  // null when Claude succeeded and parsing was clean; otherwise the
+  // captured error string.
+  const recordedError: string | null = callError;
 
   const row = await prisma.aiGeneration.create({
     data: {
@@ -270,7 +235,7 @@ async function generateAndPersist(
       inputTokens,
       outputTokens,
       latencyMs,
-      error: recordedError === "" ? null : recordedError,
+      error: recordedError,
       status: "active",
       startedAt,
       completedAt,

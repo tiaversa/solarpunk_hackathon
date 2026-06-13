@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { uploadPhoto } from "@/lib/api-client";
 import { db, type PendingAction } from "@/lib/db-client";
 
 /**
@@ -34,7 +35,15 @@ export function OfflineSync() {
             }),
           }).then(throwIfNotOk);
           return;
-        case "complete":
+        case "complete": {
+          // If the user picked a photo while offline, upload it to
+          // Supabase Storage first (we deferred this step because there
+          // was no network at submit time), then submit the completion
+          // referencing the resulting path.
+          let photoPath: string | undefined;
+          if (action.photoBlob) {
+            photoPath = await uploadPhoto(action.photoBlob);
+          }
           await fetch("/api/mission/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -45,10 +54,11 @@ export function OfflineSync() {
               aiGenerationId: action.aiGenerationId,
               chosenIndex: action.chosenMissionIndex,
               note: action.note ?? undefined,
-              photoBase64: action.photoBase64 ?? undefined,
+              photoPath,
             }),
           }).then(throwIfNotOk);
           return;
+        }
         case "preferences":
           await fetch("/api/user/preferences", {
             method: "PATCH",

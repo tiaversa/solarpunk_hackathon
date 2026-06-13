@@ -288,7 +288,13 @@ export type CompleteMissionPayload = {
   aiGenerationId: string;
   chosenIndex: number;
   note?: string;
-  photoBase64?: string;
+  /**
+   * The picked image File. Online: we upload it directly to Supabase
+   * Storage via a signed URL, then submit the resulting path. Offline:
+   * we stash the Blob on the pending action and OfflineSync handles the
+   * upload-then-submit dance on reconnect.
+   */
+  photoFile?: File | null;
 };
 
 export type CompleteMissionResponse = {
@@ -306,7 +312,10 @@ export async function completeMission(
       aiGenerationId: payload.aiGenerationId,
       chosenMissionIndex: payload.chosenIndex,
       note: payload.note ?? null,
-      photoBase64: payload.photoBase64 ?? null,
+      // Dexie can store Blob values directly — no base64 round-trip
+      // required. OfflineSync uploads this blob to Supabase Storage on
+      // reconnect and then submits the resulting path.
+      photoBlob: payload.photoFile ?? null,
       createdAt: Date.now(),
     } satisfies PendingAction);
 
@@ -339,9 +348,24 @@ export async function completeMission(
       },
     };
   }
+
+  // Online path: upload the photo (if any) directly to Supabase Storage
+  // first, then submit the completion referencing the resulting path.
+  let photoPath: string | undefined;
+  if (payload.photoFile) {
+    photoPath = await uploadPhoto(payload.photoFile);
+  }
+
   return request<CompleteMissionResponse>("/api/mission/complete", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      topic: payload.topic,
+      level: payload.level,
+      aiGenerationId: payload.aiGenerationId,
+      chosenIndex: payload.chosenIndex,
+      note: payload.note,
+      photoPath,
+    }),
   });
 }
 
@@ -431,26 +455,38 @@ export async function getHistory(): Promise<HistoryResponse> {
 }
 
 /**
- * Convert a browser `File` (typically an image picked from <input type="file">)
- * into a base64 data URI suitable for `completeMission({ photoBase64 })`.
+ * Upload a photo Blob/File directly to Supabase Storage and return the
+ * bucket-relative path. Two-step:
  *
- * The spec lists `uploadPhoto(base64)` in /lib/api-client.ts, but the API
- * contract has no standalone upload endpoint — the photo is sent inline on
- * /api/mission/complete. This helper just adapts a File into the expected
- * data-URI string and stays out of the way otherwise.
+ *   1. POST /api/photo/upload-url — server mints a single-use signed URL
+ *      scoped to `{userId}/{uuid}.jpg` under the mission-photos bucket.
+ *   2. Browser PUTs the bytes straight to Supabase via the signed URL.
+ *      Our Next.js function never sees the photo, which sidesteps the
+ *      4.5 MB serverless body limit entirely.
+ *
+ * The returned path is what gets persisted in `Completion.photoPath`. We
+ * mint a signed read URL for display at history-render time.
  */
-export async function uploadPhoto(file: File): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result !== "string") {
-        reject(new Error("Could not read photo"));
-        return;
-      }
-      resolve(result);
-    };
-    reader.onerror = () => reject(reader.error ?? new Error("Read failed"));
-    reader.readAsDataURL(file);
-  });
+export async function uploadPhoto(file: Blob): Promise<string> {
+  const { path, token } = await request<{ path: string; token: string }>(
+    "/api/photo/upload-url",
+    { method: "POST" },
+  );
+
+  // Lazy-import so server-only code paths don't pull in the supabase-js
+  // client bundle until something actually needs it.
+  const { getBrowserSupabase, PHOTO_BUCKET } = await import("@/lib/supabase");
+  const supabase = getBrowserSupabase();
+
+  const { error } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .uploadToSignedUrl(path, token, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: false,
+    });
+
+  if (error) {
+    throw new ApiError(error.message, 502);
+  }
+  return path;
 }
