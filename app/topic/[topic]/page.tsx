@@ -45,11 +45,13 @@ export default async function TopicPage({ params, searchParams }: Props) {
 
   let options: MissionOption[] | null = null;
   let aiGenerationId: string | null = null;
+  let fromCache = false;
   let generationError: string | null = null;
   try {
     const result = await getOrGenerateMission({ userId, topic: topicId, level });
     options = result.options;
     aiGenerationId = result.aiGenerationId;
+    fromCache = result.fromCache;
   } catch (err) {
     generationError =
       err instanceof MissionGenerationError
@@ -160,12 +162,22 @@ export default async function TopicPage({ params, searchParams }: Props) {
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-leaf-700">
-                Your 3 missions for this level
+                {fromCache
+                  ? "Your saved missions for this level"
+                  : "Your 3 new missions for this level"}
               </h2>
               <span className="font-mono text-[10px] text-leaf-700/40">
                 gen {aiGenerationId.slice(0, 8)}
               </span>
             </div>
+            {fromCache && (
+              <p className="rounded-xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700/80 ring-1 ring-leaf-100">
+                You already have missions generated for this level. Want something
+                different? Use the{" "}
+                <strong className="font-semibold">Regenerate options</strong>{" "}
+                button above to generate a new set.
+              </p>
+            )}
             <MissionList
               topic={topicId}
               level={level}
