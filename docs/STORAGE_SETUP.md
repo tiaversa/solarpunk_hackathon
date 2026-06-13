@@ -94,7 +94,7 @@ which is a single `ALTER TABLE ... RENAME COLUMN` statement.
 ## 5. Verify
 
 - Visit a topic, complete a mission with a photo.
-- Check the bucket: an object named `<userId>/<uuid>.jpg` should appear
+- Check the bucket: an object named `<userId>/<YYYY>/<MM>/<DD>/<uuid>.jpg` should appear
   in **Storage → mission-photos**.
 - Visit `/history`. The photo should render — it's served via a 1-hour
   signed URL minted at page render time.
