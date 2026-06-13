@@ -13,6 +13,7 @@ import { isLevel, LEVELS, levelLabel, type Level } from "@/lib/levels";
 import { SignOutButton } from "@/components/SignOutButton";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
+import { signedReadUrl } from "@/lib/supabase";
 
 type Props = {
   params: { topic: string };
@@ -38,18 +39,26 @@ export default async function TopicPage({ params, searchParams }: Props) {
   });
 
   const requestedLevel = Number(searchParams?.level);
-  const level: Level =
+  const resolvedLevel =
     isLevel(requestedLevel) && requestedLevel
       ? requestedLevel
       : (progress.currentLevel as Level);
 
+  // Prevent accessing locked levels via URL — clamp to currentLevel.
+  const level: Level =
+    resolvedLevel <= progress.currentLevel
+      ? resolvedLevel
+      : (progress.currentLevel as Level);
+
   let options: MissionOption[] | null = null;
   let aiGenerationId: string | null = null;
+  let fromCache = false;
   let generationError: string | null = null;
   try {
     const result = await getOrGenerateMission({ userId, topic: topicId, level });
     options = result.options;
     aiGenerationId = result.aiGenerationId;
+    fromCache = result.fromCache;
   } catch (err) {
     generationError =
       err instanceof MissionGenerationError
@@ -57,21 +66,38 @@ export default async function TopicPage({ params, searchParams }: Props) {
         : "Something went wrong generating missions.";
   }
 
-  // Active choice (if any) for this (user, topic, level). We scope by the
-  // current aiGenerationId so a stale choice from a regenerated set isn't
-  // shown as still-active.
+  const isLevelCompleted = progress.completedLevels.includes(level);
+
+  // Look for a choice for this (user, topic, level).
+  // Only include "completed" status when the level is actually in
+  // completedLevels — after a topic reset, completedLevels is emptied but
+  // old MissionChoice rows with status="completed" remain in the DB. Without
+  // this guard, a reset would resurface a prior cycle's selection.
   const activeChoice = aiGenerationId
     ? await prisma.missionChoice.findFirst({
         where: {
           userId,
           topic: topicId,
           level,
-          status: "active",
+          status: isLevelCompleted ? { in: ["active", "completed"] } : "active",
           aiGenerationId,
         },
         select: { chosenIndex: true },
       })
     : null;
+
+  // If the level is completed, fetch the reflection note and photo. The
+  // photo column stores a bucket-relative Supabase path (see
+  // 20260613172000_rename_completion_photo_url_to_path); we mint a
+  // short-lived signed read URL for display because the bucket is private.
+  const completion = isLevelCompleted
+    ? await prisma.completion.findFirst({
+        where: { userId, topic: topicId, level },
+        select: { note: true, photoPath: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : null;
+  const completionPhotoUrl = await signedReadUrl(completion?.photoPath ?? null);
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
@@ -114,6 +140,20 @@ export default async function TopicPage({ params, searchParams }: Props) {
             const n = Number(k) as Level;
             const done = progress.completedLevels.includes(n);
             const isCurrent = n === level;
+            const isLocked = n > progress.currentLevel;
+
+            if (isLocked) {
+              return (
+                <span
+                  key={n}
+                  title="Complete the previous level to unlock"
+                  className="cursor-not-allowed rounded-full px-3 py-1 text-xs font-medium ring-1 bg-white text-leaf-700/30 ring-leaf-100"
+                >
+                  {n}. {levelLabel(n)} 🔒
+                </span>
+              );
+            }
+
             return (
               <Link
                 key={n}
@@ -160,18 +200,32 @@ export default async function TopicPage({ params, searchParams }: Props) {
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-leaf-700">
-                Your 3 missions for this level
+                {fromCache
+                  ? "Your saved missions for this level"
+                  : "Your 3 new missions for this level"}
               </h2>
               <span className="font-mono text-[10px] text-leaf-700/40">
                 gen {aiGenerationId.slice(0, 8)}
               </span>
             </div>
+            {fromCache && (
+              <p className="rounded-xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700/80 ring-1 ring-leaf-100">
+                You already have missions generated for this level. Want something
+                different? Use the{" "}
+                <strong className="font-semibold">Regenerate options</strong>{" "}
+                button above to generate a new set.
+              </p>
+            )}
             <MissionList
+              key={aiGenerationId}
               topic={topicId}
               level={level}
               aiGenerationId={aiGenerationId}
               options={options}
               initialChosenIndex={activeChoice?.chosenIndex ?? null}
+              isCompleted={isLevelCompleted}
+              completionNote={completion?.note ?? null}
+              completionPhotoUrl={completionPhotoUrl}
             />
           </section>
         )

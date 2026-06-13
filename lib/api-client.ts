@@ -397,6 +397,7 @@ export async function resetTopic(
 }
 
 export type UpdatePreferencesPayload = {
+  city?: string;
   interests?: string[];
   preferredDuration?: "short" | "medium" | "long" | null;
 };

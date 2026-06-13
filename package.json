@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--dns-result-order=ipv4first' next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -19,6 +19,7 @@
     "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.108.1",
     "bcryptjs": "^2.4.3",
+    "cities.json": "^1.1.59",
     "dexie": "^4.4.3",
     "next": "^14.2.18",
     "next-auth": "^4.24.10",

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/auth-helper";
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
       topic,
       level,
     });
+    revalidatePath(`/topic/${topic}`);
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof MissionGenerationError) {

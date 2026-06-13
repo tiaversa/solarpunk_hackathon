@@ -51,6 +51,7 @@ const MissionOptionsArray = z
 export type MissionResult = {
   aiGenerationId: string;
   options: MissionOption[];
+  fromCache: boolean;
 };
 
 export class MissionGenerationError extends Error {
@@ -92,7 +93,7 @@ export async function getOrGenerateMission(
   if (cached?.parsedOptions) {
     const parsed = MissionOptionsArray.safeParse(cached.parsedOptions);
     if (parsed.success) {
-      return { aiGenerationId: cached.id, options: parsed.data };
+      return { aiGenerationId: cached.id, options: parsed.data, fromCache: true };
     }
     // Stored options no longer match our schema — fall through and regenerate.
   }
@@ -252,7 +253,7 @@ async function generateAndPersist(
     );
   }
 
-  return { aiGenerationId: row.id, options: parsedOptions };
+  return { aiGenerationId: row.id, options: parsedOptions, fromCache: false };
 }
 
 // ---------------------------------------------------------------------------

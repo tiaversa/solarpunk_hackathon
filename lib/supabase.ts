@@ -76,16 +76,32 @@ export function getBrowserSupabase(): SupabaseClient {
 }
 
 /**
- * Build a bucket-relative object path for a user's mission photo. The
- * leading `{userId}/` segment lets us enforce ownership both via the path
- * the server mints and (in a follow-up) via RLS policies on the bucket.
+ * Build a bucket-relative object path for a user's mission photo.
+ *
+ * Layout: `{userId}/{YYYY}/{MM}/{DD}/{uuid}.jpg`
+ *
+ * - The leading `{userId}/` segment lets us enforce ownership both via the
+ *   path the server mints and (in a follow-up) via RLS policies on the
+ *   bucket — the `photoPath.startsWith(\`${userId}/\`)` check in the
+ *   complete route still holds because the userId stays first.
+ * - The date partition is UTC so the same wall-clock day groups together
+ *   regardless of where the server runs. Months and days are zero-padded
+ *   so the Supabase dashboard lists folders in natural chronological
+ *   order.
+ * - Existing photos uploaded before this layout change keep their
+ *   original `{userId}/{uuid}.jpg` paths — the value stored in
+ *   `Completion.photoPath` is whatever was minted at upload time, so
+ *   reads continue to work without any backfill.
  */
-export function buildPhotoPath(userId: string): string {
+export function buildPhotoPath(userId: string, now: Date = new Date()): string {
   const uuid =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  return `${userId}/${uuid}.jpg`;
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(now.getUTCDate()).padStart(2, "0");
+  return `${userId}/${year}/${month}/${day}/${uuid}.jpg`;
 }
 
 /**

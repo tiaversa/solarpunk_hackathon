@@ -5,14 +5,18 @@ import { requireUserId } from "@/lib/auth-helper";
 
 const Body = z
   .object({
+    city: z.string().max(100).optional(),
     interests: z.array(z.string().min(1).max(40)).max(20).optional(),
     preferredDuration: z
       .union([z.enum(["short", "medium", "long"]), z.null()])
       .optional(),
   })
   .refine(
-    (v) => v.interests !== undefined || v.preferredDuration !== undefined,
-    { message: "Provide at least one of interests or preferredDuration" },
+    (v) =>
+      v.city !== undefined ||
+      v.interests !== undefined ||
+      v.preferredDuration !== undefined,
+    { message: "Provide at least one of city, interests or preferredDuration" },
   );
 
 export async function PATCH(req: Request) {
@@ -40,6 +44,7 @@ export async function PATCH(req: Request) {
   const user = await prisma.user.update({
     where: { id: auth.userId },
     data: {
+      ...(parsed.data.city !== undefined && { city: parsed.data.city }),
       ...(parsed.data.interests !== undefined && {
         interests: parsed.data.interests,
       }),
