@@ -1,0 +1,24 @@
+{
+  "name": "Solarpunk Missions",
+  "short_name": "Missions",
+  "description": "Mission-based learning for a hands-on, regenerative future.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f1faec",
+  "theme_color": "#4a8d3c",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
