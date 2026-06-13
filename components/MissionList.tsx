@@ -156,24 +156,20 @@ export function MissionList({
                       I did this
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => onChoose(i)}
-                    disabled={busyIndex !== null || completing}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
-                      isChosen
-                        ? "border border-leaf-600 text-leaf-700 hover:bg-leaf-50"
-                        : "bg-leaf-600 text-white hover:bg-leaf-700"
-                    } disabled:opacity-60`}
-                  >
-                    {busyIndex === i
-                      ? "Saving…"
-                      : isChosen
-                        ? "Switch to this"
+                  {!isChosen && (
+                    <button
+                      type="button"
+                      onClick={() => onChoose(i)}
+                      disabled={busyIndex !== null || completing}
+                      className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-leaf-700 disabled:opacity-60"
+                    >
+                      {busyIndex === i
+                        ? "Saving…"
                         : chosenIndex !== null
-                          ? "Choose instead"
+                          ? "Switch to this"
                           : "Choose this mission"}
-                  </button>
+                    </button>
+                  )}
                 </div>
               </div>
 
