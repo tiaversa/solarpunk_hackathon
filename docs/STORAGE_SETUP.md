@@ -15,7 +15,7 @@ environment).
 In the Supabase dashboard:
 
 - **Storage → New bucket**
-- Name: `mission-photos`
+- **Name**: `hackathon_images`
 - **Public bucket**: off (private)
 - **File size limit**: 5 MB
 - **Allowed MIME types**: `image/jpeg, image/png, image/webp, image/heic`
