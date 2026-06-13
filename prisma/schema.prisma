@@ -1,0 +1,151 @@
+// Solarpunk Missions — Prisma schema.
+// Models are added incrementally per /docs/PLAN.md; this file currently
+// reflects the state after Step 6 (MVP COMPLETE). The `moddatetime`
+// extension is enabled via a separate SQL migration so triggers can rely
+// on it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Runtime queries go through PgBouncer (transaction pooling). In prod
+  // this is your Prisma Accelerate URL — same field, no code changes.
+  url       = env("DATABASE_URL")
+  // Migrations bypass the pooler because Prisma migrate needs
+  // session-level state (advisory locks, prepared statements).
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  // passwordHash is NOT in the original spec (which said only "NextAuth (JWT)"
+  // without specifying a provider). We chose the Credentials provider, which
+  // requires a server-side hashed password. It is never returned to the client.
+  passwordHash      String
+  city              String?
+  // latitude and longitude are reserved for future GPS support; the current
+  // implementation uses server-side IP geolocation (Step 3).
+  latitude          Float?
+  longitude         Float?
+  interests         String[] @default([])
+  preferredDuration String? // 'short' | 'medium' | 'long'
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  progress          Progress[]
+  aiGenerations     AiGeneration[]
+  missionChoices    MissionChoice[]
+  completions       Completion[]
+  preferenceSummary UserPreferenceSummary?
+}
+
+model Progress {
+  id              String   @id @default(uuid())
+  userId          String
+  topic           String
+  currentLevel    Int      @default(1) // 1-6
+  completedLevels Int[]    @default([])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, topic])
+  @@index([userId])
+}
+
+model AiGeneration {
+  id                    String    @id @default(uuid())
+  userId                String
+  topic                 String
+  level                 Int
+  missionTypeLabel      String
+  matrixCellText        String
+  city                  String
+  // promptSent / rawResponse are kept INLINE for rows generated when
+  // cold storage is disabled (no CLOUDINARY_URL). When enabled, the
+  // payloads are uploaded to Cloudinary as raw JSON files and the URL
+  // is stored in *Url; the inline columns stay null. Reads should
+  // prefer URL → fetch when present, otherwise fall back to inline.
+  promptSent            String?
+  promptSentUrl         String?
+  promptVersion         String
+  preferenceSummarySent String?
+  model                 String
+  rawResponse           Json?     @db.JsonB
+  rawResponseUrl        String?
+  parsedOptions         Json?     @db.JsonB
+  optionsCount          Int       @default(3)
+  inputTokens           Int?
+  outputTokens          Int?
+  latencyMs             Int?
+  error                 String?
+  status                String    @default("active") // 'active' | 'regenerated'
+  startedAt             DateTime  @default(now())
+  completedAt           DateTime?
+  createdAt             DateTime  @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  missionChoice MissionChoice[]
+
+  // Composite index covers the cache-lookup query in GET /api/mission:
+  // WHERE userId, topic, level, status = 'active'
+  @@index([userId, topic, level, status])
+}
+
+model MissionChoice {
+  id               String   @id @default(uuid())
+  userId           String
+  topic            String
+  level            Int
+  aiGenerationId   String
+  optionsPresented Json     @db.JsonB
+  chosenIndex      Int // 0-2
+  status           String   @default("active") // active | abandoned | completed
+  chosenAt         DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id])
+  aiGeneration AiGeneration @relation(fields: [aiGenerationId], references: [id])
+
+  // Composite index covers the lookup in POST /api/mission/choose and the
+  // upsert check: WHERE userId, topic, level, status = 'active'. The
+  // partial unique index (raw SQL in this step's migration) sits on top of
+  // this and prevents concurrent double-inserts.
+  @@index([userId, topic, level, status])
+}
+
+model UserPreferenceSummary {
+  userId     String   @id
+  summary    String
+  basedOn    Int
+  computedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  // Created in Step 5 (empty) so the triggers there have a target table.
+  // Actual population of this table is Step 11 (stretch).
+}
+
+model Completion {
+  id                 String   @id @default(uuid())
+  userId             String
+  topic              String
+  level              Int
+  // aiGenerationId and chosenMissionIndex must either both be present
+  // (normal completion) or both be null (edge case). Enforced in the API
+  // layer; a DB check constraint (raw SQL in this step's migration)
+  // catches anything that slips past.
+  aiGenerationId     String?
+  chosenMissionIndex Int? // 0-2
+  photoUrl           String?
+  note               String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, topic, level])
+}
