@@ -10,11 +10,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Runtime queries go through PgBouncer (transaction pooling). In prod
-  // this is your Prisma Accelerate URL — same field, no code changes.
+  // Runtime queries go through Supabase's Supavisor pooler in transaction
+  // mode (port 6543, ?pgbouncer=true so Prisma disables prepared
+  // statements).
   url       = env("DATABASE_URL")
-  // Migrations bypass the pooler because Prisma migrate needs
-  // session-level state (advisory locks, prepared statements).
+  // Migrations bypass the pooler (direct connection, port 5432) because
+  // Prisma migrate needs session-level state — advisory locks and
+  // prepared statements — that transaction pooling can't preserve.
   directUrl = env("DIRECT_URL")
 }
 

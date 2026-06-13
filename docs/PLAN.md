@@ -19,7 +19,7 @@ via Prisma, NextAuth (JWT), Claude API, Cloudinary.
 4. ✅ Claude integration (GET /api/mission)
 5. ✅ Mission choice (POST /api/mission/choose) — MVP loop part 1
 6. ✅ Completion + unlock (POST /api/mission/complete) — **MVP COMPLETE** 🎯
-7. ✅ Connection pooling (PgBouncer locally; Accelerate URL drop-in for prod)
+7. ✅ Connection pooling (Supabase Supavisor in transaction mode, port 6543)
 8. ✅ Pre-cached generation
 9. ✅ Regenerate, topic reset, preferences endpoints
 10. ✅ Offline-first (PWA + IndexedDB + sync)
@@ -27,7 +27,7 @@ via Prisma, NextAuth (JWT), Claude API, Cloudinary.
 
 ## Scalability checklist
 - ✅ Prisma singleton (`/lib/prisma.ts`, globalThis pattern)
-- ✅ Connection pooling (PgBouncer locally; Prisma Accelerate / Railway pgbouncer in prod)
+- ✅ Connection pooling (Supabase Supavisor in transaction mode; runtime URL has `?pgbouncer=true&connection_limit=1`)
 - ✅ Pre-cached generation (next level prepared on completion)
 - ✅ Preference summary caching (`UserPreferenceSummary` read-through; Step 5 triggers invalidate on choose / preference update)
 - ✅ Geocode caching (city resolved server-side via `/api/geolocation`, stored on `User`)
@@ -61,12 +61,16 @@ Recorded as we go so the spec and implementation stay aligned.
   triggers real Claude generations (each ~$0 in dev but still 8-10s and a
   wasted DB row). Mission generation must only fire on explicit user
   navigation.
-- **Step 7 / Connection pooling**: shipped local PgBouncer
-  (`edoburu/pgbouncer` in `docker-compose.yml`) instead of Prisma
-  Accelerate. The runtime URL has `?pgbouncer=true&connection_limit=1`
-  (Prisma disables prepared statements in transaction mode); migrations
-  use `DIRECT_URL` to bypass the pooler. Production drops in an Accelerate
-  URL with no code changes — `/lib/prisma.ts` is unchanged.
+- **Step 7 / Connection pooling**: originally shipped local PgBouncer
+  (`edoburu/pgbouncer` in `docker-compose.yml`). Migrated to **Supabase
+  Postgres** for both dev and prod (Option A in the migration analysis):
+  Supavisor in transaction mode (port 6543) is the runtime URL, direct
+  connection (port 5432) is `DIRECT_URL` for migrations. The
+  `?pgbouncer=true&connection_limit=1` flags are unchanged (Prisma still
+  disables prepared statements under transaction pooling). `lib/prisma.ts`
+  and all API routes are untouched — only `.env`, `.env.example`,
+  `prisma/schema.prisma` comments, and `package.json` scripts changed.
+  `docker-compose.yml` was removed.
 - **Step 9 / Regenerate prompt nudge**: appended a "vary the angles"
   hint to the prompt only when called via `POST /api/mission/regenerate`
   (vs the initial generate path) so cache misses on a fresh user don't
