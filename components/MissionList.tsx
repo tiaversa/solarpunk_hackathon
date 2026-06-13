@@ -24,6 +24,9 @@ type Props = {
   aiGenerationId: string;
   options: MissionOption[];
   initialChosenIndex: number | null;
+  isCompleted?: boolean;
+  completionNote?: string | null;
+  completionPhotoUrl?: string | null;
 };
 
 export function MissionList({
@@ -32,6 +35,9 @@ export function MissionList({
   aiGenerationId,
   options,
   initialChosenIndex,
+  isCompleted = false,
+  completionNote,
+  completionPhotoUrl,
 }: Props) {
   const router = useRouter();
   const [chosenIndex, setChosenIndex] = useState<number | null>(
@@ -86,14 +92,16 @@ export function MissionList({
         photoBase64,
       });
 
-      // Refresh server data so the level pill and topic grid catch up,
-      // then jump to the next level (or stay at 6 — the "Teach" cap).
-      startTransition(() => router.refresh());
+      // Use a full-page navigation after completion so the browser discards
+      // the client-side router cache. router.push() would serve a stale RSC
+      // payload the first time the user navigates back to the just-completed
+      // level, because Next.js 14's router cache stores the pre-completion
+      // state of that URL.
       const nextLevel =
         result.progress.currentLevel <= MAX_LEVEL
           ? result.progress.currentLevel
           : MAX_LEVEL;
-      router.push(`/topic/${topic}?level=${nextLevel}`);
+      window.location.href = `/topic/${topic}?level=${nextLevel}`;
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not save completion.",
@@ -138,42 +146,76 @@ export function MissionList({
               </p>
               <p className="text-xs italic text-leaf-700/70">💡 {opt.tip}</p>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                {isChosen ? (
+                {isCompleted && isChosen ? (
+                  <span className="text-xs font-semibold text-leaf-600">
+                    ✓ Completed
+                  </span>
+                ) : isChosen ? (
                   <span className="text-xs font-semibold text-leaf-700">
                     ✓ Chosen — ready when you’ve done it
                   </span>
                 ) : (
                   <span />
                 )}
-                <div className="flex gap-2">
-                  {isChosen && !showCompletion && (
-                    <button
-                      type="button"
-                      onClick={() => setShowCompletion(true)}
-                      disabled={completing}
-                      className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-leaf-700 disabled:opacity-60"
-                    >
-                      I did this
-                    </button>
-                  )}
-                  {!isChosen && (
-                    <button
-                      type="button"
-                      onClick={() => onChoose(i)}
-                      disabled={busyIndex !== null || completing}
-                      className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-leaf-700 disabled:opacity-60"
-                    >
-                      {busyIndex === i
-                        ? "Saving…"
-                        : chosenIndex !== null
-                          ? "Switch to this"
-                          : "Choose this mission"}
-                    </button>
-                  )}
-                </div>
+                {!isCompleted && (
+                  <div className="flex gap-2">
+                    {isChosen && !showCompletion && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCompletion(true)}
+                        disabled={completing}
+                        className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-leaf-700 disabled:opacity-60"
+                      >
+                        I did this
+                      </button>
+                    )}
+                    {!isChosen && (
+                      <button
+                        type="button"
+                        onClick={() => onChoose(i)}
+                        disabled={busyIndex !== null || completing}
+                        className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-leaf-700 disabled:opacity-60"
+                      >
+                        {busyIndex === i
+                          ? "Saving…"
+                          : chosenIndex !== null
+                            ? "Switch to this"
+                            : "Choose this mission"}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {isChosen && showCompletion && (
+              {isCompleted && isChosen && (
+                <div className="mt-2 flex flex-col gap-2 rounded-xl bg-leaf-50 p-3">
+                  {completionNote && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-leaf-700">
+                        Your reflection
+                      </span>
+                      <p className="text-sm leading-relaxed text-leaf-700/90">
+                        {completionNote}
+                      </p>
+                    </div>
+                  )}
+                  {completionPhotoUrl && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-leaf-700">
+                        Your photo
+                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={completionPhotoUrl}
+                        alt="Mission completion photo"
+                        className="max-h-64 w-full rounded-lg object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!isCompleted && isChosen && showCompletion && (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();

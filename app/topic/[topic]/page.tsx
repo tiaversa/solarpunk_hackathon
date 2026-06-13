@@ -38,9 +38,15 @@ export default async function TopicPage({ params, searchParams }: Props) {
   });
 
   const requestedLevel = Number(searchParams?.level);
-  const level: Level =
+  const resolvedLevel =
     isLevel(requestedLevel) && requestedLevel
       ? requestedLevel
+      : (progress.currentLevel as Level);
+
+  // Prevent accessing locked levels via URL — clamp to currentLevel.
+  const level: Level =
+    resolvedLevel <= progress.currentLevel
+      ? resolvedLevel
       : (progress.currentLevel as Level);
 
   let options: MissionOption[] | null = null;
@@ -59,19 +65,32 @@ export default async function TopicPage({ params, searchParams }: Props) {
         : "Something went wrong generating missions.";
   }
 
-  // Active choice (if any) for this (user, topic, level). We scope by the
-  // current aiGenerationId so a stale choice from a regenerated set isn't
-  // shown as still-active.
+  const isLevelCompleted = progress.completedLevels.includes(level);
+
+  // Look for a choice for this (user, topic, level).
+  // Only include "completed" status when the level is actually in
+  // completedLevels — after a topic reset, completedLevels is emptied but
+  // old MissionChoice rows with status="completed" remain in the DB. Without
+  // this guard, a reset would resurface a prior cycle's selection.
   const activeChoice = aiGenerationId
     ? await prisma.missionChoice.findFirst({
         where: {
           userId,
           topic: topicId,
           level,
-          status: "active",
+          status: isLevelCompleted ? { in: ["active", "completed"] } : "active",
           aiGenerationId,
         },
         select: { chosenIndex: true },
+      })
+    : null;
+
+  // If the level is completed, fetch the reflection note and photo.
+  const completion = isLevelCompleted
+    ? await prisma.completion.findFirst({
+        where: { userId, topic: topicId, level },
+        select: { note: true, photoUrl: true },
+        orderBy: { createdAt: "desc" },
       })
     : null;
 
@@ -116,6 +135,20 @@ export default async function TopicPage({ params, searchParams }: Props) {
             const n = Number(k) as Level;
             const done = progress.completedLevels.includes(n);
             const isCurrent = n === level;
+            const isLocked = n > progress.currentLevel;
+
+            if (isLocked) {
+              return (
+                <span
+                  key={n}
+                  title="Complete the previous level to unlock"
+                  className="cursor-not-allowed rounded-full px-3 py-1 text-xs font-medium ring-1 bg-white text-leaf-700/30 ring-leaf-100"
+                >
+                  {n}. {levelLabel(n)} 🔒
+                </span>
+              );
+            }
+
             return (
               <Link
                 key={n}
@@ -179,11 +212,15 @@ export default async function TopicPage({ params, searchParams }: Props) {
               </p>
             )}
             <MissionList
+              key={aiGenerationId}
               topic={topicId}
               level={level}
               aiGenerationId={aiGenerationId}
               options={options}
               initialChosenIndex={activeChoice?.chosenIndex ?? null}
+              isCompleted={isLevelCompleted}
+              completionNote={completion?.note ?? null}
+              completionPhotoUrl={completion?.photoUrl ?? null}
             />
           </section>
         )

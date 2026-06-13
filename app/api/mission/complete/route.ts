@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/auth-helper";
@@ -173,6 +174,10 @@ export async function POST(req: Request) {
       );
     });
   }
+
+  // Invalidate the server cache for this topic page so the next navigation
+  // (router.push to the next level) always fetches fresh progress data.
+  revalidatePath(`/topic/${topic}`);
 
   return NextResponse.json({ progress: updatedProgress });
 }

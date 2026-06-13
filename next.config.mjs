@@ -27,6 +27,11 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "10mb",
     },
+    // User progress changes frequently — don't serve stale RSC payloads
+    // from the client-side router cache when navigating between levels.
+    staleTimes: {
+      dynamic: 0,
+    },
   },
 };
 
