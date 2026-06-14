@@ -44,6 +44,7 @@ export default async function CitySideQuestPage() {
 
   // Service-role read: open help requests from every organisation. The list is
   // filtered/sorted by proximity on the client once GPS is available.
+  const nowIso = new Date().toISOString();
   const admin = getServerSupabase();
   const { data: rows } = await admin
     .from("ServiceRequest")
@@ -52,12 +53,11 @@ export default async function CitySideQuestPage() {
     )
     .eq("status", "open")
     .gt("capacityRemaining", 0)
+    .or(`expiresAt.is.null,expiresAt.gt.${nowIso}`)
     .order("createdAt", { ascending: false })
     .limit(200);
 
-  const now = Date.now();
   const quests: SideQuest[] = ((rows ?? []) as RawRequest[])
-    .filter((r) => !r.expiresAt || new Date(r.expiresAt).getTime() > now)
     .map((r) => ({
       id: r.id,
       category: r.category,

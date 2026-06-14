@@ -274,9 +274,9 @@ function QuestCard({
               Offer to help
             </a>
           )}
-          {q.orgWebsite && (
+          {safeHttpUrl(q.orgWebsite) && (
             <a
-              href={q.orgWebsite}
+              href={safeHttpUrl(q.orgWebsite)!}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-field border border-solar-leafmd px-3 py-1.5 text-xs font-medium text-solar-sage transition hover:bg-solar-field/50 hover:text-solar-cream"
@@ -288,6 +288,20 @@ function QuestCard({
       )}
     </li>
   );
+}
+
+// Only allow http/https URLs as anchor hrefs to block unsafe schemes such as
+// javascript: or data: that would execute on click.
+function safeHttpUrl(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:"
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function formatDistance(km: number): string {
