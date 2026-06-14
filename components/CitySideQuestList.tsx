@@ -228,6 +228,7 @@ function QuestCard({
   distance: number | null;
 }) {
   const topic = isTopicId(q.category) ? getTopic(q.category) : null;
+  const websiteUrl = safeHttpUrl(q.orgWebsite);
 
   return (
     <li className="flex flex-col gap-3 rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5">
@@ -264,7 +265,7 @@ function QuestCard({
         )}
       </div>
 
-      {(q.orgEmail || q.orgWebsite) && (
+      {(q.orgEmail || websiteUrl) && (
         <div className="flex flex-wrap gap-2 border-t border-solar-leafmd pt-3">
           {q.orgEmail && (
             <a
@@ -274,9 +275,9 @@ function QuestCard({
               Offer to help
             </a>
           )}
-          {safeHttpUrl(q.orgWebsite) && (
+          {websiteUrl && (
             <a
-              href={safeHttpUrl(q.orgWebsite)!}
+              href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-field border border-solar-leafmd px-3 py-1.5 text-xs font-medium text-solar-sage transition hover:bg-solar-field/50 hover:text-solar-cream"
