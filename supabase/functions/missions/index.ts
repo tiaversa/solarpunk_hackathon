@@ -13,6 +13,7 @@ import {
 import {
   isLevel,
   levelLabel,
+  levelDescription,
   MIN_LEVEL,
   MAX_LEVEL,
   type Level,
@@ -22,7 +23,27 @@ import {
 const MISSION_OPTIONS_COUNT = 3;
 const MISSION_MAX_TOKENS = 1024;
 const MISSION_MODEL = "claude-sonnet-4-5";
-const MISSION_PROMPT_VERSION = "v1.0";
+// Bumped to v1.1 alongside the level-progression and Solarpunk-values
+// rewrites. AiGeneration rows carry this so we can diff output quality
+// before/after the change in the DB.
+const MISSION_PROMPT_VERSION = "v1.1";
+
+/**
+ * Concrete "X beats Y" anchors for each Solarpunk value. Listing the
+ * values as adjectives ("community, sustainability, ...") left Claude
+ * too much room to interpret them — these contrasts pin down what a
+ * mission shaped by each value actually looks like.
+ */
+const SOLARPUNK_VALUES_BLOCK = [
+  `Solarpunk values — concrete contrasts. The left-hand example is the shape we want; the right-hand example is what to avoid:`,
+  `- Community over solo practice: "Bring leftovers to a neighbour" beats "Cook a fancy solo dinner".`,
+  `- Sustainability over convenience: "Use what's already in the fridge before it spoils" beats "Buy organic flown in from far away".`,
+  `- Hands-on learning over passive consumption: "Hand-stitch one tear in a t-shirt" beats "Watch a YouTube tutorial on hemming".`,
+  `- Repair over replace: "Fix the broken zipper on your jacket" beats "Buy a new jacket on sale".`,
+  `- Joyful curiosity over routine: "Cook the weirdest seasonal vegetable at the market" beats "Make a familiar recipe again".`,
+  `- Low-energy over high-energy: "Hand-wash one wool garment in cold water" beats "Run a half-empty washer cycle".`,
+  `- Lived experience over consumption: "Talk to a tailor about how they choose fabrics" beats "Read a fashion blog post about it".`,
+].join("\n");
 
 // ---- Zod schemas -------------------------------------------------------------
 const MissionOption = z.object({
@@ -458,17 +479,30 @@ function buildMissionPrompt(input: {
       ]
     : [];
 
+  const levelDesc = levelDescription(input.level as Level);
+
   return [
-    `You are designing real-world learning missions for the Solarpunk Missions app.`,
-    `Solarpunk values: community, sustainability, hands-on learning, repair-over-replace, joyful curiosity.`,
+    `You are designing real-world learning missions for the Solarpunk Missions app, which uses Solarpunk values as its compass.`,
+    ``,
+    SOLARPUNK_VALUES_BLOCK,
     ``,
     `Topic: ${topicMeta.label} ${topicMeta.emoji} (id: ${input.topic})`,
-    `Level ${input.level} of 6 — "${input.missionTypeLabel}". Seed brief: "${input.matrixCellText}".`,
+    ``,
+    `Level ${input.level} of 6 — "${input.missionTypeLabel}". The six levels form a progression: Explore → Make → Improve → Experiment → Connect → Teach. This learner is at "${input.missionTypeLabel}".`,
+    `Definition: ${levelDesc.oneLiner}`,
+    `Looks like at this level: ${levelDesc.looksLike}`,
+    `Not yet at this level (these belong to other levels): ${levelDesc.notYet}`,
+    `Seed brief from the mission matrix: "${input.matrixCellText}".`,
+    ``,
     locationLine, `Stated interests: ${interestsLine}.`, durationLine, summaryLine,
     ...opportunitiesBlock,
     ``,
-    `Generate exactly 3 mission options, each different in approach or angle.`,
-    `Each must be doable in one day with no specialised equipment, grounded in the learner's city.`,
+    `Generate exactly 3 mission options, each different from the others in approach or angle.`,
+    `Every option must:`,
+    `- Be grounded in the learner's city (reference it by name when natural; never invent specific addresses or business names).`,
+    `- Clearly match the "Looks like" guidance for Level ${input.level} and avoid the "Not yet" patterns above.`,
+    `- Express at least one of the Solarpunk values shown earlier through the mission's shape (not just by mentioning the word).`,
+    `- Be doable in one day with no specialised equipment.`,
     ``,
     `Output rules:`,
     `- Return ONLY a raw JSON array. No prose, no markdown fences.`,
