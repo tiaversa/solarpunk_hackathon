@@ -252,3 +252,6 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
 
+# Supabase Studio saved queries (local editor state, not project code)
+supabase/snippets/
+
