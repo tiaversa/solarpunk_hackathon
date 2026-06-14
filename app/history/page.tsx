@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, isLevel } from "@/lib/levels";
+import { signedReadUrl } from "@/lib/supabase";
 
 type RenderedItem = {
   id: string;
@@ -43,7 +44,7 @@ export default async function HistoryPage() {
       aiGenerationId: true,
       chosenMissionIndex: true,
       note: true,
-      photoUrl: true,
+      photoPath: true,
       createdAt: true,
     },
   });
@@ -60,6 +61,16 @@ export default async function HistoryPage() {
         });
   const parsedOptionsById = new Map(
     generations.map((g) => [g.id, g.parsedOptions]),
+  );
+
+  // Mint signed read URLs in parallel. Each URL is valid for 1h, which
+  // covers the lifetime of this server-rendered HTML response in any
+  // realistic browsing session.
+  const photoUrlByRowId = new Map<string, string | null>();
+  await Promise.all(
+    rows.map(async (r) => {
+      photoUrlByRowId.set(r.id, await signedReadUrl(r.photoPath));
+    }),
   );
 
   const items: RenderedItem[] = rows
@@ -106,7 +117,7 @@ export default async function HistoryPage() {
         brief,
         duration,
         note: r.note,
-        photoUrl: r.photoUrl,
+        photoUrl: photoUrlByRowId.get(r.id) ?? null,
         completedAt: r.createdAt,
       };
     });

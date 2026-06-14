@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { uploadPhoto } from "@/lib/api-client";
 import { db, type PendingAction } from "@/lib/db-client";
 
 /**
@@ -34,7 +35,32 @@ export function OfflineSync() {
             }),
           }).then(throwIfNotOk);
           return;
-        case "complete":
+        case "complete": {
+          // If the user picked a photo while offline, upload it to
+          // Supabase Storage first (we deferred this step because there
+          // was no network at submit time), then submit the completion
+          // referencing the resulting path.
+          //
+          // The upload result is persisted back to the pendingAction row
+          // BEFORE we attempt /api/mission/complete. If the submit then
+          // fails — server 500, dropped connection, etc — the next sync
+          // pass reuses `uploadedPhotoPath` instead of re-uploading the
+          // Blob, so a transient failure can't orphan a new file in
+          // Storage on every retry.
+          let photoPath: string | undefined =
+            action.uploadedPhotoPath ?? undefined;
+          if (!photoPath && action.photoBlob && action.id !== undefined) {
+            photoPath = await uploadPhoto(action.photoBlob);
+            // Persist back to Dexie via a partial-shape cast — Dexie's
+            // UpdateSpec narrows against the whole PendingAction union
+            // and so loses fields that only live on the "complete" arm.
+            await db().pendingActions.update(action.id, {
+              uploadedPhotoPath: photoPath,
+              // Clear the Blob — we've committed to this path, and
+              // hanging onto the bytes only wastes IndexedDB quota.
+              photoBlob: null,
+            } as Partial<Extract<PendingAction, { type: "complete" }>>);
+          }
           await fetch("/api/mission/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -45,10 +71,11 @@ export function OfflineSync() {
               aiGenerationId: action.aiGenerationId,
               chosenIndex: action.chosenMissionIndex,
               note: action.note ?? undefined,
-              photoBase64: action.photoBase64 ?? undefined,
+              photoPath,
             }),
           }).then(throwIfNotOk);
           return;
+        }
         case "preferences":
           await fetch("/api/user/preferences", {
             method: "PATCH",

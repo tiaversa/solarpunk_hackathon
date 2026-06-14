@@ -57,7 +57,22 @@ export type PendingAction =
       aiGenerationId: string;
       chosenMissionIndex: number;
       note: string | null;
-      photoBase64: string | null;
+      /**
+       * The picked image kept as a Blob until we're back online. Dexie
+       * stores Blob values natively (IndexedDB is structured-clone), so
+       * we avoid the ~33% size overhead of base64. On reconnect,
+       * OfflineSync uploads this to Supabase Storage and then submits
+       * the resulting path to /api/mission/complete.
+       */
+      photoBlob: Blob | null;
+      /**
+       * Set by OfflineSync after a successful upload to Supabase Storage
+       * but BEFORE we attempt /api/mission/complete. If the complete
+       * request then fails and we retry, we reuse this path instead of
+       * re-uploading the Blob — otherwise every transient submit failure
+       * would orphan another file in Storage.
+       */
+      uploadedPhotoPath?: string | null;
       createdAt: number;
     }
   | {
@@ -67,6 +82,29 @@ export type PendingAction =
       preferredDuration?: "short" | "medium" | "long" | null;
       createdAt: number;
     };
+
+/**
+ * Decode a `data:image/...;base64,...` URL into a Blob. Used by the v1→v2
+ * Dexie upgrade to convert legacy queued completions where the photo was
+ * stored as a base64 string. Returns null on any malformed input so we
+ * never blow up the upgrade transaction over a single bad row.
+ */
+function dataUrlToBlob(dataUrl: string): Blob | null {
+  try {
+    const commaIdx = dataUrl.indexOf(",");
+    if (commaIdx < 0) return null;
+    const meta = dataUrl.slice(0, commaIdx);
+    const b64 = dataUrl.slice(commaIdx + 1);
+    if (!b64) return null;
+    const mime = /data:([^;]+);base64/.exec(meta)?.[1] ?? "image/jpeg";
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  } catch {
+    return null;
+  }
+}
 
 class SolarpunkDB extends Dexie {
   progress!: Table<CachedProgress, string>;
@@ -83,6 +121,32 @@ class SolarpunkDB extends Dexie {
       // Auto-incrementing id keeps insertion order; secondary index on
       // createdAt is paranoia in case id wraps or rows are imported.
       pendingActions: "++id, createdAt",
+    });
+
+    // v2: convert any queued "complete" actions from the pre-Supabase
+    // shape (`photoBase64: string | null`) to the new shape
+    // (`photoBlob: Blob | null`). Stores schema is unchanged — only the
+    // value shape in pendingActions rows shifts. Without this upgrade,
+    // a user who picked a photo offline before deploying the Supabase
+    // change would replay their completion text-only on reconnect.
+    this.version(2).upgrade(async (tx) => {
+      type LegacyCompleteRow = {
+        type: string;
+        photoBase64?: string | null;
+        photoBlob?: Blob | null;
+      };
+      await tx
+        .table<LegacyCompleteRow>("pendingActions")
+        .toCollection()
+        .modify((row) => {
+          if (row.type !== "complete") return;
+          if (typeof row.photoBase64 === "string" && row.photoBase64) {
+            row.photoBlob = dataUrlToBlob(row.photoBase64);
+          } else if (row.photoBlob === undefined) {
+            row.photoBlob = null;
+          }
+          delete row.photoBase64;
+        });
     });
   }
 }

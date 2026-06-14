@@ -13,6 +13,7 @@ import { isLevel, LEVELS, levelLabel, type Level } from "@/lib/levels";
 import { SignOutButton } from "@/components/SignOutButton";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
+import { signedReadUrl } from "@/lib/supabase";
 
 type Props = {
   params: { topic: string };
@@ -67,32 +68,67 @@ export default async function TopicPage({ params, searchParams }: Props) {
 
   const isLevelCompleted = progress.completedLevels.includes(level);
 
-  // Look for a choice for this (user, topic, level).
-  // Only include "completed" status when the level is actually in
-  // completedLevels — after a topic reset, completedLevels is emptied but
-  // old MissionChoice rows with status="completed" remain in the DB. Without
-  // this guard, a reset would resurface a prior cycle's selection.
-  const activeChoice = aiGenerationId
-    ? await prisma.missionChoice.findFirst({
-        where: {
-          userId,
-          topic: topicId,
-          level,
-          status: isLevelCompleted ? { in: ["active", "completed"] } : "active",
-          aiGenerationId,
-        },
-        select: { chosenIndex: true },
-      })
-    : null;
-
-  // If the level is completed, fetch the reflection note and photo.
+  // Source of truth for which card shows "✓ Completed" / "✓ Chosen":
+  //
+  //   - When the level is still in progress, the user's current pick lives
+  //     on the active MissionChoice. The partial unique index
+  //     (`unique_active_choice WHERE status='active'`) enforces at most
+  //     one such row per slot.
+  //
+  //   - When the level is completed, we read it off the latest Completion
+  //     row instead. This is intentional — historically multiple completed
+  //     MissionChoice rows can accumulate for the same (user, topic, level)
+  //     if anything re-triggers /api/mission/choose after a completion
+  //     (offline-sync replay, a stale tab, an `AiGeneration` race that
+  //     produced sibling active rows, etc). `findFirst` on MissionChoice
+  //     without an ORDER BY then returns a *non-deterministic* row, and
+  //     when it picks an older one the badge lands on the wrong card.
+  //     The latest Completion's `chosenMissionIndex` is what the user just
+  //     submitted, so we trust it.
   const completion = isLevelCompleted
     ? await prisma.completion.findFirst({
         where: { userId, topic: topicId, level },
-        select: { note: true, photoUrl: true },
+        select: {
+          note: true,
+          photoPath: true,
+          chosenMissionIndex: true,
+          aiGenerationId: true,
+        },
         orderBy: { createdAt: "desc" },
       })
     : null;
+  const completionPhotoUrl = await signedReadUrl(completion?.photoPath ?? null);
+
+  const activeChoice =
+    !isLevelCompleted && aiGenerationId
+      ? await prisma.missionChoice.findFirst({
+          where: {
+            userId,
+            topic: topicId,
+            level,
+            status: "active",
+            aiGenerationId,
+          },
+          select: { chosenIndex: true },
+        })
+      : null;
+
+  // Prefer the Completion-driven index when the level is done; fall back to
+  // MissionChoice for the still-in-progress case. If neither has anything,
+  // the chosen index is null and no card renders the badge.
+  //
+  // We also guard against the very narrow case where the Completion was
+  // recorded against a different AiGeneration than the one we're about to
+  // render — that'd mean the displayed `options` array is from a different
+  // generation, so the stored index points into the wrong array. In that
+  // case we don't pick a card (better blank than wrong-card) and the
+  // completion details box stays hidden too.
+  const initialChosenIndex = isLevelCompleted
+    ? completion?.aiGenerationId &&
+      completion.aiGenerationId === aiGenerationId
+      ? (completion.chosenMissionIndex ?? null)
+      : null
+    : (activeChoice?.chosenIndex ?? null);
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
@@ -217,10 +253,10 @@ export default async function TopicPage({ params, searchParams }: Props) {
               level={level}
               aiGenerationId={aiGenerationId}
               options={options}
-              initialChosenIndex={activeChoice?.chosenIndex ?? null}
+              initialChosenIndex={initialChosenIndex}
               isCompleted={isLevelCompleted}
               completionNote={completion?.note ?? null}
-              completionPhotoUrl={completion?.photoUrl ?? null}
+              completionPhotoUrl={completionPhotoUrl}
             />
           </section>
         )

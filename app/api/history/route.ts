@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/auth-helper";
+import { signedReadUrl } from "@/lib/supabase";
 import type { TopicId } from "@/lib/missionMatrix";
 
 export type HistoryItem = {
@@ -41,7 +42,7 @@ export async function GET() {
       aiGenerationId: true,
       chosenMissionIndex: true,
       note: true,
-      photoUrl: true,
+      photoPath: true,
       createdAt: true,
     },
   });
@@ -60,7 +61,14 @@ export async function GET() {
     generations.map((g) => [g.id, g.parsedOptions]),
   );
 
-  const items: HistoryItem[] = rows.map((r) => {
+  // Mint signed read URLs for the photoPaths we're about to ship to the
+  // client. Done in parallel — Promise.all rather than a sequential loop
+  // so a long history page doesn't fan out into N synchronous calls.
+  const photoUrls = await Promise.all(
+    rows.map((r) => signedReadUrl(r.photoPath)),
+  );
+
+  const items: HistoryItem[] = rows.map((r, i) => {
     let title: string | null = null;
     let brief: string | null = null;
     let duration: HistoryItem["duration"] = null;
@@ -97,7 +105,7 @@ export async function GET() {
       brief,
       duration,
       note: r.note,
-      photoUrl: r.photoUrl,
+      photoUrl: photoUrls[i] ?? null,
       completedAt: r.createdAt.toISOString(),
     };
   });

@@ -3,11 +3,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/auth-helper";
-import {
-  CloudinaryNotConfiguredError,
-  CloudinaryUploadError,
-  uploadPhotoBase64,
-} from "@/lib/cloudinary";
 import { isTopicId, TOPIC_IDS, type TopicId } from "@/lib/missionMatrix";
 import {
   isLevel,
@@ -34,7 +29,10 @@ const Body = z.object({
     .min(0)
     .max(MISSION_OPTIONS_COUNT - 1),
   note: z.string().max(2_000).optional(),
-  photoBase64: z.string().optional(),
+  // Bucket-relative path returned by POST /api/photo/upload-url after a
+  // successful direct-to-Supabase upload. We validate below that the
+  // path actually belongs to this user before persisting.
+  photoPath: z.string().max(500).optional(),
 });
 
 export async function POST(req: Request) {
@@ -55,9 +53,20 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  const { aiGenerationId, chosenIndex, note, photoBase64 } = parsed.data;
+  const { aiGenerationId, chosenIndex, note, photoPath } = parsed.data;
   const topic = parsed.data.topic as TopicId;
   const level = parsed.data.level as Level;
+
+  // Defence-in-depth: even though the upload-URL route mints paths of the
+  // form `{userId}/{uuid}.jpg`, a client could try to submit any string
+  // here. Reject paths that don't start with the caller's userId folder so
+  // a photo row can never reference another user's object.
+  if (photoPath && !photoPath.startsWith(`${auth.userId}/`)) {
+    return NextResponse.json(
+      { error: "photoPath must live under your own folder" },
+      { status: 400 },
+    );
+  }
 
   // Confirm the generation row belongs to this user and matches the
   // (topic, level) — same defensive check as POST /api/mission/choose.
@@ -77,32 +86,10 @@ export async function POST(req: Request) {
     );
   }
 
-  // Upload photo BEFORE the transaction. Cloudinary is external and can't
-  // be rolled back if a later DB write fails — we'd rather orphan a CDN
-  // file than leave Progress and MissionChoice in a mismatched state.
-  let photoUrl: string | null = null;
-  if (photoBase64) {
-    try {
-      photoUrl = await uploadPhotoBase64(photoBase64);
-    } catch (err) {
-      if (err instanceof CloudinaryNotConfiguredError) {
-        return NextResponse.json(
-          {
-            error:
-              "Photo uploads aren’t configured yet. Set CLOUDINARY_URL in .env, or submit without a photo.",
-          },
-          { status: 503 },
-        );
-      }
-      if (err instanceof CloudinaryUploadError) {
-        return NextResponse.json({ error: err.message }, { status: 502 });
-      }
-      throw err;
-    }
-  }
-
   // All DB writes go inside a transaction so a crash between steps cannot
-  // leave Progress and MissionChoice in a mismatched state.
+  // leave Progress and MissionChoice in a mismatched state. The photo
+  // upload happened separately (browser → Supabase) before this request
+  // landed, so there's no external call left to fail mid-transaction.
   const updatedProgress = await prisma.$transaction(async (tx) => {
     // a. INSERT into Completion
     await tx.completion.create({
@@ -112,7 +99,7 @@ export async function POST(req: Request) {
         level,
         aiGenerationId,
         chosenMissionIndex: chosenIndex,
-        photoUrl,
+        photoPath: photoPath ?? null,
         note: note ?? null,
       },
       select: { id: true },
