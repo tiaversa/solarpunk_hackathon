@@ -219,7 +219,7 @@ export function buildMissionPrompt(input: BuildMissionPromptInput): string {
   const levelDesc = levelDescription(input.level);
 
   return [
-    `You are designing real-world learning missions for the Solarpunk Missions app.`,
+    `You are designing real-world learning missions for the Green Quest app, which uses Solarpunk values as its compass.`,
     ``,
     SOLARPUNK_VALUES_BLOCK,
     ``,

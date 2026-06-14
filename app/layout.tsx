@@ -4,11 +4,11 @@ import { OfflineSync } from "@/components/OfflineSync";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Solarpunk Missions",
+  title: "Green Quest",
   description:
     "Mission-based learning for a hands-on, regenerative future. Six levels per topic, three AI-generated missions per level.",
   manifest: "/manifest.webmanifest",
-  applicationName: "Solarpunk Missions",
+  applicationName: "Green Quest",
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",

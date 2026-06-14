@@ -1,4 +1,4 @@
-// Solarpunk Missions — Prisma schema.
+// Green Quest — Prisma schema.
 // Models are added incrementally per /docs/PLAN.md; this file currently
 // reflects the state after Step 6 (MVP COMPLETE). The `moddatetime`
 // extension is enabled via a separate SQL migration so triggers can rely
@@ -106,6 +106,15 @@ model MissionChoice {
   aiGenerationId   String
   optionsPresented Json     @db.JsonB
   chosenIndex      Int // 0-2
+  // Per-MissionChoice ranked subset of the city's cached places, picked
+  // by Claude immediately after the choice is recorded. Lets each of
+  // the 3 missions on a level surface different places when their
+  // shapes call for different OSM categories (e.g. a "talk to a tailor"
+  // mission boosts Tailor places, while a "visit a market" mission
+  // boosts Marketplace places). Null when ranking was skipped — no
+  // places in cache, Claude failed, the row predates this column, or
+  // the caller was offline.
+  rankedPlaces     Json?    @db.JsonB
   status           String   @default("active") // active | abandoned | completed
   chosenAt         DateTime @default(now())
 

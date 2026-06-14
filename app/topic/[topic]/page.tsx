@@ -110,7 +110,14 @@ export default async function TopicPage({ params, searchParams }: Props) {
             status: "active",
             aiGenerationId,
           },
-          select: { chosenIndex: true },
+          // `rankedPlaces` is populated by POST /api/mission/choose
+          // immediately after the choice is recorded: Claude picks the
+          // top-N most relevant cached places for THIS mission. We
+          // read it here so each of the 3 cards on the level can show
+          // a different per-mission subset instead of all sharing the
+          // raw (city, topic) list. Null when ranking was skipped or
+          // failed — handled by the fallback below.
+          select: { chosenIndex: true, rankedPlaces: true },
         })
       : null;
 
@@ -131,29 +138,40 @@ export default async function TopicPage({ params, searchParams }: Props) {
       : null
     : (activeChoice?.chosenIndex ?? null);
 
-  // Solarpunk-aligned local places for this user's city + topic.
+  // Solarpunk-aligned local places to render under the chosen card.
   //
-  // The actual lookup (Nominatim + Overpass) runs inside
-  // POST /api/mission/choose. Here we only ever READ from the cache —
-  // by the time this server component re-renders after a choose action,
-  // the CityResources row for (city, topic) is already populated. We
-  // gate the read on initialChosenIndex !== null so we don't render a
-  // "places nearby" section before the user has actually committed to
-  // a mission (per the design: places appear AFTER choose, as support).
+  // Priority order:
+  //   1. MissionChoice.rankedPlaces — per-mission top-N picked by
+  //      Claude in POST /api/mission/choose. This is what makes the
+  //      3 cards on a level surface DIFFERENT places.
+  //   2. CityResources.places — the raw (city, topic) cache. Used as
+  //      a fallback when ranking is null: row predates this feature,
+  //      ranking call failed, or the user had no city set at choose
+  //      time so no OSM lookup ran.
+  //   3. [] — nothing shown.
+  //
+  // Gated on initialChosenIndex !== null so we don't render a "places
+  // nearby" section before the user commits to a mission. The actual
+  // OSM call (Nominatim + Overpass) only ever runs inside
+  // POST /api/mission/choose — this server component is read-only.
   let cityPlaces: CityResourcePlace[] = [];
   if (initialChosenIndex !== null) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { city: true },
-    });
-    const city = user?.city?.trim();
-    if (city) {
-      const row = await prisma.cityResources.findUnique({
-        where: { city_topic: { city, topic: topicId } },
-        select: { places: true },
+    if (activeChoice?.rankedPlaces) {
+      cityPlaces = activeChoice.rankedPlaces as unknown as CityResourcePlace[];
+    } else {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { city: true },
       });
-      if (row) {
-        cityPlaces = row.places as unknown as CityResourcePlace[];
+      const city = user?.city?.trim();
+      if (city) {
+        const row = await prisma.cityResources.findUnique({
+          where: { city_topic: { city, topic: topicId } },
+          select: { places: true },
+        });
+        if (row) {
+          cityPlaces = row.places as unknown as CityResourcePlace[];
+        }
       }
     }
   }
@@ -165,7 +183,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
           <span className="text-2xl" aria-hidden="true">
             🌱
           </span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
+          <span className="text-lg font-semibold">Green Quest</span>
         </Link>
         <div className="flex items-center gap-3 text-sm text-leaf-700/80">
           <span>{session.user.email}</span>

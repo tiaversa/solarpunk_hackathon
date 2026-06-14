@@ -106,13 +106,20 @@ function dataUrlToBlob(dataUrl: string): Blob | null {
   }
 }
 
-class SolarpunkDB extends Dexie {
+class GreenQuestDB extends Dexie {
   progress!: Table<CachedProgress, string>;
   currentMission!: Table<CachedMission, string>;
   pendingActions!: Table<PendingAction, number>;
 
   constructor() {
-    super("solarpunk-missions-v1");
+    // NOTE: the Dexie database name is the IndexedDB identifier. Renaming
+    // from "solarpunk-missions-v1" to "green-quest-v1" means existing
+    // browsers will start with a fresh, empty offline cache — the old
+    // database lingers in IndexedDB until manually cleared but is never
+    // accessed again. Acceptable for this rebrand; if real users were
+    // already running offline-cached state we'd want a one-time migration
+    // (open old DB, copy rows over, then delete) instead.
+    super("green-quest-v1");
     this.version(1).stores({
       progress: "topic",
       // composite-string key (key) + secondary index on topic so we can
@@ -151,12 +158,12 @@ class SolarpunkDB extends Dexie {
   }
 }
 
-let _db: SolarpunkDB | null = null;
-export function db(): SolarpunkDB {
+let _db: GreenQuestDB | null = null;
+export function db(): GreenQuestDB {
   if (typeof window === "undefined") {
     throw new Error("db() may only be called in the browser");
   }
-  if (!_db) _db = new SolarpunkDB();
+  if (!_db) _db = new GreenQuestDB();
   return _db;
 }
 

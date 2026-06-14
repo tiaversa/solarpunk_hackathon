@@ -26,10 +26,15 @@ import { prisma } from "@/lib/prisma";
 import type { TopicId } from "@/lib/missionMatrix";
 
 // Bumped whenever TOPIC_OSM_QUERIES changes meaningfully. Rows stamped
-// with an older version are still served (the existing places are
-// useful) but a future refresh job can use this to selectively
-// regenerate cohorts.
-export const QUERY_SET_VERSION = "v1.0";
+// with an older version are treated as stale by isStale() and trigger
+// a re-fetch on the next pick — so adjusting topic tags only requires
+// bumping this constant; no manual cache busting needed.
+//
+// v1.1 (2026-06-14): added `leisure=park` + `place=square` to games,
+//                    added `leisure=park` + `amenity=theatre` to music,
+//                    so missions about outdoor games and live music
+//                    can surface real parks and theatres.
+export const QUERY_SET_VERSION = "v1.1";
 
 // How long a cached (city, topic) row stays "fresh" before we treat it
 // as a miss and re-query OSM. 30 days is a deliberate middle ground:
@@ -51,7 +56,7 @@ const CACHE_TTL_MS = CACHE_TTL_DAYS * 24 * 60 * 60 * 1000;
 // Overpass. Include a contact channel so operators can reach us if we
 // misbehave at scale.
 const HTTP_USER_AGENT =
-  "solarpunk-missions/0.1 (https://github.com/solarpunk-missions; contact: hello@solarpunk.missions)";
+  "green-quest/0.1 (https://github.com/green-quest; contact: hello@green-quest.app)";
 
 // 5 km feels right for "places you could realistically visit today" in
 // most European/American cities. Smaller cities still get coverage; very
@@ -151,6 +156,13 @@ export const TOPIC_OSM_QUERIES: Readonly<Record<TopicId, readonly OsmTagQuery[]>
       { key: "leisure", value: "hackerspace", label: "Hackerspace" },
       { key: "amenity", value: "library", label: "Library" },
       { key: "amenity", value: "social_centre", label: "Social centre" },
+      // Outdoor / public-space tags — many of the most Solarpunk-feeling
+      // game missions ("observe a chess match", "play a yard game with
+      // strangers", "design a playground hack") happen in parks and
+      // public squares, not indoor venues. Tagged in v1.1 after a
+      // chess-at-Mauerpark mission surfaced only indoor places.
+      { key: "leisure", value: "park", label: "Park" },
+      { key: "place", value: "square", label: "Public square" },
     ],
     tech: [
       { key: "amenity", value: "repair_cafe", label: "Repair café" },
@@ -178,6 +190,11 @@ export const TOPIC_OSM_QUERIES: Readonly<Record<TopicId, readonly OsmTagQuery[]>
       { key: "amenity", value: "arts_centre", label: "Arts centre" },
       { key: "amenity", value: "studio", label: "Studio" },
       { key: "amenity", value: "community_centre", label: "Community centre" },
+      // Outdoor + performance venues — busking, bandstands, open-air
+      // concerts, and live performance venues are core music-mission
+      // ground. Added in v1.1.
+      { key: "leisure", value: "park", label: "Park" },
+      { key: "amenity", value: "theatre", label: "Theatre" },
     ],
     accessibility: [
       { key: "amenity", value: "community_centre", label: "Community centre" },
@@ -235,13 +252,18 @@ export async function findOrFetchCityResources(
   // ---- cache lookup ------------------------------------------------------
   const cached = await prisma.cityResources.findUnique({
     where: { city_topic: { city: normalized, topic } },
-    select: { id: true, places: true, refreshedAt: true },
+    select: {
+      id: true,
+      places: true,
+      refreshedAt: true,
+      querySetVersion: true,
+    },
   });
   const cachedPlaces = cached
     ? (cached.places as unknown as CityResourcePlace[])
     : null;
 
-  if (cached && !isStale(cached.refreshedAt)) {
+  if (cached && !isStale(cached.refreshedAt, cached.querySetVersion)) {
     return cachedPlaces ?? [];
   }
 
@@ -297,7 +319,19 @@ export async function findOrFetchCityResources(
   return places;
 }
 
-function isStale(refreshedAt: Date): boolean {
+/**
+ * A cached row is stale if EITHER:
+ *   - its query-set version doesn't match the current `QUERY_SET_VERSION`
+ *     (meaning we've added/removed tags since this row was written and
+ *     a re-fetch will surface places the old tag set couldn't), OR
+ *   - it's older than `CACHE_TTL_MS` (OSM coverage drifted).
+ *
+ * The version check is the cheap way to roll out tag changes: bump the
+ * constant in this file and every cached row picks up the new tag set
+ * on its next access. No manual cache busting required.
+ */
+function isStale(refreshedAt: Date, version: string): boolean {
+  if (version !== QUERY_SET_VERSION) return true;
   return Date.now() - refreshedAt.getTime() > CACHE_TTL_MS;
 }
 
@@ -409,14 +443,14 @@ function buildOverpassQuery(
   const around = `around:${radiusMeters},${center.lat},${center.lon}`;
   const clauses: string[] = [];
   for (const q of queries) {
-    // For each tag we look up nodes, ways, and relations — community
-    // gardens are usually ways or relations; secondhand shops are
-    // usually nodes. Asking for all three is cheap.
+    // `nwr` is Overpass-QL shorthand for "node OR way OR relation" —
+    // one clause per tag instead of three. Same coverage (community
+    // gardens are ways/relations, secondhand shops are nodes, etc.)
+    // but a smaller query string for the Overpass server to parse and
+    // schedule, which measurably speeds up big-city queries.
     const safeKey = escapeOverpassString(q.key);
     const safeValue = escapeOverpassString(q.value);
-    clauses.push(`  node["${safeKey}"="${safeValue}"](${around});`);
-    clauses.push(`  way["${safeKey}"="${safeValue}"](${around});`);
-    clauses.push(`  relation["${safeKey}"="${safeValue}"](${around});`);
+    clauses.push(`  nwr["${safeKey}"="${safeValue}"](${around});`);
   }
   // `out tags center` returns each element's tags plus a representative
   // lat/lon (computed center for ways/relations). Enough for display.

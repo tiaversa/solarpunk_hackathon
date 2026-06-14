@@ -18,7 +18,7 @@ export default async function HomePage() {
           🌱
         </span>
         <h1 className="text-4xl font-bold tracking-tight text-leaf-700">
-          Solarpunk Missions
+          Green Quest
         </h1>
         <p className="text-lg leading-relaxed text-leaf-700/80">
           Pick a topic, climb six levels &mdash; Explore, Make, Improve,
@@ -73,7 +73,7 @@ export default async function HomePage() {
           <span className="text-2xl" aria-hidden="true">
             🌱
           </span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
+          <span className="text-lg font-semibold">Green Quest</span>
         </Link>
         <div className="flex items-center gap-3 text-sm text-leaf-700/80">
           <span>{session.user.email}</span>
