@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUserId } from "@/lib/auth-helper";
+import { createClient } from "@/lib/supabase-server";
 import {
   PHOTO_BUCKET,
   buildPhotoPath,
@@ -20,10 +20,18 @@ import {
  * caller's userId so a client can never upload outside its own folder.
  */
 export async function POST() {
-  const auth = await requireUserId();
-  if (auth.response) return auth.response;
+  const supabaseAuth = await createClient();
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const path = buildPhotoPath(auth.userId);
+  const { data: profile } = await supabaseAuth
+    .from("User")
+    .select("id")
+    .eq("authId", user.id)
+    .single();
+  if (!profile) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const path = buildPhotoPath(profile.id);
 
   try {
     const supabase = getServerSupabase();
