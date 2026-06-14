@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { UserMenu } from "@/components/UserMenu";
-import { Sprout } from "@/components/Backdrop";
+import { LogoMark } from "@/components/LogoMark";
 
 type HeaderLink = { href: string; label: string };
 
@@ -24,7 +24,7 @@ export function AppHeader({ back, username }: Props) {
         </Link>
       ) : (
         <Link href="/" className="inline-flex items-center gap-2 text-solar-sage">
-          <Sprout className="h-6 w-6" />
+          <LogoMark className="h-11 w-11" />
           <span className="font-bold">Green Quest</span>
         </Link>
       )}

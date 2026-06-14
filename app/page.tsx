@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Backdrop, Sprout } from "@/components/Backdrop";
+import { Backdrop } from "@/components/Backdrop";
+import { Logo } from "@/components/Logo";
 import { AppHeader } from "@/components/AppHeader";
 import { Greeting } from "@/components/Greeting";
 import { TopicVine } from "@/components/TopicVine";
@@ -17,10 +18,8 @@ export default async function HomePage() {
     return (
       <main className="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-7 px-7 py-16 text-center">
         <Backdrop />
-        <Sprout className="h-24 w-24" />
-        <h1 className="text-3xl font-bold uppercase tracking-wide text-solar-sage">
-          Green Quest
-        </h1>
+        <Logo className="h-64 w-64" />
+        <h1 className="sr-only">Green Quest</h1>
         <p className="text-sm leading-relaxed text-solar-sage/80">
           Pick a topic, climb six levels — Explore, Make, Improve, Experiment,
           Connect, Teach — one hands-on, community-grounded quest at a time.

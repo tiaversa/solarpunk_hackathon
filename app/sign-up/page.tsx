@@ -5,7 +5,8 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ApiError, registerUser } from "@/lib/api-client";
-import { Backdrop, Sprout } from "@/components/Backdrop";
+import { Backdrop } from "@/components/Backdrop";
+import { Logo } from "@/components/Logo";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function SignUpPage() {
       <Backdrop />
 
       <div className="flex flex-col items-center gap-4 text-center">
-        <Sprout className="h-20 w-20" />
+        <Logo className="h-32 w-32" />
         <div className="flex flex-col gap-2">
           <h1 className="text-xl uppercase tracking-wide text-solar-sage">
             Join us!

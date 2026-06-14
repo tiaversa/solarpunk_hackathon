@@ -4,7 +4,8 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Backdrop, Sprout } from "@/components/Backdrop";
+import { Backdrop } from "@/components/Backdrop";
+import { Logo } from "@/components/Logo";
 
 export default function SignInPage() {
   return (
@@ -54,7 +55,7 @@ function SignInForm() {
       <Backdrop />
 
       <div className="flex flex-col items-center gap-4 text-center">
-        <Sprout className="h-20 w-20" />
+        <Logo className="h-32 w-32" />
         <div className="flex flex-col gap-2">
           <h1 className="text-xl uppercase tracking-wide text-solar-sage">
             Welcome back

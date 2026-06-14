@@ -38,6 +38,8 @@ const STEM_SWING = 30;
 const LEAF_PATH =
   "M0 0 C 20 -44 78 -46 104 -10 C 78 30 24 26 0 0 Z";
 const LEAF_VEIN = "M2 -2 L 96 -14";
+// Uniform scale applied to the leaf graphics (1 = original size).
+const LEAF_SCALE = 1.3;
 
 const FILL: Record<VineState, string> = {
   done: "rgb(var(--solar-moss))",
@@ -77,8 +79,11 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
     const flip = left ? -1 : 1;
     // Stem swings to the same side as the leaf, then the leaf sits outboard.
     const stemAttachX = STEM_X + flip * STEM_SWING;
-    const labelX = stemAttachX + flip * 50;
-    return { node, i, left, y, stemAttachX, labelX };
+    // Centre the label on the leaf's visual centroid (the leaf spans local
+    // x 0..104 and y -46..30 from the attach point), not the stem attach point.
+    const labelX = stemAttachX + flip * 52 * LEAF_SCALE;
+    const labelY = y - 8 * LEAF_SCALE;
+    return { node, i, left, y, stemAttachX, labelX, labelY };
   });
 
   // Stem runs root (bottom) to tip (top), snaking toward each leaf side.
@@ -123,7 +128,7 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
 
         {geom.map((g) => {
           const flip = g.left ? -1 : 1;
-          const transform = `translate(${g.stemAttachX} ${g.y}) scale(${flip} 1)`;
+          const transform = `translate(${g.stemAttachX} ${g.y}) scale(${flip * LEAF_SCALE} ${LEAF_SCALE})`;
           return (
             <g key={g.node.key}>
               {/* twig connecting stem to leaf */}
@@ -134,7 +139,7 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
                 strokeLinecap="round"
               />
               {/* shadow leaf */}
-              <g transform={`translate(${g.stemAttachX + 3} ${g.y + 7}) scale(${flip} 1)`}>
+              <g transform={`translate(${g.stemAttachX + 3} ${g.y + 7}) scale(${flip * LEAF_SCALE} ${LEAF_SCALE})`}>
                 <path d={LEAF_PATH} style={{ fill: "rgb(var(--solar-bg))" }} opacity={0.5} />
               </g>
               {/* leaf */}
@@ -161,14 +166,14 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
       <div className="absolute inset-0">
         {geom.map((g) => {
           const inner = (
-            <span className="flex flex-col items-center gap-0.5 leading-tight">
+            <span className="flex flex-col items-center gap-1 leading-none">
               {g.node.icon && (
-                <span className="text-xl" aria-hidden="true">
+                <span className="text-xl leading-none" aria-hidden="true">
                   {g.node.icon}
                 </span>
               )}
               <span
-                className={`text-xs font-bold ${
+                className={`whitespace-nowrap text-[13px] font-bold ${
                   g.node.state === "active"
                     ? "text-solar-cream"
                     : g.node.state === "locked"
@@ -179,7 +184,7 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
                 {g.node.label}
               </span>
               {g.node.sublabel && (
-                <span className="text-[10px] font-medium text-solar-sage/70">
+                <span className="text-[11px] font-medium text-solar-sage/70">
                   {g.node.sublabel}
                 </span>
               )}
@@ -196,11 +201,11 @@ export function PlantVine({ nodes, spacing = SPACING, className = "" }: Props) {
 
           const style = {
             left: `${(g.labelX / W) * 100}%`,
-            top: `${(g.y / H) * 100}%`,
+            top: `${(g.labelY / H) * 100}%`,
           } as const;
 
           const base =
-            "absolute flex w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center transition";
+            "absolute flex w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center transition";
 
           if (g.node.href && !g.node.disabled) {
             return (

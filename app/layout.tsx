@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Source_Code_Pro } from "next/font/google";
+import { Source_Code_Pro, Sixtyfour } from "next/font/google";
 import { SessionProvider } from "@/components/SessionProvider";
 import { OfflineSync } from "@/components/OfflineSync";
 import "./globals.css";
@@ -9,6 +9,14 @@ const sourceCodePro = Source_Code_Pro({
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-mono",
   display: "swap",
+});
+
+const sixtyfour = Sixtyfour({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
+  display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -33,7 +41,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={sourceCodePro.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${sourceCodePro.variable} ${sixtyfour.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Apply the saved theme before paint to avoid a flash of the wrong theme. */}
         <script
