@@ -28,7 +28,7 @@ export default async function PreferencesPage() {
           <span className="text-2xl" aria-hidden="true">
             🌱
           </span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
+          <span className="text-lg font-semibold">Green Quest</span>
         </Link>
         <div className="flex items-center gap-3 text-sm text-leaf-700/80">
           <span>{user.email}</span>

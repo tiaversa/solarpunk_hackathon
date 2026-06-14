@@ -22,8 +22,29 @@ import { prisma } from "@/lib/prisma";
 import type { TopicId } from "@/lib/missionMatrix";
 import { getTopic } from "@/lib/missionMatrix";
 import type { Level, LevelLabel } from "@/lib/levels";
+import { levelDescription } from "@/lib/levels";
 
-export const MISSION_PROMPT_VERSION = "v1.0";
+// Bumped to v1.1 alongside the level-progression and Solarpunk-values
+// rewrites. AiGeneration rows carry this so we can diff output quality
+// before/after the change in the DB.
+export const MISSION_PROMPT_VERSION = "v1.1";
+
+/**
+ * Concrete "X beats Y" anchors for each Solarpunk value. Listing the
+ * values as adjectives ("community, sustainability, ...") left Claude
+ * too much room to interpret them — these contrasts pin down what a
+ * mission shaped by each value actually looks like.
+ */
+const SOLARPUNK_VALUES_BLOCK = [
+  `Solarpunk values — concrete contrasts. The left-hand example is the shape we want; the right-hand example is what to avoid:`,
+  `- Community over solo practice: "Bring leftovers to a neighbour" beats "Cook a fancy solo dinner".`,
+  `- Sustainability over convenience: "Use what's already in the fridge before it spoils" beats "Buy organic flown in from far away".`,
+  `- Hands-on learning over passive consumption: "Hand-stitch one tear in a t-shirt" beats "Watch a YouTube tutorial on hemming".`,
+  `- Repair over replace: "Fix the broken zipper on your jacket" beats "Buy a new jacket on sale".`,
+  `- Joyful curiosity over routine: "Cook the weirdest seasonal vegetable at the market" beats "Make a familiar recipe again".`,
+  `- Low-energy over high-energy: "Hand-wash one wool garment in cold water" beats "Run a half-empty washer cycle".`,
+  `- Lived experience over consumption: "Talk to a tailor about how they choose fabrics" beats "Read a fashion blog post about it".`,
+].join("\n");
 
 export type Duration = "short" | "medium" | "long";
 
@@ -195,19 +216,31 @@ export function buildMissionPrompt(input: BuildMissionPromptInput): string {
     ? `Past behaviour: ${input.preferenceSummary}`
     : `No completed missions yet — this is a fresh learner.`;
 
+  const levelDesc = levelDescription(input.level);
+
   return [
-    `You are designing real-world learning missions for the Solarpunk Missions app.`,
-    `Solarpunk values: community, sustainability, hands-on learning, repair-over-replace, joyful curiosity, low-energy living, lived experience over consumption.`,
+    `You are designing real-world learning missions for the Green Quest app, which uses Solarpunk values as its compass.`,
+    ``,
+    SOLARPUNK_VALUES_BLOCK,
     ``,
     `Topic: ${topicMeta.label} ${topicMeta.emoji} (id: ${input.topic})`,
-    `Level ${input.level} of 6 — "${input.missionTypeLabel}". Seed brief from the mission matrix: "${input.matrixCellText}".`,
+    ``,
+    `Level ${input.level} of 6 — "${input.missionTypeLabel}". The six levels form a progression: Explore → Make → Improve → Experiment → Connect → Teach. This learner is at "${input.missionTypeLabel}".`,
+    `Definition: ${levelDesc.oneLiner}`,
+    `Looks like at this level: ${levelDesc.looksLike}`,
+    `Not yet at this level (these belong to other levels): ${levelDesc.notYet}`,
+    `Seed brief from the mission matrix: "${input.matrixCellText}".`,
+    ``,
     `Learner is in ${input.city || "their local area"}.`,
-    `Stated interests: ${interestsLine}.`,
+    `User's stated interests: ${interestsLine}.`,
     durationLine,
     summaryLine,
     ``,
     `Generate exactly 3 mission options, each different from the others in approach or angle.`,
-    `Each option must be doable in one day with no specialised equipment, grounded in the learner's city, and respectful of the "${input.missionTypeLabel}" level.`,
+    `Every option must:`,
+    `- Be grounded in the learner's city (reference it by name when natural; never invent specific addresses or business names).`,
+    `- Clearly match the "Looks like" guidance for Level ${input.level} and avoid the "Not yet" patterns above.`,
+    `- Express at least one of the Solarpunk values shown earlier through the mission's shape (not just by mentioning the word).`,
     ``,
     `Output rules — read carefully:`,
     `- Return ONLY a raw JSON array. No prose, no markdown fences, no commentary.`,
