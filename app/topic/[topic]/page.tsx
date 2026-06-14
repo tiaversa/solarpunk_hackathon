@@ -102,6 +102,8 @@ export default async function TopicPage({ params, searchParams }: Props) {
         select: { latitude: true, longitude: true },
       })
     : null;
+
+  // If the level is completed, fetch the reflection note and photo.
   const completion = isLevelCompleted
     ? await prisma.completion.findFirst({
         where: { userId, topic: topicId, level },
