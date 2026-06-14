@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
-import Link from "next/link";
-import { SignOutButton } from "@/components/SignOutButton";
+import { AppHeader } from "@/components/AppHeader";
+import { Backdrop } from "@/components/Backdrop";
 import { ServiceRequestManager } from "@/components/ServiceRequestManager";
 import { TOPICS } from "@/lib/missionMatrix";
 
@@ -40,31 +40,27 @@ export default async function OrgDashboardPage({ params }: Params) {
   const openCount = requests.filter((r) => r.status === "open").length;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-leaf-700">
-          <span className="text-2xl" aria-hidden="true">🌱</span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
-        </Link>
-        <div className="flex items-center gap-3 text-sm text-leaf-700/80">
-          <span>{profile.email}</span>
-          <SignOutButton />
-        </div>
-      </header>
+    <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
+      <Backdrop />
+      <AppHeader username={profile.email} />
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-leaf-100">
+      <section className="rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="text-2xl" aria-hidden="true">🏘️</span>
-              <h1 className="text-2xl font-bold text-leaf-700">{org.name}</h1>
+              <h1 className="text-2xl font-bold text-solar-cream">{org.name}</h1>
             </div>
-            {org.description && <p className="text-sm text-leaf-700/70">{org.description}</p>}
-            {org.city && <p className="text-xs text-leaf-700/50">{org.city}</p>}
+            {org.description && (
+              <p className="text-sm text-solar-sage/80">{org.description}</p>
+            )}
+            {org.city && <p className="text-xs text-solar-sage/50">{org.city}</p>}
           </div>
-          <div className="shrink-0 rounded-xl bg-leaf-50 px-4 py-2 text-center">
-            <p className="text-2xl font-bold text-leaf-700">{openCount}</p>
-            <p className="text-xs text-leaf-700/60">open request{openCount !== 1 ? "s" : ""}</p>
+          <div className="shrink-0 rounded-2xl bg-solar-field px-4 py-2 text-center ring-1 ring-solar-leafmd">
+            <p className="text-2xl font-bold text-solar-cream">{openCount}</p>
+            <p className="text-xs text-solar-sage/60">
+              open request{openCount !== 1 ? "s" : ""}
+            </p>
           </div>
         </div>
       </section>

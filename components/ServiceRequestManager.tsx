@@ -51,10 +51,15 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-leaf-100 text-leaf-700",
-  filled: "bg-blue-100 text-blue-700",
-  expired: "bg-gray-100 text-gray-500",
+  open: "bg-solar-green/20 text-solar-green ring-1 ring-solar-green/40",
+  filled: "bg-solar-field text-solar-sage ring-1 ring-solar-leafmd",
+  expired: "bg-solar-panel text-solar-sage/40 ring-1 ring-solar-leafmd",
 };
+
+const inputClass =
+  "rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-4 py-2.5 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none";
+const labelClass =
+  "flex flex-col gap-2 text-xs uppercase tracking-wide text-solar-sage";
 
 export function ServiceRequestManager({ orgId, topics, initialRequests }: Props) {
   const [requests, setRequests] = useState<ServiceRequest[]>(initialRequests);
@@ -93,11 +98,11 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
     <div className="flex flex-col gap-6">
       {/* Section header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-leaf-700">Help requests</h2>
+        <h2 className="text-lg font-bold text-solar-cream">Help requests</h2>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-lg bg-leaf-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-leaf-700"
+          className="rounded-field bg-solar-green px-4 py-2 text-xs font-extrabold uppercase tracking-[0.15em] text-solar-cream transition hover:bg-solar-moss"
         >
           {showForm ? "Cancel" : "+ New request"}
         </button>
@@ -108,7 +113,7 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
       )}
 
       {requests.length === 0 && !showForm && (
-        <p className="rounded-xl bg-leaf-50 px-4 py-6 text-center text-sm text-leaf-700/60">
+        <p className="rounded-field border border-solar-leafmd bg-solar-panel/60 px-4 py-6 text-center text-sm text-solar-sage/80">
           No requests yet. Add one so community members can find and help you.
         </p>
       )}
@@ -129,7 +134,7 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
 
       {closedRequests.length > 0 && (
         <details className="group">
-          <summary className="cursor-pointer text-sm font-medium text-leaf-700/60 hover:text-leaf-700">
+          <summary className="cursor-pointer text-sm font-medium text-solar-sage/60 hover:text-solar-sage">
             Past requests ({closedRequests.length})
           </summary>
           <div className="mt-3 flex flex-col gap-3">
@@ -255,16 +260,12 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
     }
   }
 
-  const inputClass =
-    "rounded-lg border border-leaf-100 px-3 py-2 text-sm text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500";
-  const labelClass = "flex flex-col gap-1 text-sm font-medium text-leaf-700";
-
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-leaf-100"
+      className="flex flex-col gap-4 rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5"
     >
-      <h3 className="font-semibold text-leaf-700">New help request</h3>
+      <h3 className="font-bold text-solar-cream">New help request</h3>
 
       {/* Topic */}
       <label className={labelClass}>
@@ -275,10 +276,10 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
               key={t.id}
               type="button"
               onClick={() => setCategory(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-xl border py-2 text-xs font-medium transition ${
+              className={`flex flex-col items-center gap-1 rounded-2xl border-2 py-2 text-xs font-medium normal-case tracking-normal transition ${
                 category === t.id
-                  ? "border-leaf-500 bg-leaf-50 text-leaf-700"
-                  : "border-leaf-100 text-leaf-700/60 hover:border-leaf-300 hover:text-leaf-700"
+                  ? "border-solar-green bg-solar-field text-solar-cream"
+                  : "border-solar-leafmd text-solar-sage/60 hover:border-solar-green/60 hover:text-solar-sage"
               }`}
             >
               <span className="text-lg">{t.emoji}</span>
@@ -298,7 +299,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="We need help teaching kids to cook"
-          className={inputClass}
+          className={`${inputClass} normal-case tracking-normal`}
         />
       </label>
 
@@ -313,26 +314,26 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe what kind of help you need, who benefits, and any requirements…"
-          className={`${inputClass} resize-none`}
+          className={`${inputClass} resize-none normal-case tracking-normal`}
         />
       </label>
 
       {/* Location */}
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-leaf-700">
+        <span className="text-xs uppercase tracking-wide text-solar-sage">
           Location of the activity
         </span>
 
         {coords ? (
-          <div className="flex items-center gap-3 rounded-lg bg-leaf-50 px-3 py-2">
+          <div className="flex items-center gap-3 rounded-field bg-solar-field/50 px-3 py-2">
             <span className="text-base">📍</span>
-            <span className="text-sm text-leaf-700">
+            <span className="text-sm text-solar-sage">
               {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
             </span>
             <button
               type="button"
               onClick={() => { setCoords(null); setManualMode(false); }}
-              className="ml-auto text-xs text-leaf-700/50 hover:text-leaf-700"
+              className="ml-auto text-xs text-solar-sage/50 hover:text-solar-sage"
             >
               Clear
             </button>
@@ -344,7 +345,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
                 type="button"
                 onClick={captureLocation}
                 disabled={locating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-leaf-200 px-3 py-2 text-sm text-leaf-700 transition hover:bg-leaf-50 disabled:opacity-60"
+                className="flex flex-1 items-center justify-center gap-2 rounded-field border border-solar-leafmd px-3 py-2 text-sm text-solar-sage transition hover:bg-solar-field/50 disabled:opacity-60"
               >
                 <span>{locating ? "⏳" : "📍"}</span>
                 {locating ? "Getting location…" : "Use my current location"}
@@ -352,21 +353,21 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
               <button
                 type="button"
                 onClick={() => { setManualMode((v) => !v); setError(null); }}
-                className="rounded-lg border border-leaf-200 px-3 py-2 text-sm text-leaf-700/60 hover:bg-leaf-50 hover:text-leaf-700"
+                className="rounded-field border border-solar-leafmd px-3 py-2 text-sm text-solar-sage/60 transition hover:bg-solar-field/50 hover:text-solar-sage"
               >
                 Enter manually
               </button>
             </div>
 
             {manualMode && (
-              <div className="flex flex-col gap-2 rounded-lg bg-leaf-50 p-3">
-                <p className="text-xs text-leaf-700/60">
+              <div className="flex flex-col gap-2 rounded-field bg-solar-field/50 p-3">
+                <p className="text-xs text-solar-sage/60">
                   Find your coordinates at{" "}
                   <a
                     href="https://www.latlong.net"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline"
+                    className="text-solar-green underline"
                   >
                     latlong.net
                   </a>{" "}
@@ -379,7 +380,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
                     placeholder="Latitude (e.g. -33.4489)"
                     value={manualLat}
                     onChange={(e) => setManualLat(e.target.value)}
-                    className="flex-1 rounded-lg border border-leaf-100 px-3 py-2 text-sm text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+                    className="flex-1 rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
                   />
                   <input
                     type="number"
@@ -387,12 +388,12 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
                     placeholder="Longitude (e.g. -70.6693)"
                     value={manualLng}
                     onChange={(e) => setManualLng(e.target.value)}
-                    className="flex-1 rounded-lg border border-leaf-100 px-3 py-2 text-sm text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+                    className="flex-1 rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={applyManualCoords}
-                    className="rounded-lg bg-leaf-600 px-3 py-2 text-sm font-semibold text-white hover:bg-leaf-700"
+                    className="rounded-field bg-solar-green px-3 py-2 text-sm font-bold text-solar-cream transition hover:bg-solar-moss"
                   >
                     Set
                   </button>
@@ -402,7 +403,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
           </div>
         )}
 
-        <p className="text-xs text-leaf-700/50">
+        <p className="text-xs text-solar-sage/50">
           Used to match nearby community members with your request.
         </p>
       </div>
@@ -441,12 +442,12 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
           type="date"
           value={expiresAt}
           onChange={(e) => setExpiresAt(e.target.value)}
-          className={inputClass}
+          className={`${inputClass} normal-case tracking-normal`}
         />
       </label>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-field bg-solar-danger/15 px-4 py-3 text-sm text-red-300 ring-1 ring-solar-danger/40">
           {error}
         </p>
       )}
@@ -454,7 +455,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-leaf-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-leaf-700 disabled:opacity-60"
+        className="rounded-field bg-solar-green px-4 py-3 text-sm font-extrabold uppercase tracking-[0.15em] text-solar-cream transition hover:bg-solar-moss disabled:opacity-60"
       >
         {submitting ? "Publishing…" : "Publish request"}
       </button>
@@ -477,22 +478,22 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
   const topic = topics.find((t) => t.id === r.category);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-leaf-100">
+    <div className="flex flex-col gap-3 rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-4">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 text-xl" aria-hidden="true">
           {topic?.emoji ?? "📌"}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-leaf-700 truncate">{r.title}</span>
+            <span className="font-bold text-solar-cream truncate">{r.title}</span>
             <span
               className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[r.status] ?? STATUS_COLORS.expired}`}
             >
               {STATUS_LABELS[r.status] ?? r.status}
             </span>
           </div>
-          <p className="mt-1 text-sm text-leaf-700/70 line-clamp-2">{r.description}</p>
-          <div className="mt-2 flex flex-wrap gap-3 text-xs text-leaf-700/50">
+          <p className="mt-1 text-sm text-solar-sage/80 line-clamp-2">{r.description}</p>
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-solar-sage/50">
             <span>{topic?.label ?? r.category}</span>
             <span>
               {r.capacityRemaining}/{r.capacityTotal} spots left
@@ -508,20 +509,20 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2 border-t border-leaf-50 pt-2">
+      <div className="flex flex-wrap gap-2 border-t border-solar-leafmd pt-2">
         {r.status === "open" && (
           <>
             <button
               type="button"
               onClick={() => onStatusChange(r.id, "filled")}
-              className="rounded-lg border border-blue-200 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-50"
+              className="rounded-field border border-solar-green/50 px-3 py-1 text-xs font-medium text-solar-green transition hover:bg-solar-green/10"
             >
               Mark filled
             </button>
             <button
               type="button"
               onClick={() => onStatusChange(r.id, "expired")}
-              className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="rounded-field border border-solar-leafmd px-3 py-1 text-xs font-medium text-solar-sage/60 transition hover:bg-solar-field/50 hover:text-solar-sage"
             >
               Close
             </button>
@@ -531,7 +532,7 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
           <button
             type="button"
             onClick={() => onStatusChange(r.id, "open")}
-            className="rounded-lg border border-leaf-200 px-3 py-1 text-xs font-medium text-leaf-700 hover:bg-leaf-50"
+            className="rounded-field border border-solar-leafmd px-3 py-1 text-xs font-medium text-solar-sage transition hover:bg-solar-field/50"
           >
             Reopen
           </button>
@@ -539,7 +540,7 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
         <button
           type="button"
           onClick={() => onDelete(r.id)}
-          className="ml-auto rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+          className="ml-auto rounded-field border border-solar-danger/40 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-solar-danger/15"
         >
           Delete
         </button>

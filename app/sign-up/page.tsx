@@ -26,6 +26,7 @@ export default function SignUpPage() {
   // Shared
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Org-only
   const [orgName, setOrgName] = useState("");
@@ -160,16 +161,26 @@ export default function SignUpPage() {
         </label>
         <label className={labelClass}>
           Password
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`${inputClass} pr-16`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-0 flex items-center px-5 text-xs font-bold uppercase tracking-wide text-solar-sage/70 hover:text-solar-green"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
           <span className="text-xs normal-case tracking-normal text-solar-sage/60">
             At least 8 characters.
           </span>
