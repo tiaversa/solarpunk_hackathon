@@ -8,6 +8,7 @@ import {
   completeMission,
   type MissionOption,
 } from "@/lib/api-client";
+import { loadCachedCoords } from "@/lib/gps";
 import type { TopicId } from "@/lib/missionMatrix";
 import { MAX_LEVEL } from "@/lib/levels";
 
@@ -97,6 +98,7 @@ export function MissionList({
         chosenIndex: index,
         note: note.trim() ? note.trim() : undefined,
         photoFile: file,
+        coords: loadCachedCoords(),
       });
 
       // Use a full-page navigation after completion so the browser discards
@@ -148,6 +150,11 @@ export function MissionList({
                   {DURATION_LABEL[opt.duration]}
                 </span>
               </div>
+              {opt.communityRequest && (
+                <span className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+                  🤝 Recommended
+                </span>
+              )}
               <p className="text-sm leading-relaxed text-solar-sage/90">
                 {opt.brief}
               </p>
