@@ -118,12 +118,14 @@ export function CityField({ initialCity }: Props) {
     saveStatus === "error"  ? "Could not save. Try again." :
     suggestion && !initialCity
       ? `Suggested from your location: ${suggestion}. Edit if it's wrong.`
-      : "Used to ground your missions in places you can actually visit.";
+      : "Used to ground your quests in places you can actually visit.";
 
   return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-leaf-100">
-      <div ref={containerRef} className="relative flex flex-col gap-1">
-        <span className="text-sm font-medium text-leaf-700">Your city</span>
+    <section className="rounded-field border border-solar-leafmd bg-solar-panel/60 p-4">
+      <div ref={containerRef} className="relative flex flex-col gap-2">
+        <span className="text-xs uppercase tracking-wide text-solar-sage">
+          Your city
+        </span>
         <input
           type="text"
           value={city}
@@ -132,16 +134,18 @@ export function CityField({ initialCity }: Props) {
           onKeyDown={handleKeyDown}
           placeholder={suggestion ?? "Tell us where you are"}
           autoComplete="off"
-          className="rounded-lg border border-leaf-100 px-3 py-2 text-base text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+          className="w-full rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-4 py-2.5 text-base text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
         />
         {open && suggestions.length > 0 && (
-          <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-leaf-100 bg-white shadow-md">
+          <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-2xl border border-solar-leafmd bg-solar-panel shadow-lg shadow-black/40">
             {suggestions.map((s, i) => (
               <li
                 key={s}
                 onMouseDown={() => selectCity(s)}
-                className={`cursor-pointer px-3 py-2 text-sm text-leaf-700 ${
-                  i === activeIndex ? "bg-leaf-50 font-medium" : "hover:bg-leaf-50"
+                className={`cursor-pointer px-4 py-2 text-sm text-solar-sage ${
+                  i === activeIndex
+                    ? "bg-solar-field font-bold"
+                    : "hover:bg-solar-field/60"
                 }`}
               >
                 {s}
@@ -149,7 +153,9 @@ export function CityField({ initialCity }: Props) {
             ))}
           </ul>
         )}
-        <span className={`text-xs font-normal ${saveStatus === "error" ? "text-red-600" : "text-leaf-700/70"}`}>
+        <span
+          className={`text-xs ${saveStatus === "error" ? "text-red-300" : "text-solar-sage/60"}`}
+        >
           {helpText}
         </span>
       </div>

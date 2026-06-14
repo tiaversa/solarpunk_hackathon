@@ -2,13 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Solarpunk palette as "R G B" channel triplets so Tailwind can apply opacity
+ * modifiers. The dark theme is the default (:root); adding the `light` class to
+ * <html> swaps in the cohesive light variant.
+ */
 :root {
+  color-scheme: dark;
+  --solar-bg: 26 31 20; /* #1A1F14 */
+  --solar-panel: 34 42 25; /* #222A19 */
+  --solar-field: 46 64 32; /* #2E4020 */
+  --solar-leafdk: 46 56 38; /* #2E3826 */
+  --solar-leafmd: 58 74 48; /* #3A4A30 */
+  --solar-line: 74 112 48; /* #4A7030 */
+  --solar-moss: 92 122 72; /* #5C7A48 */
+  --solar-green: 122 176 80; /* #7AB050 */
+  --solar-sage: 157 184 136; /* #9DB888 */
+  --solar-cream: 232 240 216; /* #E8F0D8 */
+  --solar-danger: 171 0 8; /* #AB0008 */
+}
+
+html.light {
   color-scheme: light;
+  --solar-bg: 237 242 225; /* #EDF2E1 light cream-green page */
+  --solar-panel: 251 252 244; /* #FBFCF4 raised surface */
+  --solar-field: 228 237 209; /* #E4EDD1 input fill */
+  --solar-leafdk: 210 222 188; /* #D2DEBC inactive leaf */
+  --solar-leafmd: 188 208 158; /* #BCD09E mid leaf / borders */
+  --solar-line: 110 154 63; /* #6E9A3F dividers, muted accents */
+  --solar-moss: 79 107 61; /* #4F6B3D mid green */
+  --solar-green: 94 154 46; /* #5E9A2E primary / active green */
+  --solar-sage: 60 75 49; /* #3C4B31 primary text */
+  --solar-cream: 35 48 24; /* #233018 emphasized / heading text */
+  --solar-danger: 178 23 15; /* #B2170F destructive red */
 }
 
 html,
 body {
   min-height: 100%;
-  background: linear-gradient(180deg, #f1faec 0%, #ffffff 100%);
-  color: #1f2a1c;
+  background-color: rgb(var(--solar-bg));
+  color: rgb(var(--solar-sage));
+}
+
+/* Match native form controls to the active theme. */
+input,
+textarea,
+select {
+  color-scheme: inherit;
+}
+
+::selection {
+  background-color: rgb(var(--solar-green));
+  color: rgb(var(--solar-bg));
+}
+
+/* Thin, on-theme scrollbars for the horizontal level stepper. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

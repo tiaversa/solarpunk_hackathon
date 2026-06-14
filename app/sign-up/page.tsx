@@ -5,9 +5,11 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ApiError, registerUser } from "@/lib/api-client";
+import { Backdrop, Sprout } from "@/components/Backdrop";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +28,17 @@ export default function SignUpPage() {
         err instanceof ApiError ? err.message : "Could not create account.",
       );
       return;
+    }
+
+    // Display name isn't persisted server-side yet; stash it locally so the
+    // home greeting can address the user by name.
+    const trimmedName = name.trim();
+    if (trimmedName && typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem("solar.displayName", trimmedName);
+      } catch {
+        // Storage may be unavailable (private mode); greeting falls back to email.
+      }
     }
 
     const result = await signIn("credentials", {
@@ -47,49 +60,64 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-6 py-16">
-      <div className="text-center">
-        <span className="text-4xl" aria-hidden="true">
-          🌱
-        </span>
-        <h1 className="mt-2 text-2xl font-bold text-leaf-700">
-          Start your missions
-        </h1>
+    <main className="relative mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 px-7 py-14">
+      <Backdrop />
+
+      <div className="flex flex-col items-center gap-4 text-center">
+        <Sprout className="h-20 w-20" />
+        <div className="flex flex-col gap-2">
+          <h1 className="text-xl uppercase tracking-wide text-solar-sage">
+            Join us!
+          </h1>
+          <p className="text-sm text-solar-sage/90">
+            Create account to continue your explorations
+          </p>
+        </div>
       </div>
 
-      <form
-        onSubmit={onSubmit}
-        className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-leaf-100"
-      >
-        <label className="flex flex-col gap-1 text-sm font-medium text-leaf-700">
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <label className="flex flex-col gap-2 text-sm uppercase tracking-wide text-solar-sage">
+          Name
+          <input
+            type="text"
+            autoComplete="name"
+            placeholder="Enter name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-field border-2 border-solar-green/50 bg-solar-field/50 px-5 py-4 text-base normal-case tracking-normal text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-sm uppercase tracking-wide text-solar-sage">
           Email
           <input
             type="email"
             required
             autoComplete="email"
+            placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-leaf-100 px-3 py-2 text-base text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+            className="w-full rounded-field border-2 border-solar-green/50 bg-solar-field/50 px-5 py-4 text-base normal-case tracking-normal text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-medium text-leaf-700">
+        <label className="flex flex-col gap-2 text-sm uppercase tracking-wide text-solar-sage">
           Password
           <input
             type="password"
             required
             minLength={8}
             autoComplete="new-password"
+            placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-leaf-100 px-3 py-2 text-base text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+            className="w-full rounded-field border-2 border-solar-green/50 bg-solar-field/50 px-5 py-4 text-base normal-case tracking-normal text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
           />
-          <span className="text-xs font-normal text-leaf-700/70">
+          <span className="text-xs normal-case tracking-normal text-solar-sage/60">
             At least 8 characters.
           </span>
         </label>
 
         {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="rounded-field bg-solar-danger/15 px-4 py-3 text-sm text-red-300 ring-1 ring-solar-danger/40">
             {error}
           </p>
         )}
@@ -97,19 +125,24 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-2 rounded-lg bg-leaf-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-leaf-700 disabled:opacity-60"
+          className="mt-1 w-full rounded-field bg-solar-green px-5 py-4 text-lg font-extrabold uppercase tracking-[0.2em] text-solar-cream shadow-lg shadow-black/20 transition hover:bg-solar-moss disabled:opacity-60"
         >
           {submitting ? "Creating account…" : "Create account"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-leaf-700/80">
-        Already have an account?{" "}
-        <Link
-          className="font-semibold text-leaf-700 underline underline-offset-2"
-          href="/sign-in"
-        >
-          Sign in
+      <p className="text-center text-sm text-solar-sage/80">Sign up another way</p>
+
+      <div className="flex items-center gap-3 text-sm text-solar-sage">
+        <span className="h-px flex-1 bg-solar-line" />
+        <span className="font-bold">or</span>
+        <span className="h-px flex-1 bg-solar-line" />
+      </div>
+
+      <p className="text-center text-sm text-solar-sage/90">
+        Returning?{" "}
+        <Link className="font-bold text-solar-sage hover:text-solar-green" href="/sign-in">
+          Sign In
         </Link>
       </p>
     </main>

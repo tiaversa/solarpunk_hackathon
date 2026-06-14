@@ -1,0 +1,263 @@
+<svg width="402" xmlns="http://www.w3.org/2000/svg" height="874" id="screenshot-c989129d-28d9-8066-8008-2c385672670e" viewBox="0 0 402 874" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" version="1.1"><style>@font-face {
+    font-family: 'sourcesanspro';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url(http://penpot-frontend:8080/fonts/sourcesanspro-regular.woff) format('woff');
+  }
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DP6QtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DBKXtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><g id="shape-c989129d-28d9-8066-8008-2c385672670e"><defs><clipPath id="frame-clip-c989129d-28d9-8066-8008-2c385672670e-render-1" class="frame-clip frame-clip-def"><rect rx="0" ry="0" x="0" y="0" width="401.9999999999999" height="874" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"/></clipPath></defs><g class="frame-container-wrapper"><g class="frame-container-blur"><g class="frame-container-shadows"><g clip-path="url(#frame-clip-c989129d-28d9-8066-8008-2c385672670e-render-1)" fill="none"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672670e"><rect width="401.9999999999999" height="874" class="frame-background" x="0" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" style="fill: rgb(26, 31, 20); fill-opacity: 1;" ry="0" rx="0" y="0"/></g><g class="frame-children"><g id="shape-c989129d-28d9-8066-8008-2c4407f2bf64" style="opacity: 0.3;"><defs><filter id="filter-render-2" x="-0.917910447761194" y="-0.42462600690448793" width="2.8358208955223883" height="1.8492520138089759" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="3" result="filter_c989129d-28d9-8066-8008-2c4172cf4d64"/></filter><filter id="filter-blur-render-2" x="-0.917910447761194" y="-0.42462600690448793" width="2.8358208955223883" height="1.8492520138089759" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="3" result="filter_c989129d-28d9-8066-8008-2c4172cf4d64"/></filter></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c4407f2bf64"><path d="M1,4L15,107C15,107,40.84423828125,234.5606689453125,123,242C210.17755126953125,249.89404296875,234,196,287,209C349.67095947265625,224.3720703125,359,275,345,327C330.45867919921875,381.0108642578125,257,367,257,367C257,367,135.66015625,352.78125,92,421C60,471,72.2501220703125,556.57861328125,112,582C186.91680908203125,629.911865234375,224,597,291,615C370.36309814453125,636.3214111328125,388,715,388,715L403,873" filter="url(#filter-render-2)"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6a30ee-c989129d-28d9-8066-8008-2c4407f2bf64" class="strokes" filter="url(#filter-blur-render-2)"><g class="stroke-shape"><path d="M1,4L15,107C15,107,40.84423828125,234.5606689453125,123,242C210.17755126953125,249.89404296875,234,196,287,209C349.67095947265625,224.3720703125,359,275,345,327C330.45867919921875,381.0108642578125,257,367,257,367C257,367,135.66015625,352.78125,92,421C60,471,72.2501220703125,556.57861328125,112,582C186.91680908203125,629.911865234375,224,597,291,615C370.36309814453125,636.3214111328125,388,715,388,715L403,873" style="fill: none; stroke-width: 150; stroke: rgb(157, 184, 136); stroke-opacity: 1; stroke-linecap: round;"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672670f" rx="0" ry="0" style="opacity: 0.5;"><g id="shape-c989129d-28d9-8066-8008-2c385672671a"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671a"><path d="M147.32220458984375,673.67529296875L138.2257080078125,680.1197509765625L130.8209228515625,687.3399047851562C116.4918212890625,702.9652709960938,121.63922119140625,720.764892578125,110.52874755859375,737.3391723632812L110.28814697265625,737.7555541992188L110.2769775390625,737.7308349609375C104.98065185546875,745.9371337890625,97.37725830078125,754.5374755859375,90.056396484375,758.394775390625C69.7137451171875,769.1133422851562,44.714599609375,760.3340454101562,38.301025390625,742.2743530273438C35.07415771484375,733.1880493164062,36.141448974609375,728.9713745117188,36.92327880859375,722.4559936523438C31.744354248046875,719.6773071289062,24.71539306640625,717.8242797851562,20.62200927734375,711.1227416992188C15.764007568359375,703.1693115234375,15.68109130859375,693.8702392578125,18.882080078125,685.3114624023438C22.34332275390625,676.0568237304688,29.8946533203125,667.5376586914062,40.46331787109375,661.9690551757812C53.388092041015625,655.1589965820312,74.7633056640625,657.7802124023438,86.8564453125,660.4293823242188L105.60186767578125,664.1983642578125L147.32220458984375,673.67529296875" style="fill: rgb(46, 56, 38); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672671b"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671b"><path d="M39.36749267578125,714.8917236328125C39.36749267578125,714.8917236328125,33.9561767578125,742.3253784179688,13.017333984375,743.3407592773438C-4.654205322265625,744.1976928710938,-15.84918212890625,763.8812255859375,-15.84918212890625,763.8812255859375"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6bf89c-c989129d-28d9-8066-8008-2c385672671b" class="strokes"><g class="stroke-shape"><path d="M39.36749267578125,714.8917236328125C39.36749267578125,714.8917236328125,33.9561767578125,742.3253784179688,13.017333984375,743.3407592773438C-4.654205322265625,744.1976928710938,-15.84918212890625,763.8812255859375,-15.84918212890625,763.8812255859375" style="fill: none; stroke-width: 10; stroke: rgb(46, 56, 38); stroke-opacity: 1;"/></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726710" rx="0" ry="0" style="opacity: 0.5;"><g id="shape-c989129d-28d9-8066-8008-2c385672671c"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671c"><path d="M261.94036865234375,420.78057861328125L271.2081298828125,426.97625732421875L280.5963134765625,431.31475830078125C300.30816650390625,439.11981201171875,315.09637451171875,427.95599365234375,334.5452880859375,432.41583251953125L335.02008056640625,432.4918212890625L335.0009765625,432.5111083984375C344.5574951171875,434.528076171875,355.30584716796875,438.5592041015625,361.52288818359375,444.02008056640625C378.7987060546875,459.19439697265625,379.52471923828125,485.68035888671875,364.9456787109375,498.1197509765625C357.610595703125,504.37841796875,353.29083251953125,504.88714599609375,346.92578125,506.4832763671875C346.17950439453125,512.31298828125,346.95849609375,519.540283203125,342.160400390625,525.7567138671875C336.4659423828125,533.1344604492188,327.80950927734375,536.5323486328125,318.6719970703125,536.5985107421875C308.79150390625,536.6699829101562,298.1375732421875,532.658447265625,289.16229248046875,524.77490234375C278.18609619140625,515.1338500976562,273.00201416015625,494.23187255859375,271.15838623046875,481.98992919921875L267.98541259765625,463.13446044921875L261.94036865234375,420.78057861328125" style="fill: rgb(46, 56, 38); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672671d"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671d"><path d="M338.9874267578125,506.9012451171875C338.9874267578125,506.9012451171875,366.54473876953125,502.15997314453125,374.96990966796875,521.3558959960938C382.08038330078125,537.5564575195312,404.4637451171875,540.9849853515625,404.4637451171875,540.9849853515625"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6cd200-c989129d-28d9-8066-8008-2c385672671d" class="strokes"><g class="stroke-shape"><path d="M338.9874267578125,506.9012451171875C338.9874267578125,506.9012451171875,366.54473876953125,502.15997314453125,374.96990966796875,521.3558959960938C382.08038330078125,537.5564575195312,404.4637451171875,540.9849853515625,404.4637451171875,540.9849853515625" style="fill: none; stroke-width: 10; stroke: rgb(46, 56, 38); stroke-opacity: 1;"/></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672671e" style="opacity: 0.75;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671e"><rect rx="25" ry="25" x="24.000000000000114" y="223.00000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="372.99999999999994" style="fill: rgb(74, 112, 48); fill-opacity: 1;"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6d6775-c989129d-28d9-8066-8008-2c385672671e" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-9-c989129d-28d9-8066-8008-2c385672671e-0"><use href="#stroke-shape-render-9-c989129d-28d9-8066-8008-2c385672671e-0"/></clipPath><rect rx="25" ry="25" x="24.000000000000114" y="223.00000000000006" width="350" height="372.99999999999994" id="stroke-shape-render-9-c989129d-28d9-8066-8008-2c385672671e-0" style="fill: none; stroke-width: 4; stroke: rgb(46, 64, 32); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-9-c989129d-28d9-8066-8008-2c385672671e-0" clip-path="url('#inner-stroke-render-9-c989129d-28d9-8066-8008-2c385672671e-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672671f" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672671f"><rect rx="25" ry="25" x="23.500000000000114" y="620.5" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="125" style="fill: rgb(46, 64, 32); fill-opacity: 1;"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6dc180-c989129d-28d9-8066-8008-2c385672671f" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-10-c989129d-28d9-8066-8008-2c385672671f-0"><use href="#stroke-shape-render-10-c989129d-28d9-8066-8008-2c385672671f-0"/></clipPath><rect rx="25" ry="25" x="23.500000000000114" y="620.5" width="350" height="125" id="stroke-shape-render-10-c989129d-28d9-8066-8008-2c385672671f-0" style="fill: none; stroke-width: 4; stroke: rgb(122, 176, 80); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-10-c989129d-28d9-8066-8008-2c385672671f-0" clip-path="url('#inner-stroke-render-10-c989129d-28d9-8066-8008-2c385672671f-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726720" style="opacity: 0.75;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726720"><rect rx="25" ry="25" x="23.500000000000114" y="770" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="124" style="fill: rgb(74, 112, 48); fill-opacity: 1;"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f6e16fe-c989129d-28d9-8066-8008-2c3856726720" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-11-c989129d-28d9-8066-8008-2c3856726720-0"><use href="#stroke-shape-render-11-c989129d-28d9-8066-8008-2c3856726720-0"/></clipPath><rect rx="25" ry="25" x="23.500000000000114" y="770" width="350" height="124" id="stroke-shape-render-11-c989129d-28d9-8066-8008-2c3856726720-0" style="fill: none; stroke-width: 4; stroke: rgb(46, 64, 32); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-11-c989129d-28d9-8066-8008-2c3856726720-0" clip-path="url('#inner-stroke-render-11-c989129d-28d9-8066-8008-2c3856726720-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726712"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="111" y="142.00000000000006" width="104" height="23" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="100.8048324584961" height="30.201337814331055" id="fill-0-render-12-0"><g><rect width="100.8048324584961" height="30.201337814331055" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726712"><text x="111" y="168.29246664047247" dominant-baseline="ideographic" textLength="100.8048324584961" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 700; white-space: pre; font-size: 24px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">cooking</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726713"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="46" y="39.00000000000006" width="51" height="17" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="50.39848327636719" height="17.617448806762695" id="fill-0-render-13-0"><g><rect width="50.39848327636719" height="17.617448806762695" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726713"><text x="46" y="56.20847231149679" dominant-baseline="ideographic" textLength="50.39848327636719" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Topics</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726714" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726721"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="249" y="30" width="48" height="12" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="47.98394775390625" height="12.583890914916992" id="fill-0-render-15-0"><g><rect width="47.98394775390625" height="12.583890914916992" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726721"><text x="249" y="42.08053529262543" dominant-baseline="ideographic" textLength="47.98394775390625" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 500; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">User2932</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726722"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="299" y="30" width="60" height="12" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="59.985836029052734" height="12.583890914916992" id="fill-0-render-16-0"><g><rect width="59.985836029052734" height="12.583890914916992" style="fill: rgb(74, 112, 48); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726722"><text x="299" y="42.08053529262543" dominant-baseline="ideographic" textLength="59.985836029052734" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(74, 112, 48); fill-opacity: 1;">(sign out)</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726716" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726725" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726725"><path d="M14,88L378,87"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f718a7f-c989129d-28d9-8066-8008-2c3856726725" class="strokes"><g class="stroke-shape"><defs><marker refX="2" fill-opacity="1" orient="auto-start-reverse" id="marker-render-18-line-arrow" viewBox="0 0 3 6" fill="#5c7a48" refY="3" markerWidth="8.5" markerHeight="8.5"><path d="M 0.5 0.5 L 3 3 L 0.5 5.5 L 0 5 L 2 3 L 0 1 z"/></marker><marker refX="3" fill-opacity="1" orient="auto-start-reverse" id="marker-render-18-circle-marker" viewBox="0 0 6 6" fill="#5c7a48" refY="3" markerWidth="4" markerHeight="4"><circle cx="3" cy="3" r="3"/></marker></defs><path d="M14,88L378,87" style="fill: none; stroke-width: 2; stroke: rgb(92, 122, 72); stroke-opacity: 1; stroke-dasharray: 0, 7; stroke-linecap: round; marker-start: url(&quot;#marker-render-18-circle-marker&quot;); marker-end: url(&quot;#marker-render-18-line-arrow&quot;);"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726726" rx="0" ry="0" style="mix-blend-mode: screen;"><g id="shape-c989129d-28d9-8066-8008-2c385672672c" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672672c"><rect rx="5.855469518040735" ry="5.855469518040735" x="382.9999999999999" y="76.75000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(58, 74, 48); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672672d" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="393.06999999999994" y="77.25000000000006" width="32.860000000000014" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="29.996850967407227" height="12.583890914916992" id="fill-0-render-21-0"><g><rect width="29.996850967407227" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672672d"><text x="394.5014175844192" y="93.3573803901673" dominant-baseline="ideographic" textLength="29.996850967407227" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">teach</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726727" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c385672672e" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672672e"><rect rx="5.855469518040735" ry="5.855469518040735" x="316" y="76.75000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(58, 74, 48); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672672f" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="321.5" y="77.25000000000006" width="42" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="41.990875244140625" height="12.583890914916992" id="fill-0-render-24-0"><g><rect width="41.990875244140625" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c385672672f"><text x="321.5" y="93.3573803901673" dominant-baseline="ideographic" textLength="41.990875244140625" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">connect</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726728" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726730" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726730"><rect rx="5.855469518040735" ry="5.855469518040735" x="230" y="76.75000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="72" height="21" style="fill: rgb(58, 74, 48); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726731" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="236" y="77.25000000000006" width="59.999999999999886" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="59.985836029052734" height="12.583890914916992" id="fill-0-render-27-0"><g><rect width="59.985836029052734" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726731"><text x="236" y="93.3573803901673" dominant-baseline="ideographic" textLength="59.985836029052734" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">expirement</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726729" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726732" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726732"><rect rx="5.855469518040735" ry="5.855469518040735" x="163" y="76.75000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(58, 74, 48); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726733" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="168.5" y="77.25000000000006" width="42" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="41.990875244140625" height="12.583890914916992" id="fill-0-render-30-0"><g><rect width="41.990875244140625" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726733"><text x="168.5" y="93.3573803901673" dominant-baseline="ideographic" textLength="41.990875244140625" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">improve</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672672a" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726734" style="opacity: 1;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726734"><rect rx="5.855469518040735" ry="5.855469518040735" x="96" y="76.75000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(122, 176, 80); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726735"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="106.07000000000005" y="77.25000000000006" width="32.860000000000014" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="23.995906829833984" height="12.583890914916992" id="fill-0-render-33-0"><g><rect width="23.995906829833984" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726735"><text x="110.49795705795293" y="93.3573803901673" dominant-baseline="ideographic" textLength="23.995906829833984" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">make</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c385672672b" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2c3856726736" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726736"><rect rx="5.855469518040735" ry="5.855469518040735" x="29" y="76.50000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(92, 122, 72); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726737" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="34.5" y="77.00000000000006" width="42" height="20" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="41.990875244140625" height="12.583890914916992" id="fill-0-render-36-0"><g><rect width="41.990875244140625" height="12.583890914916992" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726737"><text x="34.5" y="93.1073803901673" dominant-baseline="ideographic" textLength="41.990875244140625" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 600; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">explore</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726738" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726738"><rect rx="5.855469518040735" ry="5.855469518040735" x="29" y="77.00000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="53" height="21" style="fill: rgb(58, 74, 48); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726739"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="45.5" y="79.00000000000006" width="20" height="17" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="19.221895217895508" height="18.120805740356445" id="fill-0-render-38-0"><g><rect width="19.221895217895508" height="18.120805740356445" style="fill: rgb(0, 0, 0); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726739"><text x="45.5" y="96.11409449577337" dominant-baseline="ideographic" textLength="19.221895217895508" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: sourcesanspro; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(0, 0, 0); fill-opacity: 1;">✅</text></g></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726717"><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726717"><path d="M28,47.4949951171875L40,47.4949951171875"/></g><g id="strokes-fab95566-b21c-8043-8008-2cf84f769ade-c989129d-28d9-8066-8008-2c3856726717" class="strokes"><g class="stroke-shape"><defs><marker refX="2" fill-opacity="1" orient="auto-start-reverse" id="marker-render-39-line-arrow" viewBox="0 0 3 6" fill="#9db888" refY="3" markerWidth="8.5" markerHeight="8.5"><path d="M 0.5 0.5 L 3 3 L 0.5 5.5 L 0 5 L 2 3 L 0 1 z"/></marker><marker refX="3" fill-opacity="1" orient="auto-start-reverse" id="marker-render-39-square" viewBox="0 0 6 6" fill="#9db888" refY="3" markerWidth="6" markerHeight="6"><rect x="3" y="2.5" width="0.5" height="1"/></marker></defs><path d="M28,47.4949951171875L40,47.4949951171875" style="fill: none; stroke-width: 2; stroke: rgb(157, 184, 136); stroke-opacity: 1; marker-start: url(&quot;#marker-render-39-line-arrow&quot;); marker-end: url(&quot;#marker-render-39-square&quot;);"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726718"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="113" y="174.00000000000006" width="102" height="12" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="101.96884155273438" height="12.583890914916992" id="fill-0-render-40-0"><g><rect width="101.96884155273438" height="12.583890914916992" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726718"><text x="113" y="186.08053529262548" dominant-baseline="ideographic" textLength="101.96884155273438" lengthAdjust="spacingAndGlyphs" style="text-transform: capitalize; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 10px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">level 2/7 - Make </text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2c3856726719"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="33" y="131.00000000000006" width="66" height="45" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="65.90813446044922" height="62.416099548339844" id="fill-0-render-41-0"><g><rect width="65.90813446044922" height="62.416099548339844" style="fill: rgb(0, 0, 0); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2c3856726719"><text x="33" y="190.8993210792542" dominant-baseline="ideographic" textLength="65.90813446044922" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: sourcesanspro; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 48px; text-decoration: none; direction: ltr; fill: rgb(0, 0, 0); fill-opacity: 1;">🍳</text></g></g></g></g></g></g></g></g></g></svg>

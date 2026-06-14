@@ -226,7 +226,7 @@ export async function getMissions(
   const cached = await db().currentMission.get(missionKey(topic, level));
   if (!cached) {
     throw new ApiError(
-      "Offline. These missions haven't been loaded before — connect once to fetch them.",
+      "Offline. These quests haven't been loaded before — connect once to fetch them.",
       503,
     );
   }
@@ -377,7 +377,7 @@ export async function regenerateMission(
     // Regenerate needs Claude; queueing it would be misleading because we
     // can't synthesise three plausible new missions client-side.
     throw new ApiError(
-      "Regenerating missions needs an internet connection.",
+      "Regenerating quests needs an internet connection.",
       503,
     );
   }

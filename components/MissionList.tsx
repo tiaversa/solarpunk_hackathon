@@ -121,44 +121,44 @@ export function MissionList({
   return (
     <div className="flex flex-col gap-3">
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-field bg-solar-danger/15 px-3 py-2 text-sm text-red-200">
           {error}
         </p>
       )}
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-4">
         {options.map((opt, i) => {
           const isChosen = chosenIndex === i;
           const isDimmed = chosenIndex !== null && !isChosen;
           return (
             <li
               key={`${aiGenerationId}-${i}`}
-              className={`flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-sm ring-1 transition ${
+              className={`flex flex-col gap-2 rounded-3xl border bg-solar-panel/70 p-5 transition ${
                 isChosen
-                  ? "ring-2 ring-leaf-600"
+                  ? "border-2 border-solar-green bg-solar-field/40"
                   : isDimmed
-                    ? "opacity-60 ring-leaf-100"
-                    : "ring-leaf-100"
+                    ? "border-solar-leafmd opacity-55"
+                    : "border-solar-leafmd"
               }`}
             >
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-base font-semibold text-leaf-700">
+                <h3 className="text-base font-bold text-solar-cream">
                   {i + 1}. {opt.title}
                 </h3>
-                <span className="shrink-0 rounded-full bg-leaf-100 px-2 py-0.5 text-xs font-medium text-leaf-700">
-                  {opt.duration} · {DURATION_LABEL[opt.duration]}
+                <span className="shrink-0 rounded-full bg-solar-field px-2.5 py-0.5 text-xs font-bold text-solar-sage ring-1 ring-solar-leafmd">
+                  {DURATION_LABEL[opt.duration]}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed text-leaf-700/90">
+              <p className="text-sm leading-relaxed text-solar-sage/90">
                 {opt.brief}
               </p>
-              <p className="text-xs italic text-leaf-700/70">💡 {opt.tip}</p>
+              <p className="text-xs italic text-solar-sage/70">💡 {opt.tip}</p>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                 {isCompleted && isChosen ? (
-                  <span className="text-xs font-semibold text-leaf-600">
+                  <span className="text-xs font-bold text-solar-green">
                     ✓ Completed
                   </span>
                 ) : isChosen ? (
-                  <span className="text-xs font-semibold text-leaf-700">
+                  <span className="text-xs font-bold text-solar-sage">
                     ✓ Chosen — ready when you’ve done it
                   </span>
                 ) : (
@@ -171,7 +171,7 @@ export function MissionList({
                         type="button"
                         onClick={() => setShowCompletion(true)}
                         disabled={completing}
-                        className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-leaf-700 disabled:opacity-60"
+                        className="rounded-full bg-solar-green px-4 py-1.5 text-sm font-bold text-solar-cream transition hover:bg-solar-moss disabled:opacity-60"
                       >
                         I did this
                       </button>
@@ -181,13 +181,13 @@ export function MissionList({
                         type="button"
                         onClick={() => onChoose(i)}
                         disabled={busyIndex !== null || completing}
-                        className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-leaf-700 disabled:opacity-60"
+                        className="rounded-full bg-solar-green px-4 py-1.5 text-sm font-bold text-solar-cream transition hover:bg-solar-moss disabled:opacity-60"
                       >
                         {busyIndex === i
                           ? "Saving…"
                           : chosenIndex !== null
                             ? "Switch to this"
-                            : "Choose this mission"}
+                            : "Choose this quest"}
                       </button>
                     )}
                   </div>
@@ -195,26 +195,26 @@ export function MissionList({
               </div>
 
               {isCompleted && isChosen && (
-                <div className="mt-2 flex flex-col gap-2 rounded-xl bg-leaf-50 p-3">
+                <div className="mt-2 flex flex-col gap-2 rounded-2xl border border-solar-leafmd bg-solar-field/40 p-3">
                   {completionNote && (
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-leaf-700">
+                      <span className="text-xs font-bold text-solar-sage">
                         Your reflection
                       </span>
-                      <p className="text-sm leading-relaxed text-leaf-700/90">
+                      <p className="text-sm leading-relaxed text-solar-sage/90">
                         {completionNote}
                       </p>
                     </div>
                   )}
                   {completionPhotoUrl && (
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-leaf-700">
+                      <span className="text-xs font-bold text-solar-sage">
                         Your photo
                       </span>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={completionPhotoUrl}
-                        alt="Mission completion photo"
+                        alt="Quest completion photo"
                         className="max-h-64 w-full rounded-lg object-cover"
                       />
                     </div>
@@ -228,9 +228,9 @@ export function MissionList({
                     e.preventDefault();
                     void onComplete(i);
                   }}
-                  className="mt-2 flex flex-col gap-2 rounded-xl bg-leaf-50 p-3"
+                  className="mt-2 flex flex-col gap-3 rounded-2xl border border-solar-leafmd bg-solar-field/40 p-3"
                 >
-                  <label className="flex flex-col gap-1 text-xs font-medium text-leaf-700">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-solar-sage">
                     Reflection (optional)
                     <textarea
                       value={note}
@@ -238,10 +238,10 @@ export function MissionList({
                       rows={3}
                       maxLength={2000}
                       placeholder="What happened? What surprised you?"
-                      className="rounded-lg border border-leaf-100 px-3 py-2 text-sm text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+                      className="rounded-2xl border-2 border-solar-green/40 bg-solar-bg/50 px-3 py-2 text-sm font-normal text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
                     />
                   </label>
-                  <label className="flex flex-col gap-1 text-xs font-medium text-leaf-700">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-solar-sage">
                     Photo (optional)
                     <input
                       ref={photoInputRef}
@@ -250,10 +250,10 @@ export function MissionList({
                       onChange={(e) =>
                         setPhotoFile(e.target.files?.[0] ?? null)
                       }
-                      className="text-xs text-leaf-700"
+                      className="mt-1 text-xs font-normal text-solar-sage file:mr-3 file:rounded-full file:border-0 file:bg-solar-green/20 file:px-3 file:py-1 file:text-solar-sage"
                     />
                     {photoFile && (
-                      <span className="flex items-center gap-2 text-[11px] font-normal text-leaf-700/80">
+                      <span className="flex items-center gap-2 text-[11px] font-normal text-solar-sage/80">
                         <span>
                           Selected: <strong>{photoFile.name}</strong> (
                           {(photoFile.size / 1024).toFixed(1)} KB)
@@ -266,7 +266,7 @@ export function MissionList({
                               photoInputRef.current.value = "";
                             }
                           }}
-                          className="text-leaf-700 underline underline-offset-2 hover:no-underline"
+                          className="text-solar-green underline underline-offset-2 hover:no-underline"
                         >
                           Remove
                         </button>
@@ -285,14 +285,14 @@ export function MissionList({
                         }
                       }}
                       disabled={completing}
-                      className="rounded-lg px-3 py-1.5 text-sm font-medium text-leaf-700 hover:underline disabled:opacity-60"
+                      className="rounded-full px-4 py-1.5 text-sm font-bold text-solar-sage hover:text-solar-green disabled:opacity-60"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={completing}
-                      className="rounded-lg bg-leaf-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-leaf-700 disabled:opacity-60"
+                      className="rounded-full bg-solar-green px-4 py-1.5 text-sm font-bold text-solar-cream hover:bg-solar-moss disabled:opacity-60"
                     >
                       {completing ? "Saving…" : "Complete & unlock next"}
                     </button>

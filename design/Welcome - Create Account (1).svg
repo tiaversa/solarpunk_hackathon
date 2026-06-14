@@ -1,0 +1,192 @@
+<svg width="402" xmlns="http://www.w3.org/2000/svg" height="874" id="screenshot-c989129d-28d9-8066-8008-2be2093ef3f5" viewBox="0 0 402 874" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" version="1.1"><style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DMyQtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DEyXtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMRrTEUc.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtM1rTEUc.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMVrTEUc.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMprTEUc.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMZrTEUc.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMdrTEUc.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(http://penpot-frontend:8080/internal/gfonts/font/sourcecodepro/v31/HI_diYsKILxRpg3hIP6sJ7fM7PqPMcMnZFqUwX28DCuXtMlrTA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><g id="shape-c989129d-28d9-8066-8008-2be2093ef3f5"><defs><clipPath id="frame-clip-c989129d-28d9-8066-8008-2be2093ef3f5-render-1" class="frame-clip frame-clip-def"><rect rx="0" ry="0" x="0" y="0" width="401.99999999999994" height="874" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"/></clipPath></defs><g class="frame-container-wrapper"><g class="frame-container-blur"><g class="frame-container-shadows"><g clip-path="url(#frame-clip-c989129d-28d9-8066-8008-2be2093ef3f5-render-1)" fill="none"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093ef3f5"><rect width="401.99999999999994" height="874" class="frame-background" x="0" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" style="fill: rgb(26, 31, 20); fill-opacity: 1;" ry="0" rx="0" y="0"/></g><g class="frame-children"><g id="shape-c989129d-28d9-8066-8008-2cf5c1fb0cc0" style="opacity: 0.3;"><defs><filter id="filter-render-2" x="-0.9179104477611941" y="-0.42462600690448793" width="2.8358208955223883" height="1.8492520138089759" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="3" result="filter_c989129d-28d9-8066-8008-2c4172cf4d64"/></filter><filter id="filter-blur-render-2" x="-0.9179104477611941" y="-0.42462600690448793" width="2.8358208955223883" height="1.8492520138089759" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="3" result="filter_c989129d-28d9-8066-8008-2c4172cf4d64"/></filter></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2cf5c1fb0cc0"><path d="M5,14L19,117C19,117,44.84423828125,244.5606689453125,127,252C214.17755126953125,259.89404296875,238,206,291,219C353.67095947265625,234.3720703125,363,285,349,337C334.45867919921875,391.0108642578125,261,377,261,377C261,377,139.66015625,362.78125,96,431C64,481,76.2501220703125,566.57861328125,116,592C190.91680908203125,639.911865234375,228,607,295,625C374.36309814453125,646.3214111328125,392,725,392,725L407,883" filter="url(#filter-render-2)"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de146a67-c989129d-28d9-8066-8008-2cf5c1fb0cc0" class="strokes" filter="url(#filter-blur-render-2)"><g class="stroke-shape"><path d="M5,14L19,117C19,117,44.84423828125,244.5606689453125,127,252C214.17755126953125,259.89404296875,238,206,291,219C353.67095947265625,234.3720703125,363,285,349,337C334.45867919921875,391.0108642578125,261,377,261,377C261,377,139.66015625,362.78125,96,431C64,481,76.2501220703125,566.57861328125,116,592C190.91680908203125,639.911865234375,228,607,295,625C374.36309814453125,646.3214111328125,392,725,392,725L407,883" style="fill: none; stroke-width: 150; stroke: rgb(157, 184, 136); stroke-opacity: 1; stroke-linecap: round;"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3f6"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093ef3f6"><rect rx="0" ry="0" x="160.99999999999994" y="49.00000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="80" height="77" style="fill: rgb(177, 178, 181); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3f7"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="157.49999999999983" y="154.00000000000006" width="87.00000000000011" height="22" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="86.4041519165039" height="22.651004791259766" id="fill-0-render-4-0"><g><rect width="86.4041519165039" height="22.651004791259766" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093ef3f7"><text x="157.49999999999983" y="175.84091681241995" dominant-baseline="ideographic" textLength="86.4041519165039" lengthAdjust="spacingAndGlyphs" style="text-transform: uppercase; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Join us!</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3f8"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="39.49999999999994" y="189.00000000000006" width="323" height="40" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="268.768310546875" height="34.4169397354126" id="fill-0-render-5-0"><g><rect width="268.768310546875" height="34.4169397354126" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern><pattern patternUnits="objectBoundingBox" width="268.768310546875" height="34.4169397354126" id="fill-1-render-5-0"><g><rect width="268.768310546875" height="34.4169397354126" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093ef3f8"><text x="66.61042022705072" y="209.30725765228277" dominant-baseline="ideographic" textLength="268.768310546875" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Create account to continue your </text></g><defs><pattern patternUnits="objectBoundingBox" width="268.768310546875" height="34.4169397354126" id="fill-0-render-5-1"><g><rect width="268.768310546875" height="34.4169397354126" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern><pattern patternUnits="objectBoundingBox" width="268.768310546875" height="34.4169397354126" id="fill-1-render-5-1"><g><rect width="268.768310546875" height="34.4169397354126" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093ef3f8"><text x="150.60002899169916" y="226.10674667358404" dominant-baseline="ideographic" textLength="100.78910064697266" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">explorations</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3f9" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2be2093f2e26" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e26"><rect rx="25" ry="25" x="45.25000000000006" y="633.1850000000002" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="311" height="59" style="fill: rgb(122, 176, 80); fill-opacity: 1;"/></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e27"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="64.75000000000006" y="639.4783333333335" width="272" height="49" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="271.6075439453125" height="30.201343536376953" id="fill-0-render-8-0"><g><rect width="271.6075439453125" height="30.201343536376953" style="fill: rgb(232, 240, 216); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e27"><text x="64.75000000000006" y="678.7322128804526" dominant-baseline="ideographic" textLength="271.6075439453125" lengthAdjust="spacingAndGlyphs" style="text-transform: uppercase; font-family: &quot;Source Code Pro&quot;; letter-spacing: 5px; font-style: normal; font-weight: 800; white-space: pre; font-size: 24px; text-decoration: none; direction: ltr; fill: rgb(232, 240, 216); fill-opacity: 1;">Create account</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3fa" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2be2093f2e28"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="102.00000000000006" y="718" width="199" height="17" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="159.58734130859375" height="17.617448806762695" id="fill-0-render-10-0"><g><rect width="159.58734130859375" height="17.617448806762695" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e28"><text x="121.70165634155279" y="735.1140931844711" dominant-baseline="ideographic" textLength="159.58734130859375" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Sign up another way</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e29"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="107.00000000000006" y="798" width="84" height="17" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="83.99748229980469" height="17.617448806762695" id="fill-0-render-11-0"><g><rect width="83.99748229980469" height="17.617448806762695" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e29"><text x="107.00000000000006" y="815.1140931844711" dominant-baseline="ideographic" textLength="83.99748229980469" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Returning?</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2a" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2c"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e2c"><path d="M45,766.4949951171875L184,766.4949951171875"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de1a08ff-c989129d-28d9-8066-8008-2be2093f2e2c" class="strokes"><g class="stroke-shape"><path d="M45,766.4949951171875L184,766.4949951171875" style="fill: none; stroke-width: 1; stroke: rgb(74, 112, 48); stroke-opacity: 1;"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2d"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e2d"><path d="M226,766.4949951171875L365,766.4949951171875"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de1abbf7-c989129d-28d9-8066-8008-2be2093f2e2d" class="strokes"><g class="stroke-shape"><path d="M226,766.4949951171875L365,766.4949951171875" style="fill: none; stroke-width: 1; stroke: rgb(74, 112, 48); stroke-opacity: 1;"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2e"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="196.50000000000006" y="758" width="17" height="17" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="16.799495697021484" height="17.617448806762695" id="fill-0-render-15-0"><g><rect width="16.799495697021484" height="17.617448806762695" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e2e"><text x="196.50000000000006" y="775.1140931844711" dominant-baseline="ideographic" textLength="16.799495697021484" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 14px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">or</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2b"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="204.00000000000006" y="795" width="76" height="22" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="75.60559844970703" height="22.6510066986084" id="fill-0-render-16-0"><g><rect width="75.60559844970703" height="22.6510066986084" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e2b"><text x="204.00000000000006" y="816.6442954540253" dominant-baseline="ideographic" textLength="75.60559844970703" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 700; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Sign In</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093ef3fb" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2be2093f2e2f"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="25.750000000000057" y="369.7283333333334" width="104" height="23" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="54.0006217956543" height="22.651002883911133" id="fill-0-render-18-0"><g><rect width="54.0006217956543" height="22.651002883911133" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e2f"><text x="25.750000000000057" y="392.07260389049856" dominant-baseline="ideographic" textLength="54.0006217956543" lengthAdjust="spacingAndGlyphs" style="text-transform: uppercase; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">EMail</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e30" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e30"><rect rx="25" ry="25" x="25.750000000000057" y="409.2283333333334" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="70" style="fill: rgb(46, 64, 32); fill-opacity: 1;"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de1c3d32-c989129d-28d9-8066-8008-2be2093f2e30" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-19-c989129d-28d9-8066-8008-2be2093f2e30-0"><use href="#stroke-shape-render-19-c989129d-28d9-8066-8008-2be2093f2e30-0"/></clipPath><rect rx="25" ry="25" x="25.750000000000057" y="409.2283333333334" width="350" height="70" id="stroke-shape-render-19-c989129d-28d9-8066-8008-2be2093f2e30-0" style="fill: none; stroke-width: 4; stroke: rgb(122, 176, 80); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-19-c989129d-28d9-8066-8008-2be2093f2e30-0" clip-path="url('#inner-stroke-render-19-c989129d-28d9-8066-8008-2be2093f2e30-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e31" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="55.75000000000006" y="433.7283333333334" width="193" height="21" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="118.80766296386719" height="22.6510066986084" id="fill-0-render-20-0"><g><rect width="118.80766296386719" height="22.6510066986084" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e31"><text x="55.75000000000006" y="455.3726287873587" dominant-baseline="ideographic" textLength="118.80766296386719" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Enter email</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2cf535d36317" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2cf535d36318"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="25.750000000000057" y="237.00000000000006" width="104" height="23" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="43.20207595825195" height="22.651002883911133" id="fill-0-render-22-0"><g><rect width="43.20207595825195" height="22.651002883911133" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2cf535d36318"><text x="25.750000000000057" y="259.3442705571652" dominant-baseline="ideographic" textLength="43.20207595825195" lengthAdjust="spacingAndGlyphs" style="text-transform: uppercase; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Name</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2cf535d38f17" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2cf535d38f17"><rect rx="25" ry="25" x="25.750000000000057" y="276.50000000000006" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="70.00000000000006" style="fill: rgb(46, 64, 32); fill-opacity: 1;"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de1da2fc-c989129d-28d9-8066-8008-2cf535d38f17" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-23-c989129d-28d9-8066-8008-2cf535d38f17-0"><use href="#stroke-shape-render-23-c989129d-28d9-8066-8008-2cf535d38f17-0"/></clipPath><rect rx="25" ry="25" x="25.750000000000057" y="276.50000000000006" width="350" height="70.00000000000006" id="stroke-shape-render-23-c989129d-28d9-8066-8008-2cf535d38f17-0" style="fill: none; stroke-width: 4; stroke: rgb(122, 176, 80); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-23-c989129d-28d9-8066-8008-2cf535d38f17-0" clip-path="url('#inner-stroke-render-23-c989129d-28d9-8066-8008-2cf535d38f17-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2cf535d38f18" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="55.75000000000006" y="301.0000000000001" width="193" height="21" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="108.0012435913086" height="22.6510066986084" id="fill-0-render-24-0"><g><rect width="108.0012435913086" height="22.6510066986084" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2cf535d38f18"><text x="55.75000000000006" y="322.6442954540254" dominant-baseline="ideographic" textLength="108.0012435913086" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Enter name</text></g></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e25" rx="0" ry="0"><g id="shape-c989129d-28d9-8066-8008-2be2093f2e32"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="25.750000000000057" y="502.45666666666676" width="104" height="20.999999999999943" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="86.4041519165039" height="22.651002883911133" id="fill-0-render-26-0"><g><rect width="86.4041519165039" height="22.651002883911133" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e32"><text x="25.750000000000057" y="523.8020907227199" dominant-baseline="ideographic" textLength="86.4041519165039" lengthAdjust="spacingAndGlyphs" style="text-transform: uppercase; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">password</text></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e33" style="opacity: 0.5;"><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e33"><rect rx="25" ry="25" x="25.749999999999943" y="539.9566666666667" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" width="350" height="70" style="fill: rgb(46, 64, 32); fill-opacity: 1;"/></g><g id="strokes-1d629284-28cf-80c6-8008-2cf9de1e8156-c989129d-28d9-8066-8008-2be2093f2e33" class="strokes"><g class="inner-stroke-shape" transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"><defs><clipPath id="inner-stroke-render-27-c989129d-28d9-8066-8008-2be2093f2e33-0"><use href="#stroke-shape-render-27-c989129d-28d9-8066-8008-2be2093f2e33-0"/></clipPath><rect rx="25" ry="25" x="25.749999999999943" y="539.9566666666667" width="350" height="70" id="stroke-shape-render-27-c989129d-28d9-8066-8008-2be2093f2e33-0" style="fill: none; stroke-width: 4; stroke: rgb(122, 176, 80); stroke-opacity: 1;"/></defs><use href="#stroke-shape-render-27-c989129d-28d9-8066-8008-2be2093f2e33-0" clip-path="url('#inner-stroke-render-27-c989129d-28d9-8066-8008-2be2093f2e33-0')"/></g></g></g><g id="shape-c989129d-28d9-8066-8008-2be2093f2e34" style="opacity: 0.5;"><g transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)" class="text-container" x="55.75000000000006" y="564.4566666666667" width="193" height="21" rx="0" ry="0"><defs><pattern patternUnits="objectBoundingBox" width="151.20330810546875" height="22.6510066986084" id="fill-0-render-28-0"><g><rect width="151.20330810546875" height="22.6510066986084" style="fill: rgb(157, 184, 136); fill-opacity: 1;"/></g></pattern></defs><g class="fills" id="fills-c989129d-28d9-8066-8008-2be2093f2e34"><text x="55.75000000000006" y="586.100962120692" dominant-baseline="ideographic" textLength="151.20330810546875" lengthAdjust="spacingAndGlyphs" style="text-transform: none; font-family: &quot;Source Code Pro&quot;; letter-spacing: normal; font-style: normal; font-weight: 400; white-space: pre; font-size: 18px; text-decoration: none; direction: ltr; fill: rgb(157, 184, 136); fill-opacity: 1;">Enter password</text></g></g></g></g></g></g></g></g></g></g></svg>

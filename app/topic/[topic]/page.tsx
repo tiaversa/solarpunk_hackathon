@@ -9,10 +9,12 @@ import {
   type MissionOption,
 } from "@/lib/missions";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
-import { isLevel, LEVELS, levelLabel, type Level } from "@/lib/levels";
-import { SignOutButton } from "@/components/SignOutButton";
+import { isLevel, levelLabel, MAX_LEVEL, type Level } from "@/lib/levels";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
+import { AppHeader } from "@/components/AppHeader";
+import { Backdrop } from "@/components/Backdrop";
+import { LevelStepper } from "@/components/LevelStepper";
 import { signedReadUrl } from "@/lib/supabase";
 
 type Props = {
@@ -63,7 +65,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
     generationError =
       err instanceof MissionGenerationError
         ? err.message
-        : "Something went wrong generating missions.";
+        : "Something went wrong generating quests.";
   }
 
   const isLevelCompleted = progress.completedLevels.includes(level);
@@ -131,98 +133,53 @@ export default async function TopicPage({ params, searchParams }: Props) {
     : (activeChoice?.chosenIndex ?? null);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-leaf-700">
-          <span className="text-2xl" aria-hidden="true">
-            🌱
-          </span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
-        </Link>
-        <div className="flex items-center gap-3 text-sm text-leaf-700/80">
-          <span>{session.user.email}</span>
-          <SignOutButton />
-        </div>
-      </header>
+    <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
+      <Backdrop />
+      <AppHeader back={{ href: "/", label: "Topics" }} username={session.user.email} />
 
-      <section className="flex flex-col gap-2">
-        <Link
-          href="/"
-          className="text-xs font-medium text-leaf-700 underline underline-offset-2"
-        >
-          ← All topics
-        </Link>
-        <div className="flex items-center gap-3">
-          <span className="text-4xl" aria-hidden="true">
-            {topic.emoji}
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold text-leaf-700">
-              {topic.label}
-            </h1>
-            <p className="text-sm text-leaf-700/70">
-              Level {level} of 6 — <strong>{levelLabel(level)}</strong> ·{" "}
-              {progress.completedLevels.length}/6 complete so far
-            </p>
-          </div>
-        </div>
-        <nav className="mt-2 flex flex-wrap gap-2">
-          {(Object.keys(LEVELS) as unknown as string[]).map((k) => {
-            const n = Number(k) as Level;
-            const done = progress.completedLevels.includes(n);
-            const isCurrent = n === level;
-            const isLocked = n > progress.currentLevel;
-
-            if (isLocked) {
-              return (
-                <span
-                  key={n}
-                  title="Complete the previous level to unlock"
-                  className="cursor-not-allowed rounded-full px-3 py-1 text-xs font-medium ring-1 bg-white text-leaf-700/30 ring-leaf-100"
-                >
-                  {n}. {levelLabel(n)} 🔒
-                </span>
-              );
-            }
-
-            return (
-              <Link
-                key={n}
-                href={`/topic/${topicId}?level=${n}`}
-                // Mission generation is an expensive Claude call. Disable
-                // App Router's speculative prefetch so hovering / scrolling
-                // past pills never triggers a real generation.
-                prefetch={false}
-                className={`rounded-full px-3 py-1 text-xs font-medium ring-1 transition ${
-                  isCurrent
-                    ? "bg-leaf-600 text-white ring-leaf-700"
-                    : done
-                      ? "bg-leaf-100 text-leaf-700 ring-leaf-100 hover:ring-leaf-500"
-                      : "bg-white text-leaf-700/70 ring-leaf-100 hover:ring-leaf-500"
-                }`}
-              >
-                {n}. {levelLabel(n)}
-                {done ? " ✓" : ""}
-              </Link>
-            );
-          })}
-        </nav>
-      </section>
-
-      <TopicHeaderActions
+      <LevelStepper
         topic={topicId}
         level={level}
-        canRegenerate={Boolean(options && aiGenerationId)}
+        currentLevel={progress.currentLevel}
+        completedLevels={progress.completedLevels}
       />
 
+      <section className="flex items-center gap-3">
+        <span
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-solar-field text-2xl ring-1 ring-solar-leafmd"
+          aria-hidden="true"
+        >
+          {topic.emoji}
+        </span>
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold text-solar-cream">{topic.label}</h1>
+          <p className="text-sm text-solar-sage/80">
+            Level {level} of {MAX_LEVEL} — {levelLabel(level)} ·{" "}
+            {progress.completedLevels.length}/{MAX_LEVEL} complete
+          </p>
+        </div>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href={`/topic/${topicId}/progress`}
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-solar-green transition hover:text-solar-sage"
+        >
+          🌱 Your progress
+        </Link>
+        <TopicHeaderActions
+          topic={topicId}
+          level={level}
+          canRegenerate={Boolean(options && aiGenerationId)}
+        />
+      </div>
+
       {generationError ? (
-        <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700 ring-1 ring-red-100">
-          <p className="font-semibold">Couldn’t generate missions.</p>
+        <div className="rounded-field border border-solar-danger/40 bg-solar-danger/15 p-4 text-sm text-red-200">
+          <p className="font-bold text-red-100">Couldn’t generate quests.</p>
           <p className="mt-1">{generationError}</p>
-          <p className="mt-2 text-xs">
-            Reloading this page will try again. Check the dev server logs and
-            <code className="mx-1 rounded bg-white px-1 py-0.5">AiGeneration</code>
-            table for the recorded error row.
+          <p className="mt-2 text-xs text-red-200/80">
+            Reloading this page will try again.
           </p>
         </div>
       ) : (
@@ -230,21 +187,18 @@ export default async function TopicPage({ params, searchParams }: Props) {
         aiGenerationId && (
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-leaf-700">
-                {fromCache
-                  ? "Your saved missions for this level"
-                  : "Your 3 new missions for this level"}
+              <h2 className="text-lg font-bold text-solar-cream">
+                {fromCache ? "Your saved quests" : "Your new quests"}
               </h2>
-              <span className="font-mono text-[10px] text-leaf-700/40">
+              <span className="font-mono text-[10px] text-solar-sage/40">
                 gen {aiGenerationId.slice(0, 8)}
               </span>
             </div>
             {fromCache && (
-              <p className="rounded-xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700/80 ring-1 ring-leaf-100">
-                You already have missions generated for this level. Want something
-                different? Use the{" "}
-                <strong className="font-semibold">Regenerate options</strong>{" "}
-                button above to generate a new set.
+              <p className="rounded-field border border-solar-leafmd bg-solar-panel/60 px-4 py-3 text-sm text-solar-sage/80">
+                You already have quests for this level. Want something
+                different? Use <strong className="text-solar-sage">Regenerate</strong>{" "}
+                above for a new set.
               </p>
             )}
             <MissionList
