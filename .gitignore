@@ -231,6 +231,10 @@ next-env.d.ts
 build/
 coverage/
 
+# Generated service worker (rebuilt on every Next.js build)
+public/sw.js
+public/sw.js.map
+
 # Prisma — generated client is fine to ignore (regenerated on install)
 prisma/.generated/
 

@@ -250,6 +250,7 @@ export type MissionOption = {
   brief: string;
   tip: string;
   duration: "short" | "medium" | "long";
+  communityRequest?: string;
 };
 
 export type MissionsResponse = {
@@ -358,6 +359,7 @@ export type CompleteMissionPayload = {
   aiGenerationId: string;
   chosenIndex: number;
   note?: string;
+  coords?: { lat: number; lng: number } | null;
   /**
    * The picked image File. Online: we upload it directly to Supabase
    * Storage via a signed URL, then submit the resulting path. Offline:
@@ -435,6 +437,7 @@ export async function completeMission(
       chosenIndex: payload.chosenIndex,
       note: payload.note,
       photoPath,
+      ...(payload.coords ? { lat: payload.coords.lat, lng: payload.coords.lng } : {}),
     }),
   });
 }
