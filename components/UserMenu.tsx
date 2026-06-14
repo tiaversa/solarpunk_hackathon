@@ -10,6 +10,7 @@ type Props = {
 };
 
 const ITEMS = [
+  { href: "/side-quests", label: "City side quests" },
   { href: "/history", label: "History" },
   { href: "/preferences", label: "Preferences" },
 ];

@@ -20,6 +20,14 @@
   --solar-sage: 157 184 136; /* #9DB888 */
   --solar-cream: 232 240 216; /* #E8F0D8 */
   --solar-danger: 171 0 8; /* #AB0008 */
+
+  /*
+   * Logo colors. Dark theme (default) uses the lighter "dark mode" logo
+   * variant — a sage leaf with a dark accent letter — so the mark stays
+   * legible against the dark page instead of sinking into it.
+   */
+  --logo-leaf: 157 184 136; /* #9DB888 sage */
+  --logo-accent: 46 64 32; /* #2E4020 dark field */
 }
 
 html.light {
@@ -35,6 +43,24 @@ html.light {
   --solar-sage: 60 75 49; /* #3C4B31 primary text */
   --solar-cream: 35 48 24; /* #233018 emphasized / heading text */
   --solar-danger: 178 23 15; /* #B2170F destructive red */
+
+  /* Light theme keeps the original "light mode" logo variant. */
+  --logo-leaf: 46 56 38; /* #2E3826 dark leaf */
+  --logo-accent: 122 176 80; /* #7AB050 primary green */
+}
+
+/*
+ * Theme-aware logo parts. CSS wins over the SVG presentation attributes, so the
+ * inline fills act as a fallback while these drive the active theme.
+ */
+.logo-leaf {
+  fill: rgb(var(--logo-leaf));
+}
+.logo-stroke {
+  stroke: rgb(var(--logo-leaf));
+}
+.logo-accent {
+  fill: rgb(var(--logo-accent));
 }
 
 html,
