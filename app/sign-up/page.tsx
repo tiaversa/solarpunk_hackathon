@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ApiError, registerUser } from "@/lib/api-client";
 import { CityCombobox } from "@/components/CityCombobox";
+import { createClient } from "@/lib/supabase-client";
 
 type AccountType = "person" | "org";
 
@@ -55,26 +55,19 @@ export default function SignUpPage() {
 
     const { org: createdOrg } = registered;
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    // Sign in with Supabase Auth after registration
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
     setSubmitting(false);
 
-    if (!result || result.error) {
+    if (signInError) {
       setError("Account created — please sign in.");
       router.push("/sign-in");
       return;
     }
 
-    if (createdOrg) {
-      router.push(`/org/${createdOrg.id}`);
-    } else {
-      router.push("/");
-    }
-    router.refresh();
+    window.location.href = createdOrg ? `/org/${createdOrg.id}` : "/";
   }
 
   const inputClass =

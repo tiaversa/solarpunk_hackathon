@@ -1,25 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase-server";
 import { SignOutButton } from "@/components/SignOutButton";
 import { PreferencesForm } from "@/components/PreferencesForm";
 
 export default async function PreferencesPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect("/sign-in?callbackUrl=/preferences");
-  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in?callbackUrl=/preferences");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { email: true, interests: true, preferredDuration: true },
-  });
+  const { data: profile } = await supabase
+    .from("User")
+    .select("email, interests, preferredDuration")
+    .eq("authId", user.id)
+    .single();
 
-  if (!user) {
-    redirect("/sign-in");
-  }
+  if (!profile) redirect("/sign-in");
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-6 py-12">
@@ -31,7 +27,7 @@ export default async function PreferencesPage() {
           <span className="text-lg font-semibold">Solarpunk Missions</span>
         </Link>
         <div className="flex items-center gap-3 text-sm text-leaf-700/80">
-          <span>{user.email}</span>
+          <span>{profile.email}</span>
           <SignOutButton />
         </div>
       </header>
@@ -46,18 +42,13 @@ export default async function PreferencesPage() {
         <h1 className="text-2xl font-bold text-leaf-700">Your preferences</h1>
         <p className="text-sm text-leaf-700/70">
           Tune how Claude generates missions for you. Changes apply to your
-          next set of mission options (existing generations stay as they
-          are).
+          next set of mission options (existing generations stay as they are).
         </p>
       </section>
 
       <PreferencesForm
-        initialInterests={user.interests}
-        initialPreferredDuration={user.preferredDuration as
-          | "short"
-          | "medium"
-          | "long"
-          | null}
+        initialInterests={profile.interests ?? []}
+        initialPreferredDuration={profile.preferredDuration as "short" | "medium" | "long" | null}
       />
     </main>
   );

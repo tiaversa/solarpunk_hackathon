@@ -2,6 +2,24 @@
 
 import { useState } from "react";
 import { type TopicId } from "@/lib/missionMatrix";
+import { createClient } from "@/lib/supabase-client";
+
+async function orgFetch(path: string, init?: RequestInit): Promise<Response> {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const token = session?.access_token ?? anonKey;
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL + "/functions/v1";
+  return fetch(`${base}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      apikey: anonKey,
+      Authorization: `Bearer ${token}`,
+      ...(init?.headers ?? {}),
+    },
+  });
+}
 
 type Topic = { id: TopicId; emoji: string; label: string };
 
@@ -48,9 +66,8 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
   }
 
   async function onStatusChange(reqId: string, status: "open" | "filled" | "expired") {
-    const res = await fetch(`/api/orgs/${orgId}/requests/${reqId}`, {
+    const res = await orgFetch(`/orgs/${orgId}/requests/${reqId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     if (!res.ok) return;
@@ -61,7 +78,7 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
 
   async function onDelete(reqId: string) {
     if (!confirm("Delete this request?")) return;
-    const res = await fetch(`/api/orgs/${orgId}/requests/${reqId}`, {
+    const res = await orgFetch(`/orgs/${orgId}/requests/${reqId}`, {
       method: "DELETE",
     });
     if (res.ok || res.status === 204) {
@@ -210,9 +227,8 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`/api/orgs/${orgId}/requests`, {
+      const res = await orgFetch(`/orgs/${orgId}/requests`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           category,
           title: title.trim(),
