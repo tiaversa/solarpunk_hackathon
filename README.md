@@ -35,18 +35,29 @@ supabase start
 
 This spins up Postgres (port 54322), Auth, Kong API gateway, and Studio (port 54323). On first run it pulls Docker images — takes a few minutes.
 
-After it starts, copy the printed keys into `.env.local`:
+After it starts, look for the **Authentication Keys** section in the output:
+
+```
+╭──────────────────────────────────────────────────────────────╮
+│ 🔑 Authentication Keys                                       │
+├─────────────┬────────────────────────────────────────────────┤
+│ Publishable │ sb_publishable_...                             │
+│ Secret      │ sb_secret_...                                  │
+╰─────────────┴────────────────────────────────────────────────╯
+```
+
+Then create `.env.local`:
 
 ```bash
 # .env.local
 NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon key from supabase start>"
-SUPABASE_SERVICE_ROLE_KEY="<service_role key from supabase start>"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_..."   # Publishable key
+SUPABASE_SERVICE_ROLE_KEY="sb_secret_..."            # Secret key
 DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-The local anon and service_role keys are fixed demo values printed by `supabase start` — they are not secrets.
+> These keys are fixed demo values — they are the same for every local Supabase project and are not secrets.
 
 ### 3. Apply migrations
 

@@ -30,6 +30,7 @@ const MissionOption = z.object({
   brief: z.string().min(1).max(800),
   tip: z.string().min(1).max(400),
   duration: z.enum(["short", "medium", "long"]),
+  communityRequest: z.string().max(200).optional(),
 });
 type MissionOption = z.infer<typeof MissionOption>;
 const MissionOptionsArray = z.array(MissionOption).length(MISSION_OPTIONS_COUNT);
@@ -453,6 +454,7 @@ function buildMissionPrompt(input: {
           `  ${i + 1}. ${o.orgName}: "${o.title}" — ${o.description} (${o.distanceKm.toFixed(1)} km away)`,
         ),
         `For at least one option, design it so the learner could directly help fulfil one of these requests.`,
+        `When an option is directly inspired by one of those requests, add a "communityRequest" key with the value "<OrgName>: <RequestTitle>" (e.g. "Cruz Roja: We need translator to braille"). Omit the key for generic options.`,
       ]
     : [];
 
@@ -470,7 +472,7 @@ function buildMissionPrompt(input: {
     ``,
     `Output rules:`,
     `- Return ONLY a raw JSON array. No prose, no markdown fences.`,
-    `- Exactly 3 items with keys: "title" (<=60 chars), "brief" (1-2 sentences), "tip" (1 sentence), "duration" ("short"|"medium"|"long").`,
+    `- Exactly 3 items with keys: "title" (<=60 chars), "brief" (1-2 sentences), "tip" (1 sentence), "duration" ("short"|"medium"|"long"), and optionally "communityRequest" (string, only when tied to a nearby request).`,
     `- Strict JSON parseable by JSON.parse.`,
   ].join("\n");
 }
