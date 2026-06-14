@@ -14,6 +14,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
 import { signedReadUrl } from "@/lib/supabase";
+import type { CityResourcePlace } from "@/lib/api-client";
 
 type Props = {
   params: { topic: string };
@@ -129,6 +130,33 @@ export default async function TopicPage({ params, searchParams }: Props) {
       ? (completion.chosenMissionIndex ?? null)
       : null
     : (activeChoice?.chosenIndex ?? null);
+
+  // Solarpunk-aligned local places for this user's city + topic.
+  //
+  // The actual lookup (Nominatim + Overpass) runs inside
+  // POST /api/mission/choose. Here we only ever READ from the cache —
+  // by the time this server component re-renders after a choose action,
+  // the CityResources row for (city, topic) is already populated. We
+  // gate the read on initialChosenIndex !== null so we don't render a
+  // "places nearby" section before the user has actually committed to
+  // a mission (per the design: places appear AFTER choose, as support).
+  let cityPlaces: CityResourcePlace[] = [];
+  if (initialChosenIndex !== null) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { city: true },
+    });
+    const city = user?.city?.trim();
+    if (city) {
+      const row = await prisma.cityResources.findUnique({
+        where: { city_topic: { city, topic: topicId } },
+        select: { places: true },
+      });
+      if (row) {
+        cityPlaces = row.places as unknown as CityResourcePlace[];
+      }
+    }
+  }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
@@ -255,6 +283,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
               options={options}
               initialChosenIndex={initialChosenIndex}
               isCompleted={isLevelCompleted}
+              cityPlaces={cityPlaces}
               completionNote={completion?.note ?? null}
               completionPhotoUrl={completionPhotoUrl}
             />

@@ -131,6 +131,46 @@ model UserPreferenceSummary {
   // Actual population of this table is Step 11 (stretch).
 }
 
+/// Cached Solarpunk-aligned places per (city, topic), looked up on-demand
+/// when a user picks a mission and reused across all users in the same
+/// city. Backed by OpenStreetMap (Nominatim for geocoding + Overpass for
+/// tagged places). Stays valid until manually invalidated; `refreshedAt`
+/// lets a future cron refresh stale rows without dropping them.
+model CityResources {
+  id          String   @id @default(uuid())
+  // `city` is stored verbatim from User.city (trimmed). Normalising
+  // ("Berlin" vs "Berlin, Germany") via Nominatim's canonical name is a
+  // v2 improvement; for now duplicates are a minor cache-efficiency
+  // hit, not a correctness issue.
+  city        String
+  topic       String
+  // Center used for the Overpass `around:` query — handy for future
+  // distance calculations or map rendering. Null only if Nominatim
+  // returned no result and we cached an empty places list anyway.
+  centerLat   Float?
+  centerLon   Float?
+  // Array of CityResourcePlace objects (see lib/cityResources.ts).
+  places      Json     @db.JsonB
+  // Empty results are valid (e.g. small city, sparse OSM coverage).
+  // The count is denormalised here for cheap "did the lookup find
+  // anything?" filtering without parsing the JSON column.
+  placesCount Int      @default(0)
+  // Captured to make A/B'ing OSM query tweaks easy: the same row from
+  // last week's query set is still useful for display, but you can
+  // detect "this row predates the cooking-tag expansion" by version.
+  querySetVersion String
+  // `@updatedAt` makes Prisma auto-bump this whenever the row is
+  // updated (e.g. when stale data gets re-fetched from OSM). The
+  // staleness threshold lives in lib/cityResources.ts as
+  // CACHE_TTL_DAYS — rows older than that are treated as cache misses
+  // and re-fetched on the next choose action.
+  refreshedAt DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@unique([city, topic])
+  @@index([city])
+}
+
 model Completion {
   id                 String   @id @default(uuid())
   userId             String

@@ -6,6 +6,7 @@ import {
   ApiError,
   chooseMission,
   completeMission,
+  type CityResourcePlace,
   type MissionOption,
 } from "@/lib/api-client";
 import type { TopicId } from "@/lib/missionMatrix";
@@ -17,6 +18,12 @@ const DURATION_LABEL: Record<MissionOption["duration"], string> = {
   long: "half-day+",
 };
 
+// How many CityResources places we surface under the chosen card.
+// Decoupled from MAX_PLACES_PER_LOOKUP in lib/cityResources.ts (which
+// controls how many we *cache*) so we can later show 5 by default and
+// add a "see more" affordance without touching the cache layer.
+const MAX_PLACES_TO_SHOW = 5;
+
 type Props = {
   topic: TopicId;
   level: number;
@@ -24,9 +31,22 @@ type Props = {
   options: MissionOption[];
   initialChosenIndex: number | null;
   isCompleted?: boolean;
+  /**
+   * Solarpunk-aligned local places for this user's (city, topic),
+   * loaded from CityResources on the server. Empty array when the
+   * user hasn't set a city, OSM was unreachable when they picked, or
+   * we genuinely found nothing nearby. The UI hides the section in
+   * all empty cases — silent absence is less misleading than a
+   * "no places found" notice.
+   */
+  cityPlaces?: CityResourcePlace[];
   completionNote?: string | null;
   completionPhotoUrl?: string | null;
 };
+
+function osmUrl(p: CityResourcePlace): string {
+  return `https://www.openstreetmap.org/${p.osmType}/${p.osmId}`;
+}
 
 export function MissionList({
   topic,
@@ -35,6 +55,7 @@ export function MissionList({
   options,
   initialChosenIndex,
   isCompleted = false,
+  cityPlaces = [],
   completionNote,
   completionPhotoUrl,
 }: Props) {
@@ -193,6 +214,46 @@ export function MissionList({
                   </div>
                 )}
               </div>
+
+              {!isCompleted && isChosen && cityPlaces.length > 0 && (
+                <div className="mt-2 flex flex-col gap-2 rounded-xl bg-leaf-50 p-3">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-xs font-medium text-leaf-700">
+                      Places nearby that fit this mission
+                    </span>
+                    <span className="text-[10px] text-leaf-700/60">
+                      via OpenStreetMap
+                    </span>
+                  </div>
+                  <ul className="flex flex-col gap-2">
+                    {cityPlaces.slice(0, MAX_PLACES_TO_SHOW).map((p) => (
+                      <li
+                        key={`${p.osmType}-${p.osmId}`}
+                        className="flex flex-col gap-0.5 rounded-lg bg-white p-2 ring-1 ring-leaf-100"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <a
+                            href={osmUrl(p)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-semibold text-leaf-700 hover:underline"
+                          >
+                            {p.name}
+                          </a>
+                          <span className="shrink-0 rounded-full bg-leaf-100 px-2 py-0.5 text-[10px] font-medium text-leaf-700">
+                            {p.category}
+                          </span>
+                        </div>
+                        {p.address && (
+                          <span className="text-xs text-leaf-700/70">
+                            {p.address}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {isCompleted && isChosen && (
                 <div className="mt-2 flex flex-col gap-2 rounded-xl bg-leaf-50 p-3">

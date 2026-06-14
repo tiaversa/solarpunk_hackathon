@@ -253,9 +253,32 @@ export type ChooseMissionPayload = {
   chosenIndex: number;
 };
 
+/**
+ * Solarpunk-aligned local place returned alongside a mission choice.
+ * Sourced from OpenStreetMap via lib/cityResources.ts, scoped to the
+ * user's (city, topic). Empty array on lookup failure / timeout — never
+ * absent. Mirrors the CityResourcePlace shape in lib/cityResources.ts.
+ */
+export type CityResourcePlace = {
+  name: string;
+  category: string;
+  osmType: "node" | "way" | "relation";
+  osmId: number;
+  lat: number;
+  lon: number;
+  address: string | null;
+  url: string | null;
+};
+
 export type ChooseMissionResponse = {
   missionChoiceId: string;
   status: "active" | "abandoned" | "completed";
+  /**
+   * Always present on the online path. The offline-queued synthetic
+   * response also includes it (as an empty array) so callers can treat
+   * the field as required.
+   */
+  places: CityResourcePlace[];
 };
 
 export async function chooseMission(
@@ -274,7 +297,7 @@ export async function chooseMission(
       .catch(() => {
         /* row may not exist yet; choose was queued anyway */
       });
-    return { missionChoiceId: "local-pending", status: "active" };
+    return { missionChoiceId: "local-pending", status: "active", places: [] };
   }
   return request<ChooseMissionResponse>("/api/mission/choose", {
     method: "POST",

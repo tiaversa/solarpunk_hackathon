@@ -6,6 +6,17 @@ import { requireUserId } from "@/lib/auth-helper";
 import { isTopicId, TOPIC_IDS, type TopicId } from "@/lib/missionMatrix";
 import { isLevel, MAX_LEVEL, MIN_LEVEL, type Level } from "@/lib/levels";
 import { MISSION_OPTIONS_COUNT } from "@/lib/missions";
+import {
+  findOrFetchCityResources,
+  type CityResourcePlace,
+} from "@/lib/cityResources";
+
+// Hard ceiling on the OSM lookup. Cache hits return in <50ms; cold
+// lookups call out to Nominatim + Overpass which can be slow under
+// load. Capping at 3s keeps the choose action snappy — if OSM is having
+// a bad day the user just sees zero places and we'll populate the
+// cache on the next attempt.
+const CITY_RESOURCES_BUDGET_MS = 3000;
 
 const Body = z.object({
   topic: z.string().refine(isTopicId, {
@@ -93,9 +104,16 @@ export async function POST(req: Request) {
           select: { id: true, status: true },
         });
 
+    // Fetch (or read cached) Solarpunk-aligned local places for this
+    // user's city + topic. The lookup is best-effort: any failure or
+    // timeout yields an empty list — the choose action itself has
+    // already succeeded above and must not be unwound.
+    const places = await lookupCityPlaces(auth.userId, topic);
+
     return NextResponse.json({
       missionChoiceId: row.id,
       status: row.status,
+      places,
     });
   } catch (err) {
     // P2002 = unique constraint violation. Should be rare thanks to the
@@ -111,5 +129,45 @@ export async function POST(req: Request) {
       );
     }
     throw err;
+  }
+}
+
+/**
+ * Look up the user's city, then fetch (or read cached) Solarpunk-aligned
+ * places for (city, topic). Returns [] for any failure path:
+ *
+ *   - user has no city set
+ *   - the overall 3s budget elapses
+ *   - Nominatim or Overpass time out or 5xx
+ *   - the cache lookup throws
+ *
+ * Failures are intentionally swallowed: the choose action already
+ * succeeded by the time we get here and missing places must never
+ * surface as a 5xx to the client.
+ */
+async function lookupCityPlaces(
+  userId: string,
+  topic: TopicId,
+): Promise<CityResourcePlace[]> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { city: true },
+    });
+    const city = user?.city?.trim();
+    if (!city) return [];
+
+    const controller = new AbortController();
+    const timer = setTimeout(
+      () => controller.abort(),
+      CITY_RESOURCES_BUDGET_MS,
+    );
+    try {
+      return await findOrFetchCityResources(city, topic, controller.signal);
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    return [];
   }
 }
