@@ -3,7 +3,7 @@
 // Set LOCAL_SUPABASE_URL and LOCAL_SERVICE_ROLE_KEY or it defaults to local dev values.
 
 import { createClient } from "@supabase/supabase-js";
-import cities from "cities.json" assert { type: "json" };
+import cities from "cities.json" with { type: "json" };
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ??
