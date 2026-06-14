@@ -28,10 +28,6 @@ model User {
   // requires a server-side hashed password. It is never returned to the client.
   passwordHash      String
   city              String?
-  // latitude and longitude are reserved for future GPS support; the current
-  // implementation uses server-side IP geolocation (Step 3).
-  latitude          Float?
-  longitude         Float?
   interests         String[] @default([])
   preferredDuration String? // 'short' | 'medium' | 'long'
   createdAt         DateTime @default(now())
@@ -42,6 +38,7 @@ model User {
   missionChoices    MissionChoice[]
   completions       Completion[]
   preferenceSummary UserPreferenceSummary?
+  organizations     Organization[]
 }
 
 model Progress {
@@ -67,6 +64,10 @@ model AiGeneration {
   missionTypeLabel      String
   matrixCellText        String
   city                  String
+  // GPS coordinates captured from the browser at generation time.
+  // Null when the user denied location or the browser didn't provide it.
+  latitude              Float?
+  longitude             Float?
   // promptSent / rawResponse are kept INLINE for rows generated when
   // cold storage is disabled (no CLOUDINARY_URL). When enabled, the
   // payloads are uploaded to Cloudinary as raw JSON files and the URL
@@ -129,6 +130,61 @@ model UserPreferenceSummary {
 
   // Created in Step 5 (empty) so the triggers there have a target table.
   // Actual population of this table is Step 11 (stretch).
+}
+
+// ---------------------------------------------------------------------------
+// Community organisations and their service requests
+// ---------------------------------------------------------------------------
+
+model Organization {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  email           String   @unique
+  phone           String?
+  website         String?
+  city            String?
+  // Optional fixed location (org HQ / main site). Individual requests carry
+  // their own lat/lng for the specific activity location.
+  lat             Float?
+  lng             Float?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  createdBy       User             @relation(fields: [createdByUserId], references: [id])
+  serviceRequests ServiceRequest[]
+
+  @@index([createdByUserId])
+}
+
+model ServiceRequest {
+  id                String    @id @default(uuid())
+  organizationId    String
+  // Aligns with TopicId values: cooking | fashion | games | tech | music |
+  // accessibility | gardening. Controls which mission generations see this.
+  category          String
+  title             String
+  description       String
+  // Where the activity takes place (may differ from the org's HQ).
+  lat               Float
+  lng               Float
+  // radiusKm: how far from the activity location we consider a user "nearby".
+  radiusKm          Float     @default(5)
+  capacityTotal     Int       @default(1)
+  capacityRemaining Int       @default(1)
+  expiresAt         DateTime?
+  status            String    @default("open") // open | filled | expired
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([status, category])
+  @@index([organizationId])
+  // Spatial pre-filter: lat/lng indexed separately so the bounding-box WHERE
+  // clause in findNearbyOpportunities uses an index scan.
+  @@index([lat, lng])
 }
 
 model Completion {

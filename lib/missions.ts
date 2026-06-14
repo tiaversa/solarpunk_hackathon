@@ -29,6 +29,7 @@ import {
   getCachedPreferenceSummary,
   type Duration,
 } from "@/lib/missionPrompt";
+import { findNearbyOpportunities } from "@/lib/serviceRequests";
 import { matrixCellText, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, type Level } from "@/lib/levels";
 import { randomUUID } from "node:crypto";
@@ -68,6 +69,8 @@ type CoreInput = {
   userId: string;
   topic: TopicId;
   level: Level;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export async function getOrGenerateMission(
@@ -134,6 +137,17 @@ async function generateAndPersist(
   const preferenceSummary = await getCachedPreferenceSummary(input.userId);
   const city = (user.city ?? "").trim();
 
+  // From "Make" (level 2) onwards, try to match nearby community requests.
+  // Requires GPS coords — server-side generation without coords gets no matches.
+  const nearbyOpportunities =
+    input.level >= 2 && input.latitude != null && input.longitude != null
+      ? await findNearbyOpportunities(
+          input.topic,
+          input.latitude,
+          input.longitude,
+        ).catch(() => []) // matching is best-effort; never block generation
+      : [];
+
   const preferredDuration =
     user.preferredDuration === "short" ||
     user.preferredDuration === "medium" ||
@@ -145,11 +159,14 @@ async function generateAndPersist(
     topic: input.topic,
     level: input.level,
     city,
+    latitude: input.latitude,
+    longitude: input.longitude,
     matrixCellText: cell,
     missionTypeLabel: label,
     interests: user.interests,
     preferredDuration,
     preferenceSummary,
+    nearbyOpportunities,
   });
   if (opts.isRegeneration) {
     prompt +=
@@ -222,6 +239,8 @@ async function generateAndPersist(
       missionTypeLabel: label,
       matrixCellText: cell,
       city,
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
       promptSent: promptSentForRow,
       promptSentUrl,
       promptVersion: MISSION_PROMPT_VERSION,

@@ -104,7 +104,8 @@ export async function getSession(): Promise<SessionResponse> {
 export async function registerUser(payload: {
   email: string;
   password: string;
-}): Promise<{ user: { id: string; email: string } }> {
+  org?: { name: string; description?: string; city?: string };
+}): Promise<{ user: { id: string; email: string }; org?: { id: string; name: string } }> {
   return request("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -372,6 +373,7 @@ export async function completeMission(
 export async function regenerateMission(
   topic: TopicId,
   level: number,
+  coords?: { lat: number; lng: number } | null,
 ): Promise<MissionsResponse> {
   if (isOffline()) {
     // Regenerate needs Claude; queueing it would be misleading because we
@@ -383,7 +385,11 @@ export async function regenerateMission(
   }
   return request<MissionsResponse>("/api/mission/regenerate", {
     method: "POST",
-    body: JSON.stringify({ topic, level }),
+    body: JSON.stringify({
+      topic,
+      level,
+      ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
+    }),
   });
 }
 

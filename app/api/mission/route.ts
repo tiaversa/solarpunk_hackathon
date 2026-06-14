@@ -20,6 +20,8 @@ const Query = z.object({
     .refine(isLevel, {
       message: `level must be an integer ${MIN_LEVEL}-${MAX_LEVEL}`,
     }),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional(),
 });
 
 export async function GET(req: Request) {
@@ -30,6 +32,8 @@ export async function GET(req: Request) {
   const parsed = Query.safeParse({
     topic: url.searchParams.get("topic") ?? "",
     level: url.searchParams.get("level") ?? "",
+    lat: url.searchParams.get("lat") ?? undefined,
+    lng: url.searchParams.get("lng") ?? undefined,
   });
   if (!parsed.success) {
     return NextResponse.json(
@@ -43,6 +47,8 @@ export async function GET(req: Request) {
       userId: auth.userId,
       topic: parsed.data.topic as TopicId,
       level: parsed.data.level as Level,
+      latitude: parsed.data.lat,
+      longitude: parsed.data.lng,
     });
     return NextResponse.json(result);
   } catch (err) {

@@ -17,6 +17,8 @@ const Body = z.object({
   level: z.number().int().refine(isLevel, {
     message: `level must be an integer ${MIN_LEVEL}-${MAX_LEVEL}`,
   }),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
 });
 
 export async function POST(req: Request) {
@@ -39,6 +41,8 @@ export async function POST(req: Request) {
   }
   const topic = parsed.data.topic as TopicId;
   const level = parsed.data.level as Level;
+  const latitude = parsed.data.lat;
+  const longitude = parsed.data.lng;
 
   // 1. Retire the prior active generation row(s) so the cache lookup in
   //    GET /api/mission won't return them again.
@@ -65,6 +69,8 @@ export async function POST(req: Request) {
       userId: auth.userId,
       topic,
       level,
+      latitude,
+      longitude,
     });
     revalidatePath(`/topic/${topic}`);
     return NextResponse.json(result);

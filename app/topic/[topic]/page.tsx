@@ -14,6 +14,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
 import { signedReadUrl } from "@/lib/supabase";
+import { LocationTracker } from "@/components/LocationTracker";
 
 type Props = {
   params: { topic: string };
@@ -30,6 +31,13 @@ export default async function TopicPage({ params, searchParams }: Props) {
     redirect(`/sign-in?callbackUrl=/topic/${topicId}`);
   }
   const userId = session.user.id;
+
+  // Org admins cannot do missions — send them to their dashboard.
+  const orgMembership = await prisma.organization.findFirst({
+    where: { createdByUserId: userId },
+    select: { id: true },
+  });
+  if (orgMembership) redirect(`/org/${orgMembership.id}`);
 
   const progress = await prisma.progress.upsert({
     where: { userId_topic: { userId, topic: topicId } },
@@ -85,6 +93,15 @@ export default async function TopicPage({ params, searchParams }: Props) {
   //     when it picks an older one the badge lands on the wrong card.
   //     The latest Completion's `chosenMissionIndex` is what the user just
   //     submitted, so we trust it.
+
+  // Fetch coords stored on the current generation so LocationTracker can
+  // decide whether the user has moved since missions were generated.
+  const genCoords = aiGenerationId
+    ? await prisma.aiGeneration.findUnique({
+        where: { id: aiGenerationId },
+        select: { latitude: true, longitude: true },
+      })
+    : null;
   const completion = isLevelCompleted
     ? await prisma.completion.findFirst({
         where: { userId, topic: topicId, level },
@@ -214,6 +231,17 @@ export default async function TopicPage({ params, searchParams }: Props) {
         level={level}
         canRegenerate={Boolean(options && aiGenerationId)}
       />
+
+      {/* Silently syncs GPS and auto-regenerates or prompts when location changes */}
+      {!isLevelCompleted && options && (
+        <LocationTracker
+          topic={topicId}
+          level={level}
+          generationHasCoords={!!(genCoords?.latitude && genCoords?.longitude)}
+          generationLat={genCoords?.latitude ?? null}
+          generationLng={genCoords?.longitude ?? null}
+        />
+      )}
 
       {generationError ? (
         <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700 ring-1 ring-red-100">

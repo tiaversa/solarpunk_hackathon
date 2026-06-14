@@ -171,15 +171,25 @@ export async function getCachedPreferenceSummary(
 // Mission prompt
 // ---------------------------------------------------------------------------
 
+export type NearbyOpportunity = {
+  orgName: string;
+  title: string;
+  description: string;
+  distanceKm: number;
+};
+
 export type BuildMissionPromptInput = {
   topic: TopicId;
   level: Level;
   city: string;
+  latitude?: number | null;
+  longitude?: number | null;
   matrixCellText: string;
   missionTypeLabel: LevelLabel;
   interests: string[];
   preferredDuration: Duration | null;
   preferenceSummary: string | null;
+  nearbyOpportunities?: NearbyOpportunity[];
 };
 
 export function buildMissionPrompt(input: BuildMissionPromptInput): string {
@@ -195,16 +205,35 @@ export function buildMissionPrompt(input: BuildMissionPromptInput): string {
     ? `Past behaviour: ${input.preferenceSummary}`
     : `No completed missions yet — this is a fresh learner.`;
 
+  const locationLine =
+    input.latitude != null && input.longitude != null
+      ? `Learner is in ${input.city || "their local area"} (GPS: ${input.latitude.toFixed(4)}, ${input.longitude.toFixed(4)} — prioritise places within a few km of these coordinates).`
+      : `Learner is in ${input.city || "their local area"}.`;
+
+  const opportunitiesBlock =
+    input.nearbyOpportunities && input.nearbyOpportunities.length > 0
+      ? [
+          ``,
+          `Nearby community opportunities — real open requests from local organisations within ${Math.round(input.nearbyOpportunities[input.nearbyOpportunities.length - 1]!.distanceKm)} km:`,
+          ...input.nearbyOpportunities.map(
+            (o, i) =>
+              `  ${i + 1}. ${o.orgName}: "${o.title}" — ${o.description} (${o.distanceKm.toFixed(1)} km away)`,
+          ),
+          `For at least one of the 3 mission options, design it so the learner could directly help fulfil one of these requests. Make the connection explicit in the "brief" field.`,
+        ]
+      : [];
+
   return [
     `You are designing real-world learning missions for the Solarpunk Missions app.`,
     `Solarpunk values: community, sustainability, hands-on learning, repair-over-replace, joyful curiosity, low-energy living, lived experience over consumption.`,
     ``,
     `Topic: ${topicMeta.label} ${topicMeta.emoji} (id: ${input.topic})`,
     `Level ${input.level} of 6 — "${input.missionTypeLabel}". Seed brief from the mission matrix: "${input.matrixCellText}".`,
-    `Learner is in ${input.city || "their local area"}.`,
+    locationLine,
     `Stated interests: ${interestsLine}.`,
     durationLine,
     summaryLine,
+    ...opportunitiesBlock,
     ``,
     `Generate exactly 3 mission options, each different from the others in approach or angle.`,
     `Each option must be doable in one day with no specialised equipment, grounded in the learner's city, and respectful of the "${input.missionTypeLabel}" level.`,
