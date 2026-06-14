@@ -31,26 +31,29 @@ export function TopicGrid({ progressByTopic }: Props) {
     setPicking(topic);
     setError(null);
 
-    let row: ProgressRow;
-    try {
-      row = await createProgress(topic);
-    } catch (err) {
-      setPicking(null);
-      setError(
-        err instanceof ApiError ? err.message : "Could not start that topic.",
-      );
-      return;
+    // Only call createProgress for topics not yet started — the upsert
+    // with ignoreDuplicates returns null for existing rows.
+    if (!localProgress[topic]) {
+      try {
+        const row = await createProgress(topic);
+        if (row) {
+          setLocalProgress((prev) => ({
+            ...prev,
+            [topic]: {
+              currentLevel: row.currentLevel as Level,
+              completedLevels: row.completedLevels,
+            },
+          }));
+        }
+      } catch (err) {
+        setPicking(null);
+        setError(
+          err instanceof ApiError ? err.message : "Could not start that topic.",
+        );
+        return;
+      }
     }
 
-    setLocalProgress((prev) => ({
-      ...prev,
-      [topic]: {
-        currentLevel: row.currentLevel as Level,
-        completedLevels: row.completedLevels,
-      },
-    }));
-
-    // Refresh server-rendered data and navigate into the topic viewer.
     startTransition(() => {
       router.refresh();
       router.push(`/topic/${topic}`);

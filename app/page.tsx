@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase-server";
 import { SignOutButton } from "@/components/SignOutButton";
 import { TopicGrid } from "@/components/TopicGrid";
 import { CityField } from "@/components/CityField";
@@ -9,9 +8,10 @@ import type { TopicId } from "@/lib/missionMatrix";
 import { LEVELS, type Level } from "@/lib/levels";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 px-6 py-16 text-center">
         <span className="text-5xl" aria-hidden="true">
@@ -43,23 +43,34 @@ export default async function HomePage() {
     );
   }
 
-  const [user, progressRows] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { city: true },
-    }),
-    prisma.progress.findMany({
-      where: { userId: session.user.id },
-      select: { topic: true, currentLevel: true, completedLevels: true },
-      orderBy: { createdAt: "asc" },
-    }),
-  ]);
+  // Look up the User profile (internal id) from auth user
+  const { data: profile } = await supabase
+    .from("User")
+    .select("id, city")
+    .eq("authId", user.id)
+    .single();
+
+  if (!profile) redirect("/sign-in");
+
+  // Org admins go straight to their dashboard
+  const { data: org } = await supabase
+    .from("Organization")
+    .select("id")
+    .eq("createdByUserId", profile.id)
+    .maybeSingle();
+  if (org) redirect(`/org/${org.id}`);
+
+  const { data: progressRows } = await supabase
+    .from("Progress")
+    .select("topic, currentLevel, completedLevels")
+    .eq("userId", profile.id)
+    .order("createdAt", { ascending: true });
 
   const progressByTopic = new Map<
     TopicId,
     { currentLevel: number; completedLevels: number[] }
   >();
-  for (const row of progressRows) {
+  for (const row of progressRows ?? []) {
     progressByTopic.set(row.topic as TopicId, {
       currentLevel: row.currentLevel,
       completedLevels: row.completedLevels,
@@ -76,7 +87,7 @@ export default async function HomePage() {
           <span className="text-lg font-semibold">Solarpunk Missions</span>
         </Link>
         <div className="flex items-center gap-3 text-sm text-leaf-700/80">
-          <span>{session.user.email}</span>
+          <span>{user.email}</span>
           <Link
             href="/history"
             className="font-medium text-leaf-700 underline underline-offset-2 hover:text-leaf-600"
@@ -93,7 +104,7 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <CityField initialCity={user?.city ?? ""} />
+      <CityField initialCity={profile.city ?? ""} />
 
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-leaf-700">
