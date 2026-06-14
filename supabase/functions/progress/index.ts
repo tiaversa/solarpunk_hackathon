@@ -33,11 +33,21 @@ Deno.serve(async (req) => {
     const parsed = PostBody.safeParse(body);
     if (!parsed.success) return json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, 400);
 
-    const { data: row } = await supabase
+    const { data: upserted } = await supabase
       .from("Progress")
       .upsert({ userId: auth.userId, topic: parsed.data.topic }, { onConflict: "userId,topic", ignoreDuplicates: true })
       .select("topic, currentLevel, completedLevels")
       .single();
+
+    // ignoreDuplicates skips the insert when the row already exists, returning
+    // null. Fall back to a SELECT so the client always gets a valid row.
+    const row = upserted ?? (await supabase
+      .from("Progress")
+      .select("topic, currentLevel, completedLevels")
+      .eq("userId", auth.userId)
+      .eq("topic", parsed.data.topic)
+      .single()
+    ).data;
 
     return json(row, 201);
   }

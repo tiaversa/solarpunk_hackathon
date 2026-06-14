@@ -92,7 +92,7 @@ export default function SignUpPage() {
       return;
     }
 
-    window.location.href = createdOrg ? `/org/${createdOrg.id}` : "/";
+    router.push(createdOrg ? `/org/${createdOrg.id}` : "/");
   }
 
   return (

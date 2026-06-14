@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { Backdrop } from "@/components/Backdrop";
 import { Logo } from "@/components/Logo";
@@ -19,6 +19,7 @@ export default function SignInPage() {
 
 function SignInForm() {
   const params = useSearchParams();
+  const router = useRouter();
   const callbackUrl = params.get("callbackUrl") ?? "/";
 
   const [email, setEmail] = useState("");
@@ -45,7 +46,7 @@ function SignInForm() {
       return;
     }
 
-    window.location.href = callbackUrl;
+    router.push(callbackUrl);
   }
 
   return (

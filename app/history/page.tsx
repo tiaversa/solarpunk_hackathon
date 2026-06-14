@@ -1,123 +1,73 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
-import { signedReadUrl } from "@/lib/supabase";
-import { AppHeader } from "@/components/AppHeader";
-import { Backdrop } from "@/components/Backdrop";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/components/SessionProvider";
+import { getHistory, type HistoryItem } from "@/lib/api-client";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, isLevel } from "@/lib/levels";
+import { AppHeader } from "@/components/AppHeader";
+import { Backdrop } from "@/components/Backdrop";
 
-type RenderedItem = {
-  id: string;
-  topic: TopicId;
+type RenderedItem = HistoryItem & {
   topicLabel: string;
   topicEmoji: string;
-  level: number;
   levelLabel: string;
-  title: string;
-  brief: string | null;
-  duration: "short" | "medium" | "long" | null;
-  note: string | null;
-  photoUrl: string | null;
-  completedAt: string;
 };
 
-export default async function HistoryPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in?callbackUrl=/history");
+export default function HistoryPage() {
+  const { user, loading: authLoading } = useSession();
+  const router = useRouter();
+  const [items, setItems] = useState<RenderedItem[]>([]);
+  const [totalsByTopic, setTotalsByTopic] = useState<Record<string, number>>({});
+  const [pageLoading, setPageLoading] = useState(true);
 
-  const { data: profile } = await supabase
-    .from("User")
-    .select("id, email")
-    .eq("authId", user.id)
-    .single();
-  if (!profile) redirect("/sign-in");
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) { router.push("/sign-in?callbackUrl=/history"); return; }
 
-  const { data: rows } = await supabase
-    .from("Completion")
-    .select("id, topic, level, aiGenerationId, chosenMissionIndex, note, photoUrl, createdAt")
-    .eq("userId", profile.id)
-    .order("createdAt", { ascending: false });
+    getHistory()
+      .then(({ items: raw, totalsByTopic: totals }) => {
+        const rendered: RenderedItem[] = raw
+          .filter((r) => isTopicId(r.topic) && isLevel(r.level))
+          .map((r) => {
+            const meta = getTopic(r.topic as TopicId);
+            return {
+              ...r,
+              topicLabel: meta.label,
+              topicEmoji: meta.emoji,
+              levelLabel: levelLabel(r.level as 1 | 2 | 3 | 4 | 5 | 6),
+            };
+          });
+        setItems(rendered);
+        setTotalsByTopic(totals);
+      })
+      .catch(() => {})
+      .finally(() => setPageLoading(false));
+  }, [user, authLoading, router]);
 
-  const genIds = [
-    ...new Set((rows ?? []).map((r) => r.aiGenerationId).filter(Boolean) as string[]),
-  ];
-  const { data: generations } = genIds.length > 0
-    ? await supabase.from("AiGeneration").select("id, parsedOptions").in("id", genIds)
-    : { data: [] };
-
-  const parsedOptionsById = new Map(
-    (generations ?? []).map((g) => [g.id, g.parsedOptions]),
-  );
-
-  const photoUrlById = new Map(
-    await Promise.all(
-      (rows ?? []).map(
-        async (r) => [r.id, await signedReadUrl(r.photoUrl)] as const,
-      ),
-    ),
-  );
-
-  const items: RenderedItem[] = (rows ?? [])
-    .filter((r) => isTopicId(r.topic) && isLevel(r.level))
-    .map((r) => {
-      const topic = r.topic as TopicId;
-      const topicMeta = getTopic(topic);
-      let title = "(quest record)";
-      let brief: string | null = null;
-      let duration: RenderedItem["duration"] = null;
-
-      const opts = r.aiGenerationId
-        ? parsedOptionsById.get(r.aiGenerationId)
-        : null;
-      if (Array.isArray(opts) && r.chosenMissionIndex !== null) {
-        const chosen = opts[r.chosenMissionIndex] as
-          | { title?: unknown; brief?: unknown; duration?: unknown }
-          | undefined;
-        if (chosen) {
-          if (typeof chosen.title === "string") title = chosen.title;
-          if (typeof chosen.brief === "string") brief = chosen.brief;
-          if (
-            chosen.duration === "short" ||
-            chosen.duration === "medium" ||
-            chosen.duration === "long"
-          ) {
-            duration = chosen.duration;
-          }
-        }
-      }
-
-      return {
-        id: r.id,
-        topic,
-        topicLabel: topicMeta.label,
-        topicEmoji: topicMeta.emoji,
-        level: r.level,
-        levelLabel: levelLabel(r.level as 1 | 2 | 3 | 4 | 5 | 6),
-        title,
-        brief,
-        duration,
-        note: r.note,
-        photoUrl: photoUrlById.get(r.id) ?? null,
-        completedAt: r.createdAt,
-      };
-    });
-
-  const totalsByTopic = items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.topic] = (acc[item.topic] ?? 0) + 1;
-    return acc;
-  }, {});
+  if (authLoading || pageLoading) {
+    return (
+      <main className="relative mx-auto flex min-h-screen max-w-md items-center justify-center">
+        <Backdrop />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-solar-green border-t-transparent" />
+      </main>
+    );
+  }
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
       <Backdrop />
-      <AppHeader back={{ href: "/", label: "Topics" }} username={profile.email} />
+      <AppHeader
+        back={{ href: "/", label: "Topics" }}
+        username={user?.email ?? undefined}
+      />
 
       <section className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-solar-cream">Your quest log</h1>
         <p className="text-sm text-solar-sage/70">
-          Every quest you’ve completed, newest first.
+          Every quest you've completed, newest first.
         </p>
       </section>
 
@@ -172,7 +122,7 @@ export default async function HistoryPage() {
                   </span>
                 </div>
                 <h2 className="text-base font-bold text-solar-cream">
-                  {item.title}
+                  {item.title ?? "(quest record)"}
                 </h2>
                 {item.brief && (
                   <p className="mt-1 text-sm text-solar-sage/80">{item.brief}</p>

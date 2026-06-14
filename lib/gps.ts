@@ -4,7 +4,14 @@ export type Coords = { lat: number; lng: number };
 
 declare global {
   interface Window {
-    Capacitor?: { isNativePlatform: () => boolean };
+    Capacitor?: { isNativePlatform: () => boolean; getPlatform?: () => string };
+  }
+}
+
+export class LocationPermissionDeniedError extends Error {
+  constructor() {
+    super("Location permission denied");
+    this.name = "LocationPermissionDeniedError";
   }
 }
 
@@ -50,39 +57,94 @@ function toRad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
+// ── Permission helpers ─────────────────────────────────────────────────────
+
+/**
+ * Check current location permission status without showing any dialog.
+ * Returns 'denied' if blocked, 'granted' if allowed, 'prompt' if not asked yet
+ * or running on web (where the browser handles permissions implicitly).
+ */
+export async function checkLocationPermission(): Promise<"granted" | "denied" | "prompt"> {
+  if (typeof window === "undefined") return "prompt";
+  if (!window.Capacitor?.isNativePlatform()) return "prompt";
+  try {
+    const { Geolocation } = await import("@capacitor/geolocation");
+    const status = await Geolocation.checkPermissions();
+    if (status.location === "granted") return "granted";
+    if (status.location === "denied") return "denied";
+    return "prompt"; // covers 'prompt' and 'prompt-with-rationale'
+  } catch {
+    return "prompt";
+  }
+}
+
+/**
+ * Open the app's system settings page so the user can manage permissions.
+ * iOS: app-settings: URL scheme handled natively by Capacitor.
+ * Android: intent URI that Capacitor's WebView delegates to the OS, opening
+ *   the app's detail/permissions screen in system Settings.
+ */
+export async function openAppSettings(): Promise<void> {
+  if (typeof window === "undefined") return;
+  if (!window.Capacitor?.isNativePlatform()) return;
+  const platform = window.Capacitor.getPlatform?.();
+
+  if (platform === "ios") {
+    window.location.href = "app-settings:";
+    return;
+  }
+
+  if (platform === "android") {
+    try {
+      const { registerPlugin } = await import("@capacitor/core");
+      const NativeSettings = registerPlugin<{ openAppSettings(): Promise<void> }>("NativeSettings");
+      await NativeSettings.openAppSettings();
+    } catch (e) {
+      console.error("[openAppSettings] native call failed:", e);
+    }
+  }
+}
+
 // ── GPS acquisition ────────────────────────────────────────────────────────
 
 /**
- * Return the user's current GPS coordinates, or null if unavailable/denied.
+ * Return the user's current GPS coordinates, or null if unavailable.
+ * Throws LocationPermissionDeniedError when the user explicitly denies access.
  *
- * Runtime selection:
- *  - Ionic/Capacitor native: uses @capacitor/geolocation for native OS-level
- *    permission UX and higher indoor accuracy. Activate by installing the
- *    package and uncommenting the block below.
- *  - Web / Ionic WebView: falls back to navigator.geolocation.
+ * On native Capacitor (Android/iOS) uses @capacitor/geolocation for proper
+ * OS-level permission dialogs. Falls back to navigator.geolocation on web.
  */
 export async function getCoords(): Promise<Coords | null> {
   if (typeof window === "undefined") return null;
 
-  // ── Capacitor (Ionic native) path ──────────────────────────────────────────
-  // npm install @capacitor/geolocation && npx cap sync, then uncomment:
-  //
-  // if (window.Capacitor?.isNativePlatform()) {
-  //   try {
-  //     const { Geolocation } = await import("@capacitor/geolocation");
-  //     const pos = await Geolocation.getCurrentPosition({
-  //       enableHighAccuracy: true,
-  //       timeout: 10_000,
-  //     });
-  //     return { lat: pos.coords.latitude, lng: pos.coords.longitude };
-  //   } catch { /* fall through */ }
-  // }
+  // ── Capacitor native path ──────────────────────────────────────────────────
+  if (window.Capacitor?.isNativePlatform()) {
+    try {
+      const { Geolocation } = await import("@capacitor/geolocation");
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10_000,
+      });
+      return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    } catch (err: unknown) {
+      const code = (err as { code?: number }).code;
+      const msg = ((err as { message?: string }).message ?? "").toLowerCase();
+      if (code === 1 || msg.includes("denied") || msg.includes("notallowed")) {
+        throw new LocationPermissionDeniedError();
+      }
+      // Position unavailable or timeout — fall through to web path
+    }
+  }
 
+  // ── Web / Capacitor WebView fallback ───────────────────────────────────────
   if (!("geolocation" in navigator)) return null;
-  return new Promise<Coords | null>((resolve) => {
+  return new Promise<Coords | null>((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(null),
+      (err) => {
+        if (err.code === 1) reject(new LocationPermissionDeniedError());
+        else resolve(null);
+      },
       { timeout: 12_000, maximumAge: 60_000, enableHighAccuracy: false },
     );
   });
@@ -94,6 +156,7 @@ export async function getCoords(): Promise<Coords | null> {
  *  - Cached coords are older than `maxAgeMs` (default 4 hours)
  *
  * Always saves to localStorage on success.
+ * Propagates LocationPermissionDeniedError to callers.
  */
 export async function getFreshCoordsIfNeeded(
   maxAgeMs = 4 * 60 * 60 * 1000,
@@ -102,11 +165,10 @@ export async function getFreshCoordsIfNeeded(
   const now = Date.now();
 
   if (cached && now - cached.ts < maxAgeMs) {
-    // Cache is still fresh — return without hitting the GPS API.
     return { coords: { lat: cached.lat, lng: cached.lng }, changed: false };
   }
 
-  const fresh = await getCoords();
+  const fresh = await getCoords(); // throws LocationPermissionDeniedError if denied
   if (!fresh) return null;
 
   const moved =

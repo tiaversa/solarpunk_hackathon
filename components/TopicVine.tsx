@@ -33,7 +33,7 @@ export function TopicVine({ progressByTopic }: Props) {
 
     setPicking(topic);
     setError(null);
-    let row: ProgressRow;
+    let row: ProgressRow | null;
     try {
       row = await createProgress(topic);
     } catch (err) {
@@ -43,13 +43,15 @@ export function TopicVine({ progressByTopic }: Props) {
       );
       return;
     }
-    setLocalProgress((prev) => ({
-      ...prev,
-      [topic]: {
-        currentLevel: row.currentLevel as Level,
-        completedLevels: row.completedLevels,
-      },
-    }));
+    if (row) {
+      setLocalProgress((prev) => ({
+        ...prev,
+        [topic]: {
+          currentLevel: row!.currentLevel as Level,
+          completedLevels: row!.completedLevels,
+        },
+      }));
+    }
     startTransition(() => {
       router.refresh();
       router.push(`/topic/${topic}`);

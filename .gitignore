@@ -258,4 +258,3 @@ pnpm-debug.log*
 
 # Supabase Studio saved queries (local editor state, not project code)
 supabase/snippets/
-

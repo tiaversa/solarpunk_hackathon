@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Green Quest</string>
+    <string name="title_activity_main">Green Quest</string>
+    <string name="package_name">com.greenquest.app</string>
+    <string name="custom_url_scheme">com.greenquest.app</string>
+</resources>

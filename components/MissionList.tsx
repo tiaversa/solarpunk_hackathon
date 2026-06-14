@@ -27,6 +27,7 @@ type Props = {
   isCompleted?: boolean;
   completionNote?: string | null;
   completionPhotoUrl?: string | null;
+  onLevelComplete?: (nextLevel: number) => void;
 };
 
 export function MissionList({
@@ -38,6 +39,7 @@ export function MissionList({
   isCompleted = false,
   completionNote,
   completionPhotoUrl,
+  onLevelComplete,
 }: Props) {
   const router = useRouter();
   const [chosenIndex, setChosenIndex] = useState<number | null>(
@@ -101,16 +103,12 @@ export function MissionList({
         coords: loadCachedCoords(),
       });
 
-      // Use a full-page navigation after completion so the browser discards
-      // the client-side router cache. router.push() would serve a stale RSC
-      // payload the first time the user navigates back to the just-completed
-      // level, because Next.js 14's router cache stores the pre-completion
-      // state of that URL.
       const nextLevel =
         result.progress.currentLevel <= MAX_LEVEL
           ? result.progress.currentLevel
           : MAX_LEVEL;
-      window.location.href = `/topic/${topic}?level=${nextLevel}`;
+      onLevelComplete?.(nextLevel);
+      router.push(`/topic/${topic}?level=${nextLevel}`);
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not save completion.",

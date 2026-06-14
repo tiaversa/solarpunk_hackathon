@@ -14,10 +14,11 @@ type Props = {
   topic: TopicId;
   level: number;
   canRegenerate: boolean;
+  onReloadMissions?: () => void;
 };
 
 
-export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
+export function TopicHeaderActions({ topic, level, canRegenerate, onReloadMissions }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState<null | "regen" | "reset">(null);
@@ -30,7 +31,11 @@ export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
     try {
       const coords = await getCoords();
       await regenerateMission(topic, level, coords);
-      startTransition(() => router.refresh());
+      if (onReloadMissions) {
+        onReloadMissions();
+      } else {
+        startTransition(() => router.refresh());
+      }
     } catch (err) {
       setError(
         err instanceof ApiError

@@ -1,6 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/components/SessionProvider";
+import { createClient } from "@/lib/supabase-client";
+import { getProgress } from "@/lib/api-client";
 import { Backdrop } from "@/components/Backdrop";
 import { Logo } from "@/components/Logo";
 import { AppHeader } from "@/components/AppHeader";
@@ -10,9 +15,63 @@ import { CityField } from "@/components/CityField";
 import type { TopicId } from "@/lib/missionMatrix";
 import { type Level } from "@/lib/levels";
 
-export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+type Profile = { id: string; email: string | null; city: string | null };
+
+export default function HomePage() {
+  const { user, loading: authLoading } = useSession();
+  const router = useRouter();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [progressByTopic, setProgressByTopic] = useState<
+    Record<TopicId, { currentLevel: Level; completedLevels: number[] }>
+  >({} as Record<TopicId, { currentLevel: Level; completedLevels: number[] }>);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    const supabase = createClient();
+
+    supabase
+      .from("User")
+      .select("id, email, city")
+      .eq("authId", user.id)
+      .single()
+      .then(async ({ data: profileData }) => {
+        if (!profileData) { router.push("/sign-in"); return; }
+        setProfile(profileData as Profile);
+
+        const { data: org } = await supabase
+          .from("Organization")
+          .select("id")
+          .eq("createdByUserId", profileData.id)
+          .maybeSingle();
+
+        if (org) { router.push(`/org/${org.id}`); return; }
+
+        getProgress()
+          .then((rows) => {
+            const map: Record<string, { currentLevel: Level; completedLevels: number[] }> = {};
+            for (const row of rows) {
+              map[row.topic] = {
+                currentLevel: row.currentLevel as Level,
+                completedLevels: row.completedLevels,
+              };
+            }
+            setProgressByTopic(
+              map as Record<TopicId, { currentLevel: Level; completedLevels: number[] }>,
+            );
+          })
+          .catch(() => {});
+      });
+  }, [user, authLoading, router]);
+
+  if (authLoading || (user && !profile)) {
+    return (
+      <main className="relative mx-auto flex min-h-screen max-w-md items-center justify-center">
+        <Backdrop />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-solar-green border-t-transparent" />
+      </main>
+    );
+  }
 
   if (!user) {
     return (
@@ -42,47 +101,13 @@ export default async function HomePage() {
     );
   }
 
-  // Look up the User profile (internal id) from auth user
-  const { data: profile } = await supabase
-    .from("User")
-    .select("id, email, city")
-    .eq("authId", user.id)
-    .single();
-
-  if (!profile) redirect("/sign-in");
-
-  // Org admins go straight to their dashboard
-  const { data: org } = await supabase
-    .from("Organization")
-    .select("id")
-    .eq("createdByUserId", profile.id)
-    .maybeSingle();
-  if (org) redirect(`/org/${org.id}`);
-
-  const { data: progressRows } = await supabase
-    .from("Progress")
-    .select("topic, currentLevel, completedLevels")
-    .eq("userId", profile.id)
-    .order("createdAt", { ascending: true });
-
-  const progressByTopic = new Map<
-    TopicId,
-    { currentLevel: Level; completedLevels: number[] }
-  >();
-  for (const row of progressRows ?? []) {
-    progressByTopic.set(row.topic as TopicId, {
-      currentLevel: row.currentLevel as Level,
-      completedLevels: row.completedLevels,
-    });
-  }
-
   const emailName =
-    (profile.email ?? user.email ?? "explorer").split("@")[0] ?? "explorer";
+    (profile!.email ?? user.email ?? "explorer").split("@")[0] ?? "explorer";
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-7 px-6 py-7">
       <Backdrop />
-      <AppHeader username={user.email} />
+      <AppHeader username={user.email ?? undefined} />
 
       <div className="flex flex-col gap-1">
         <Greeting fallbackName={emailName} />
@@ -91,14 +116,9 @@ export default async function HomePage() {
         </p>
       </div>
 
-      <CityField initialCity={profile.city ?? ""} />
+      <CityField initialCity={profile!.city ?? ""} />
 
-      <TopicVine
-        progressByTopic={Object.fromEntries(progressByTopic) as Record<
-          TopicId,
-          { currentLevel: Level; completedLevels: number[] }
-        >}
-      />
+      <TopicVine progressByTopic={progressByTopic} />
     </main>
   );
 }
