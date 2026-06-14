@@ -17,11 +17,6 @@ import {
   MAX_LEVEL,
   type Level,
 } from "../_shared/levels.ts";
-import {
-  uploadPhotoBase64,
-  CloudinaryNotConfiguredError,
-  CloudinaryUploadError,
-} from "../_shared/cloudinaryUpload.ts";
 
 // ---- Constants ---------------------------------------------------------------
 const MISSION_OPTIONS_COUNT = 3;
@@ -59,7 +54,7 @@ const CompleteBody = z.object({
   aiGenerationId: z.string().uuid(),
   chosenIndex: z.number().int().min(0).max(MISSION_OPTIONS_COUNT - 1),
   note: z.string().max(2000).optional(),
-  photoBase64: z.string().optional(),
+  photoPath: z.string().max(500).optional(),
 });
 
 const RegenerateBody = z.object({
@@ -186,7 +181,7 @@ async function handleComplete(req: Request): Promise<Response> {
   const parsed = CompleteBody.safeParse(body);
   if (!parsed.success) return json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, 400);
 
-  const { aiGenerationId, chosenIndex, note, photoBase64 } = parsed.data;
+  const { aiGenerationId, chosenIndex, note, photoPath } = parsed.data;
   const topic = parsed.data.topic as TopicId;
   const level = parsed.data.level as Level;
   const supabase = getSupabaseAdmin();
@@ -201,25 +196,16 @@ async function handleComplete(req: Request): Promise<Response> {
     .maybeSingle();
   if (!generation) return json({ error: "Unknown aiGenerationId for that (topic, level)" }, 404);
 
-  let photoUrl: string | null = null;
-  if (photoBase64) {
-    try {
-      photoUrl = await uploadPhotoBase64(photoBase64);
-    } catch (err) {
-      if (err instanceof CloudinaryNotConfiguredError) {
-        return json({ error: "Photo uploads aren't configured yet. Submit without a photo." }, 503);
-      }
-      if (err instanceof CloudinaryUploadError) {
-        return json({ error: (err as Error).message }, 502);
-      }
-      throw err;
-    }
+  // Validate path ownership — the server-minted path always starts with the
+  // user's own userId segment so a client cannot point at another user's file.
+  if (photoPath && !photoPath.startsWith(`${auth.userId}/`)) {
+    return json({ error: "Invalid photo path" }, 403);
   }
 
   // a. Insert completion
   await supabase.from("Completion").insert({
     userId: auth.userId, topic, level, aiGenerationId,
-    chosenMissionIndex: chosenIndex, photoUrl, note: note ?? null,
+    chosenMissionIndex: chosenIndex, photoUrl: photoPath ?? null, note: note ?? null,
   });
 
   // b. Mark active MissionChoice completed

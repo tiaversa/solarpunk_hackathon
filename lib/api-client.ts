@@ -46,7 +46,8 @@ function toFunctionUrl(path: string): string {
     .replace(/^\/api\/user\/preferences$/, "/user/preferences")
     .replace(/^\/api\/orgs(.*)$/, "/orgs$1")
     .replace(/^\/api\/geolocation$/, "/geolocation")
-    .replace(/^\/api\/cities$/, "/cities");
+    .replace(/^\/api\/cities$/, "/cities")
+    .replace(/^\/api\/photo\/upload-url$/, "/photo");
 
   return `${FUNCTIONS_URL}${mapped}`;
 }

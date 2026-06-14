@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { signedReadUrl } from "@/lib/supabase";
 import { SignOutButton } from "@/components/SignOutButton";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, isLevel } from "@/lib/levels";
@@ -46,6 +47,12 @@ export default async function HistoryPage() {
 
   const parsedOptionsById = new Map((generations ?? []).map((g) => [g.id, g.parsedOptions]));
 
+  const photoUrlById = new Map(
+    await Promise.all(
+      (rows ?? []).map(async (r) => [r.id, await signedReadUrl(r.photoUrl)] as const),
+    ),
+  );
+
   const items: RenderedItem[] = (rows ?? [])
     .filter((r) => isTopicId(r.topic) && isLevel(r.level))
     .map((r) => {
@@ -70,7 +77,7 @@ export default async function HistoryPage() {
       return {
         id: r.id, topic, topicLabel: topicMeta.label, topicEmoji: topicMeta.emoji,
         level: r.level, levelLabel: levelLabel(r.level as 1 | 2 | 3 | 4 | 5 | 6),
-        title, brief, duration, note: r.note, photoUrl: r.photoUrl, completedAt: r.createdAt,
+        title, brief, duration, note: r.note, photoUrl: photoUrlById.get(r.id) ?? null, completedAt: r.createdAt,
       };
     });
 

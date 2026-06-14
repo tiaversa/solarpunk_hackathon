@@ -7,6 +7,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { MissionList } from "@/components/MissionList";
 import { TopicHeaderActions } from "@/components/TopicHeaderActions";
 import { LocationTracker } from "@/components/LocationTracker";
+import { signedReadUrl } from "@/lib/supabase";
 import type { MissionOption } from "@/lib/api-client";
 
 type Props = {
@@ -136,6 +137,8 @@ export default async function TopicPage({ params, searchParams }: Props) {
       : null
     : (activeChoice?.chosenIndex ?? null);
 
+  const completionPhotoUrl = await signedReadUrl(completion?.photoUrl ?? null);
+
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
       <header className="flex items-center justify-between">
@@ -228,7 +231,7 @@ export default async function TopicPage({ params, searchParams }: Props) {
               initialChosenIndex={initialChosenIndex}
               isCompleted={isLevelCompleted}
               completionNote={completion?.note ?? null}
-              completionPhotoUrl={completion?.photoUrl ?? null}
+              completionPhotoUrl={completionPhotoUrl}
             />
           </section>
         )
