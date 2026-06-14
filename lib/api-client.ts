@@ -219,6 +219,28 @@ export async function getCitySuggestion(): Promise<{ city: string | null }> {
   return request<{ city: string | null }>("/api/geolocation");
 }
 
+export type CitySearchResult = {
+  name: string;
+  country: string | null;
+  admin1: string | null;
+};
+
+/**
+ * Fuzzy city search backed by the `cities` Edge Function. Returns ready-to-
+ * display labels (e.g. "Santiago, Región Metropolitana, Chile"). Callers
+ * should debounce; this performs no caching of its own.
+ */
+export async function searchCities(query: string): Promise<string[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const rows = await request<CitySearchResult[]>(
+    `/api/cities?q=${encodeURIComponent(q)}`,
+  );
+  return rows.map((c) =>
+    [c.name, c.admin1, c.country].filter(Boolean).join(", "),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Missions
 // ---------------------------------------------------------------------------
@@ -274,7 +296,7 @@ export async function getMissions(
   const cached = await db().currentMission.get(missionKey(topic, level));
   if (!cached) {
     throw new ApiError(
-      "Offline. These missions haven't been loaded before — connect once to fetch them.",
+      "Offline. These quests haven't been loaded before — connect once to fetch them.",
       503,
     );
   }
@@ -426,7 +448,7 @@ export async function regenerateMission(
     // Regenerate needs Claude; queueing it would be misleading because we
     // can't synthesise three plausible new missions client-side.
     throw new ApiError(
-      "Regenerating missions needs an internet connection.",
+      "Regenerating quests needs an internet connection.",
       503,
     );
   }

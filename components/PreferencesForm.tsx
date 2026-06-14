@@ -65,35 +65,35 @@ export function PreferencesForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-leaf-100"
+      className="flex flex-col gap-5 rounded-field border border-solar-leafmd bg-solar-panel/60 p-6"
     >
-      <label className="flex flex-col gap-1 text-sm font-medium text-leaf-700">
+      <label className="flex flex-col gap-2 text-sm uppercase tracking-wide text-solar-sage">
         Interests
         <input
           type="text"
           value={interestsText}
           onChange={(e) => setInterestsText(e.target.value)}
           placeholder="fermentation, foraging, bicycle repair"
-          className="rounded-lg border border-leaf-100 px-3 py-2 text-base text-leaf-700 focus:border-leaf-500 focus:outline-none focus:ring-1 focus:ring-leaf-500"
+          className="w-full rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-4 py-3 text-base normal-case tracking-normal text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
         />
-        <span className="text-xs font-normal text-leaf-700/70">
-          Comma-separated. Up to 20 tags. We pass them to Claude so missions
-          feel personalised.
+        <span className="text-xs normal-case tracking-normal text-solar-sage/60">
+          Comma-separated. Up to 20 tags — they make your quests feel
+          personalised.
         </span>
       </label>
 
-      <fieldset className="flex flex-col gap-1">
-        <legend className="text-sm font-medium text-leaf-700">
-          Preferred mission length
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm uppercase tracking-wide text-solar-sage">
+          Preferred quest length
         </legend>
         <div className="mt-1 flex flex-wrap gap-2">
           {DURATION_OPTIONS.map((opt) => (
             <label
               key={opt.value}
-              className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+              className={`cursor-pointer rounded-full border px-4 py-1.5 text-xs font-bold transition ${
                 duration === opt.value
-                  ? "border-leaf-600 bg-leaf-100 text-leaf-700"
-                  : "border-leaf-100 text-leaf-700/80 hover:border-leaf-500"
+                  ? "border-solar-green bg-solar-green/20 text-solar-cream"
+                  : "border-solar-leafmd text-solar-sage/80 hover:border-solar-green"
               }`}
             >
               <input
@@ -111,20 +111,20 @@ export function PreferencesForm({
       </fieldset>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-field bg-solar-danger/15 px-3 py-2 text-sm text-red-200">
           {error}
         </p>
       )}
       {savedAt && !error && (
-        <p className="rounded-lg bg-leaf-100 px-3 py-2 text-sm text-leaf-700">
-          Saved. Your next set of missions will use these preferences.
+        <p className="rounded-field bg-solar-green/15 px-3 py-2 text-sm text-solar-sage ring-1 ring-solar-green/40">
+          Saved. Your next set of quests will use these preferences.
         </p>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="self-start rounded-lg bg-leaf-600 px-4 py-2 text-sm font-semibold text-white hover:bg-leaf-700 disabled:opacity-60"
+        className="self-start rounded-full bg-solar-green px-5 py-2.5 text-sm font-bold text-solar-cream hover:bg-solar-moss disabled:opacity-60"
       >
         {submitting ? "Saving…" : "Save preferences"}
       </button>

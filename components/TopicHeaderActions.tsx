@@ -35,7 +35,7 @@ export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
       setError(
         err instanceof ApiError
           ? err.message
-          : "Could not regenerate missions.",
+          : "Could not regenerate quests.",
       );
     } finally {
       setBusy(null);
@@ -46,7 +46,7 @@ export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
     if (busy) return;
     if (
       !window.confirm(
-        `Reset your progress on this topic to level 1? Your completion history will be preserved, but any active mission will be abandoned.`,
+        `Reset your progress on this topic to level 1? Your completion history will be preserved, but any active quest will be abandoned.`,
       )
     ) {
       return;
@@ -68,31 +68,31 @@ export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={onRegenerate}
           disabled={!canRegenerate || busy !== null}
           title={
             canRegenerate
-              ? "Get 3 different mission options for this level"
+              ? "Get 3 different quest options for this level"
               : "Wait until the current set has loaded"
           }
-          className="rounded-lg border border-leaf-600 px-3 py-1.5 text-xs font-semibold text-leaf-700 transition hover:bg-leaf-50 disabled:opacity-60"
+          className="rounded-full border-2 border-solar-green px-4 py-1.5 text-xs font-bold text-solar-sage transition hover:bg-solar-green/15 disabled:opacity-50"
         >
-          {busy === "regen" ? "Regenerating…" : "Regenerate options"}
+          {busy === "regen" ? "Regenerating…" : "↻ Regenerate"}
         </button>
         <button
           type="button"
           onClick={onReset}
           disabled={busy !== null}
-          className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+          className="rounded-full border border-solar-danger/70 px-4 py-1.5 text-xs font-bold text-red-300 transition hover:bg-solar-danger/15 disabled:opacity-50"
         >
           {busy === "reset" ? "Resetting…" : "Reset topic"}
         </button>
       </div>
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+        <p className="rounded-field bg-solar-danger/15 px-3 py-2 text-xs text-red-200">
           {error}
         </p>
       )}

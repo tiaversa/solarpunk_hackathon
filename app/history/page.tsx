@@ -2,10 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { signedReadUrl } from "@/lib/supabase";
-import { SignOutButton } from "@/components/SignOutButton";
+import { AppHeader } from "@/components/AppHeader";
+import { Backdrop } from "@/components/Backdrop";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, isLevel } from "@/lib/levels";
-
 
 type RenderedItem = {
   id: string;
@@ -40,16 +40,22 @@ export default async function HistoryPage() {
     .eq("userId", profile.id)
     .order("createdAt", { ascending: false });
 
-  const genIds = [...new Set((rows ?? []).map((r) => r.aiGenerationId).filter(Boolean) as string[])];
+  const genIds = [
+    ...new Set((rows ?? []).map((r) => r.aiGenerationId).filter(Boolean) as string[]),
+  ];
   const { data: generations } = genIds.length > 0
     ? await supabase.from("AiGeneration").select("id, parsedOptions").in("id", genIds)
     : { data: [] };
 
-  const parsedOptionsById = new Map((generations ?? []).map((g) => [g.id, g.parsedOptions]));
+  const parsedOptionsById = new Map(
+    (generations ?? []).map((g) => [g.id, g.parsedOptions]),
+  );
 
   const photoUrlById = new Map(
     await Promise.all(
-      (rows ?? []).map(async (r) => [r.id, await signedReadUrl(r.photoUrl)] as const),
+      (rows ?? []).map(
+        async (r) => [r.id, await signedReadUrl(r.photoUrl)] as const,
+      ),
     ),
   );
 
@@ -58,26 +64,43 @@ export default async function HistoryPage() {
     .map((r) => {
       const topic = r.topic as TopicId;
       const topicMeta = getTopic(topic);
-      let title = "(mission record)";
+      let title = "(quest record)";
       let brief: string | null = null;
       let duration: RenderedItem["duration"] = null;
 
-      const opts = r.aiGenerationId ? parsedOptionsById.get(r.aiGenerationId) : null;
+      const opts = r.aiGenerationId
+        ? parsedOptionsById.get(r.aiGenerationId)
+        : null;
       if (Array.isArray(opts) && r.chosenMissionIndex !== null) {
-        const chosen = opts[r.chosenMissionIndex] as { title?: unknown; brief?: unknown; duration?: unknown } | undefined;
+        const chosen = opts[r.chosenMissionIndex] as
+          | { title?: unknown; brief?: unknown; duration?: unknown }
+          | undefined;
         if (chosen) {
           if (typeof chosen.title === "string") title = chosen.title;
           if (typeof chosen.brief === "string") brief = chosen.brief;
-          if (chosen.duration === "short" || chosen.duration === "medium" || chosen.duration === "long") {
+          if (
+            chosen.duration === "short" ||
+            chosen.duration === "medium" ||
+            chosen.duration === "long"
+          ) {
             duration = chosen.duration;
           }
         }
       }
 
       return {
-        id: r.id, topic, topicLabel: topicMeta.label, topicEmoji: topicMeta.emoji,
-        level: r.level, levelLabel: levelLabel(r.level as 1 | 2 | 3 | 4 | 5 | 6),
-        title, brief, duration, note: r.note, photoUrl: photoUrlById.get(r.id) ?? null, completedAt: r.createdAt,
+        id: r.id,
+        topic,
+        topicLabel: topicMeta.label,
+        topicEmoji: topicMeta.emoji,
+        level: r.level,
+        levelLabel: levelLabel(r.level as 1 | 2 | 3 | 4 | 5 | 6),
+        title,
+        brief,
+        duration,
+        note: r.note,
+        photoUrl: photoUrlById.get(r.id) ?? null,
+        completedAt: r.createdAt,
       };
     });
 
@@ -87,30 +110,24 @@ export default async function HistoryPage() {
   }, {});
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-6 py-12">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-leaf-700">
-          <span className="text-2xl" aria-hidden="true">🌱</span>
-          <span className="text-lg font-semibold">Solarpunk Missions</span>
-        </Link>
-        <div className="flex items-center gap-3 text-sm text-leaf-700/80">
-          <span>{profile.email}</span>
-          <Link href="/preferences" className="font-medium text-leaf-700 underline underline-offset-2">Preferences</Link>
-          <SignOutButton />
-        </div>
-      </header>
+    <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
+      <Backdrop />
+      <AppHeader back={{ href: "/", label: "Topics" }} username={profile.email} />
 
-      <section className="flex flex-col gap-3">
-        <Link href="/" className="text-xs font-medium text-leaf-700 underline underline-offset-2">← All topics</Link>
-        <h1 className="text-2xl font-bold text-leaf-700">Your mission log</h1>
-        <p className="text-sm text-leaf-700/70">Every mission you've completed, newest first.</p>
+      <section className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold text-solar-cream">Your quest log</h1>
+        <p className="text-sm text-solar-sage/70">
+          Every quest you’ve completed, newest first.
+        </p>
       </section>
 
       {items.length === 0 ? (
-        <section className="rounded-2xl bg-white p-8 text-center text-sm text-leaf-700/80 ring-1 ring-leaf-100">
-          <p>No completed missions yet.</p>
+        <section className="rounded-field border border-solar-leafmd bg-solar-panel/60 p-8 text-center text-sm text-solar-sage/80">
+          <p>No completed quests yet.</p>
           <p className="mt-2">
-            <Link href="/" className="font-semibold text-leaf-700 underline underline-offset-2">Pick a topic</Link>{" "}
+            <Link href="/" className="font-bold text-solar-green hover:text-solar-sage">
+              Pick a topic
+            </Link>{" "}
             and start with level 1.
           </p>
         </section>
@@ -120,30 +137,58 @@ export default async function HistoryPage() {
             {Object.entries(totalsByTopic).map(([topic, count]) => {
               const meta = getTopic(topic as TopicId);
               return (
-                <span key={topic} className="inline-flex items-center gap-1 rounded-full bg-leaf-100 px-3 py-1 font-semibold text-leaf-700">
+                <span
+                  key={topic}
+                  className="inline-flex items-center gap-1 rounded-full bg-solar-field px-3 py-1 font-bold text-solar-sage ring-1 ring-solar-leafmd"
+                >
                   <span aria-hidden="true">{meta.emoji}</span>
                   {meta.label}: {count}
                 </span>
               );
             })}
           </section>
-          <ol className="flex flex-col gap-3">
+
+          <ol className="flex flex-col gap-4">
             {items.map((item) => (
-              <li key={item.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-leaf-100">
-                <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-leaf-700/60">
+              <li
+                key={item.id}
+                className="rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5"
+              >
+                <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide text-solar-sage/60">
                   <span>{item.topicEmoji}</span>
                   <span>{item.topicLabel}</span>
                   <span aria-hidden="true">·</span>
-                  <span>Level {item.level} ({item.levelLabel})</span>
-                  {item.duration && (<><span aria-hidden="true">·</span><span>{item.duration}</span></>)}
-                  <span className="ml-auto font-mono text-[10px] text-leaf-700/40">{item.completedAt.slice(0, 10)}</span>
+                  <span>
+                    Level {item.level} ({item.levelLabel})
+                  </span>
+                  {item.duration && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>{item.duration}</span>
+                    </>
+                  )}
+                  <span className="ml-auto font-mono text-[10px] text-solar-sage/40">
+                    {item.completedAt.slice(0, 10)}
+                  </span>
                 </div>
-                <h2 className="text-base font-semibold text-leaf-700">{item.title}</h2>
-                {item.brief && <p className="mt-1 text-sm text-leaf-700/80">{item.brief}</p>}
-                {item.note && <p className="mt-3 rounded-lg bg-leaf-100/70 px-3 py-2 text-sm italic text-leaf-700/90">{item.note}</p>}
+                <h2 className="text-base font-bold text-solar-cream">
+                  {item.title}
+                </h2>
+                {item.brief && (
+                  <p className="mt-1 text-sm text-solar-sage/80">{item.brief}</p>
+                )}
+                {item.note && (
+                  <p className="mt-3 rounded-2xl bg-solar-field/50 px-3 py-2 text-sm italic text-solar-sage/90">
+                    {item.note}
+                  </p>
+                )}
                 {item.photoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.photoUrl} alt="Mission completion photo" className="mt-3 max-h-64 rounded-lg object-cover" />
+                  <img
+                    src={item.photoUrl}
+                    alt="Quest completion photo"
+                    className="mt-3 max-h-64 w-full rounded-2xl object-cover"
+                  />
                 )}
               </li>
             ))}
