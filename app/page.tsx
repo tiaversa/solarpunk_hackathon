@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase-server";
 import { Backdrop } from "@/components/Backdrop";
 import { Logo } from "@/components/Logo";
 import { AppHeader } from "@/components/AppHeader";
@@ -12,9 +11,10 @@ import type { TopicId } from "@/lib/missionMatrix";
 import { type Level } from "@/lib/levels";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <main className="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-7 px-7 py-16 text-center">
         <Backdrop />
@@ -42,35 +42,47 @@ export default async function HomePage() {
     );
   }
 
-  const [user, progressRows] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { city: true },
-    }),
-    prisma.progress.findMany({
-      where: { userId: session.user.id },
-      select: { topic: true, currentLevel: true, completedLevels: true },
-      orderBy: { createdAt: "asc" },
-    }),
-  ]);
+  // Look up the User profile (internal id) from auth user
+  const { data: profile } = await supabase
+    .from("User")
+    .select("id, email, city")
+    .eq("authId", user.id)
+    .single();
+
+  if (!profile) redirect("/sign-in");
+
+  // Org admins go straight to their dashboard
+  const { data: org } = await supabase
+    .from("Organization")
+    .select("id")
+    .eq("createdByUserId", profile.id)
+    .maybeSingle();
+  if (org) redirect(`/org/${org.id}`);
+
+  const { data: progressRows } = await supabase
+    .from("Progress")
+    .select("topic, currentLevel, completedLevels")
+    .eq("userId", profile.id)
+    .order("createdAt", { ascending: true });
 
   const progressByTopic = new Map<
     TopicId,
     { currentLevel: Level; completedLevels: number[] }
   >();
-  for (const row of progressRows) {
+  for (const row of progressRows ?? []) {
     progressByTopic.set(row.topic as TopicId, {
       currentLevel: row.currentLevel as Level,
       completedLevels: row.completedLevels,
     });
   }
 
-  const emailName = (session.user.email ?? "explorer").split("@")[0] ?? "explorer";
+  const emailName =
+    (profile.email ?? user.email ?? "explorer").split("@")[0] ?? "explorer";
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-7 px-6 py-7">
       <Backdrop />
-      <AppHeader username={session.user.email} />
+      <AppHeader username={user.email} />
 
       <div className="flex flex-col gap-1">
         <Greeting fallbackName={emailName} />
@@ -79,7 +91,7 @@ export default async function HomePage() {
         </p>
       </div>
 
-      <CityField initialCity={user?.city ?? ""} />
+      <CityField initialCity={profile.city ?? ""} />
 
       <TopicVine
         progressByTopic={Object.fromEntries(progressByTopic) as Record<

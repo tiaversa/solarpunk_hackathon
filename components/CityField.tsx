@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getCitySuggestion, updatePreferences } from "@/lib/api-client";
+import {
+  getCitySuggestion,
+  searchCities,
+  updatePreferences,
+} from "@/lib/api-client";
 
 type Props = { initialCity: string };
 
@@ -51,10 +55,9 @@ export function CityField({ initialCity }: Props) {
     }
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/cities?q=${encodeURIComponent(value.trim())}`);
-        const data = (await res.json()) as { cities: string[] };
-        setSuggestions(data.cities);
-        setOpen(data.cities.length > 0);
+        const cities = await searchCities(value);
+        setSuggestions(cities);
+        setOpen(cities.length > 0);
         setActiveIndex(-1);
       } catch {
         // Best-effort — ignore network errors.

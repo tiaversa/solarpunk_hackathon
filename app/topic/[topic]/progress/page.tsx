@@ -1,38 +1,57 @@
 import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase-server";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { LEVEL_NUMBERS, levelLabel, type Level } from "@/lib/levels";
 import { AppHeader } from "@/components/AppHeader";
 import { Backdrop } from "@/components/Backdrop";
 import { PlantVine, type VineNode, type VineState } from "@/components/PlantVine";
 
-type Props = { params: { topic: string } };
+type Props = { params: Promise<{ topic: string }> };
 
 export default async function ProgressPage({ params }: Props) {
-  if (!isTopicId(params.topic)) notFound();
-  const topicId: TopicId = params.topic;
+  const { topic: topicParam } = await params;
+  if (!isTopicId(topicParam)) notFound();
+  const topicId: TopicId = topicParam;
   const topic = getTopic(topicId);
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect(`/sign-in?callbackUrl=/topic/${topicId}/progress`);
-  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/sign-in?callbackUrl=/topic/${topicId}/progress`);
 
-  const progress = await prisma.progress.upsert({
-    where: { userId_topic: { userId: session.user.id, topic: topicId } },
-    create: { userId: session.user.id, topic: topicId },
-    update: {},
-    select: { currentLevel: true, completedLevels: true },
-  });
+  const { data: profile } = await supabase
+    .from("User")
+    .select("id, email")
+    .eq("authId", user.id)
+    .single();
+  if (!profile) redirect("/sign-in");
+
+  const { data: progress } = await supabase
+    .from("Progress")
+    .upsert(
+      { userId: profile.id, topic: topicId },
+      { onConflict: "userId,topic", ignoreDuplicates: true },
+    )
+    .select("currentLevel, completedLevels")
+    .single()
+    .then(async (r) => {
+      if (r.data) return r;
+      return supabase
+        .from("Progress")
+        .select("currentLevel, completedLevels")
+        .eq("userId", profile.id)
+        .eq("topic", topicId)
+        .single();
+    });
+
+  const currentLevel = progress?.currentLevel ?? 1;
+  const completedLevels: number[] = progress?.completedLevels ?? [];
 
   const nodes: VineNode[] = LEVEL_NUMBERS.map((n) => {
-    const done = progress.completedLevels.includes(n);
-    const locked = n > progress.currentLevel;
+    const done = completedLevels.includes(n);
+    const locked = n > currentLevel;
     let state: VineState = "upcoming";
     if (done) state = "done";
-    else if (n === progress.currentLevel) state = "active";
+    else if (n === currentLevel) state = "active";
     else if (locked) state = "locked";
 
     return {
@@ -50,7 +69,7 @@ export default async function ProgressPage({ params }: Props) {
       <Backdrop />
       <AppHeader
         back={{ href: `/topic/${topicId}`, label: topic.label }}
-        username={session.user.email}
+        username={profile.email}
       />
 
       <div className="flex flex-col gap-1">
@@ -58,7 +77,7 @@ export default async function ProgressPage({ params }: Props) {
           Your Progress
         </h1>
         <p className="text-sm text-solar-sage/80">
-          {topic.emoji} {topic.label} · {progress.completedLevels.length}/
+          {topic.emoji} {topic.label} · {completedLevels.length}/
           {LEVEL_NUMBERS.length} levels grown
         </p>
       </div>

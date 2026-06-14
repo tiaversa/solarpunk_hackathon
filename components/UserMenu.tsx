@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { createClient } from "@/lib/supabase-client";
 
 type Props = {
   /** Display name shown on the trigger (e.g. email local-part). */
@@ -131,7 +131,11 @@ export function UserMenu({ username }: Props) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              void signOut({ callbackUrl: "/" });
+              void createClient()
+                .auth.signOut()
+                .then(() => {
+                  window.location.href = "/";
+                });
             }}
             className="block w-full px-4 py-2.5 text-left text-sm text-solar-line transition hover:bg-solar-field/70 hover:text-solar-green"
           >

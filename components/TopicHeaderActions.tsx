@@ -7,6 +7,7 @@ import {
   regenerateMission,
   resetTopic,
 } from "@/lib/api-client";
+import { getCoords } from "@/lib/gps";
 import type { TopicId } from "@/lib/missionMatrix";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
   level: number;
   canRegenerate: boolean;
 };
+
 
 export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
   const router = useRouter();
@@ -26,7 +28,8 @@ export function TopicHeaderActions({ topic, level, canRegenerate }: Props) {
     setBusy("regen");
     setError(null);
     try {
-      await regenerateMission(topic, level);
+      const coords = await getCoords();
+      await regenerateMission(topic, level, coords);
       startTransition(() => router.refresh());
     } catch (err) {
       setError(

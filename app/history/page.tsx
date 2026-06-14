@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase-server";
+import { signedReadUrl } from "@/lib/supabase";
 import { AppHeader } from "@/components/AppHeader";
 import { Backdrop } from "@/components/Backdrop";
 import { getTopic, isTopicId, type TopicId } from "@/lib/missionMatrix";
 import { levelLabel, isLevel } from "@/lib/levels";
-import { signedReadUrl } from "@/lib/supabase";
 
 type RenderedItem = {
   id: string;
@@ -21,60 +19,47 @@ type RenderedItem = {
   duration: "short" | "medium" | "long" | null;
   note: string | null;
   photoUrl: string | null;
-  completedAt: Date;
+  completedAt: string;
 };
 
 export default async function HistoryPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect("/sign-in?callbackUrl=/history");
-  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in?callbackUrl=/history");
 
-  // Server-side render: pull straight from Prisma so the page is fast
-  // and indexable. The /api/history endpoint exists for the SDK/JSON
-  // contract — same shape, different consumer. Two queries (rather
-  // than an include) because Completion.aiGenerationId is a bare FK
-  // column without an @relation (see PLAN.md / Step 6).
-  const rows = await prisma.completion.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      topic: true,
-      level: true,
-      aiGenerationId: true,
-      chosenMissionIndex: true,
-      note: true,
-      photoPath: true,
-      createdAt: true,
-    },
-  });
+  const { data: profile } = await supabase
+    .from("User")
+    .select("id, email")
+    .eq("authId", user.id)
+    .single();
+  if (!profile) redirect("/sign-in");
 
-  const genIds = Array.from(
-    new Set(rows.map((r) => r.aiGenerationId).filter(Boolean) as string[]),
-  );
-  const generations =
-    genIds.length === 0
-      ? []
-      : await prisma.aiGeneration.findMany({
-          where: { id: { in: genIds } },
-          select: { id: true, parsedOptions: true },
-        });
+  const { data: rows } = await supabase
+    .from("Completion")
+    .select("id, topic, level, aiGenerationId, chosenMissionIndex, note, photoUrl, createdAt")
+    .eq("userId", profile.id)
+    .order("createdAt", { ascending: false });
+
+  const genIds = [
+    ...new Set((rows ?? []).map((r) => r.aiGenerationId).filter(Boolean) as string[]),
+  ];
+  const { data: generations } = genIds.length > 0
+    ? await supabase.from("AiGeneration").select("id, parsedOptions").in("id", genIds)
+    : { data: [] };
+
   const parsedOptionsById = new Map(
-    generations.map((g) => [g.id, g.parsedOptions]),
+    (generations ?? []).map((g) => [g.id, g.parsedOptions]),
   );
 
-  // Mint signed read URLs in parallel. Each URL is valid for 1h, which
-  // covers the lifetime of this server-rendered HTML response in any
-  // realistic browsing session.
-  const photoUrlByRowId = new Map<string, string | null>();
-  await Promise.all(
-    rows.map(async (r) => {
-      photoUrlByRowId.set(r.id, await signedReadUrl(r.photoPath));
-    }),
+  const photoUrlById = new Map(
+    await Promise.all(
+      (rows ?? []).map(
+        async (r) => [r.id, await signedReadUrl(r.photoUrl)] as const,
+      ),
+    ),
   );
 
-  const items: RenderedItem[] = rows
+  const items: RenderedItem[] = (rows ?? [])
     .filter((r) => isTopicId(r.topic) && isLevel(r.level))
     .map((r) => {
       const topic = r.topic as TopicId;
@@ -83,26 +68,22 @@ export default async function HistoryPage() {
       let brief: string | null = null;
       let duration: RenderedItem["duration"] = null;
 
-      const opts =
-        r.aiGenerationId !== null
-          ? parsedOptionsById.get(r.aiGenerationId)
-          : null;
+      const opts = r.aiGenerationId
+        ? parsedOptionsById.get(r.aiGenerationId)
+        : null;
       if (Array.isArray(opts) && r.chosenMissionIndex !== null) {
-        const chosen = opts[r.chosenMissionIndex];
-        if (chosen && typeof chosen === "object") {
-          const o = chosen as {
-            title?: unknown;
-            brief?: unknown;
-            duration?: unknown;
-          };
-          if (typeof o.title === "string") title = o.title;
-          if (typeof o.brief === "string") brief = o.brief;
+        const chosen = opts[r.chosenMissionIndex] as
+          | { title?: unknown; brief?: unknown; duration?: unknown }
+          | undefined;
+        if (chosen) {
+          if (typeof chosen.title === "string") title = chosen.title;
+          if (typeof chosen.brief === "string") brief = chosen.brief;
           if (
-            o.duration === "short" ||
-            o.duration === "medium" ||
-            o.duration === "long"
+            chosen.duration === "short" ||
+            chosen.duration === "medium" ||
+            chosen.duration === "long"
           ) {
-            duration = o.duration;
+            duration = chosen.duration;
           }
         }
       }
@@ -118,7 +99,7 @@ export default async function HistoryPage() {
         brief,
         duration,
         note: r.note,
-        photoUrl: photoUrlByRowId.get(r.id) ?? null,
+        photoUrl: photoUrlById.get(r.id) ?? null,
         completedAt: r.createdAt,
       };
     });
@@ -131,7 +112,7 @@ export default async function HistoryPage() {
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
       <Backdrop />
-      <AppHeader back={{ href: "/", label: "Topics" }} username={session.user.email} />
+      <AppHeader back={{ href: "/", label: "Topics" }} username={profile.email} />
 
       <section className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-solar-cream">Your quest log</h1>
@@ -187,7 +168,7 @@ export default async function HistoryPage() {
                     </>
                   )}
                   <span className="ml-auto font-mono text-[10px] text-solar-sage/40">
-                    {item.completedAt.toISOString().slice(0, 10)}
+                    {item.completedAt.slice(0, 10)}
                   </span>
                 </div>
                 <h2 className="text-base font-bold text-solar-cream">

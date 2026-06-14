@@ -148,6 +148,7 @@ activemq-data/
 
 # Environments
 .env
+.env.local
 .envrc
 .venv
 env/
@@ -250,4 +251,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
+
+# Supabase Studio saved queries (local editor state, not project code)
+supabase/snippets/
 

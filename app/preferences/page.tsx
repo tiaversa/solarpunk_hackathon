@@ -1,30 +1,26 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase-server";
 import { AppHeader } from "@/components/AppHeader";
 import { Backdrop } from "@/components/Backdrop";
 import { PreferencesForm } from "@/components/PreferencesForm";
 
 export default async function PreferencesPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect("/sign-in?callbackUrl=/preferences");
-  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in?callbackUrl=/preferences");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { email: true, interests: true, preferredDuration: true },
-  });
+  const { data: profile } = await supabase
+    .from("User")
+    .select("email, interests, preferredDuration")
+    .eq("authId", user.id)
+    .single();
 
-  if (!user) {
-    redirect("/sign-in");
-  }
+  if (!profile) redirect("/sign-in");
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-7">
       <Backdrop />
-      <AppHeader back={{ href: "/", label: "Topics" }} username={user.email} />
+      <AppHeader back={{ href: "/", label: "Topics" }} username={profile.email} />
 
       <section className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-solar-cream">Your preferences</h1>
@@ -35,8 +31,8 @@ export default async function PreferencesPage() {
       </section>
 
       <PreferencesForm
-        initialInterests={user.interests}
-        initialPreferredDuration={user.preferredDuration as
+        initialInterests={profile.interests ?? []}
+        initialPreferredDuration={profile.preferredDuration as
           | "short"
           | "medium"
           | "long"

@@ -27,14 +27,61 @@ export type SessionUser = {
 
 export type SessionResponse = { user: SessionUser | null };
 
+const FUNCTIONS_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1`;
+
+// Map legacy /api/* paths to Supabase Edge Function URLs
+function toFunctionUrl(path: string): string {
+  // path starts with /api/ → replace with /functions/v1/
+  // e.g. /api/mission → /functions/v1/missions (note plural mapping)
+  const mapped = path
+    .replace(/^\/api\/mission\/choose$/, "/missions/choose")
+    .replace(/^\/api\/mission\/complete$/, "/missions/complete")
+    .replace(/^\/api\/mission\/regenerate$/, "/missions/regenerate")
+    .replace(/^\/api\/mission(\?|$)/, "/missions$1")
+    .replace(/^\/api\/auth\/register$/, "/auth/register")
+    .replace(/^\/api\/session$/, "/session")
+    .replace(/^\/api\/progress$/, "/progress")
+    .replace(/^\/api\/history$/, "/history")
+    .replace(/^\/api\/topic\/reset$/, "/topic/reset")
+    .replace(/^\/api\/user\/preferences$/, "/user/preferences")
+    .replace(/^\/api\/orgs(.*)$/, "/orgs$1")
+    .replace(/^\/api\/geolocation$/, "/geolocation")
+    .replace(/^\/api\/cities$/, "/cities")
+    .replace(/^\/api\/photo\/upload-url$/, "/photo");
+
+  return `${FUNCTIONS_URL}${mapped}`;
+}
+
+async function getAuthToken(): Promise<string> {
+  // Always return at least the anon key — Kong requires apikey or Authorization
+  // on every request to edge functions, even public ones like /auth/register.
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (typeof window === "undefined") return anon;
+  try {
+    const { createClient } = await import("@/lib/supabase-client");
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? anon;
+  } catch {
+    return anon;
+  }
+}
+
 async function request<T>(
   input: string,
   init?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(input, {
-    credentials: "same-origin",
+  const url = input.startsWith("/api/") || input.startsWith("/api?")
+    ? toFunctionUrl(input)
+    : input;
+
+  const token = await getAuthToken();
+
+  const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
+      "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+      "Authorization": `Bearer ${token}`,
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -104,7 +151,8 @@ export async function getSession(): Promise<SessionResponse> {
 export async function registerUser(payload: {
   email: string;
   password: string;
-}): Promise<{ user: { id: string; email: string } }> {
+  org?: { name: string; description?: string; city?: string };
+}): Promise<{ user: { id: string; email: string }; org?: { id: string; name: string } }> {
   return request("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -169,6 +217,28 @@ export async function createProgress(topic: TopicId): Promise<ProgressRow> {
 
 export async function getCitySuggestion(): Promise<{ city: string | null }> {
   return request<{ city: string | null }>("/api/geolocation");
+}
+
+export type CitySearchResult = {
+  name: string;
+  country: string | null;
+  admin1: string | null;
+};
+
+/**
+ * Fuzzy city search backed by the `cities` Edge Function. Returns ready-to-
+ * display labels (e.g. "Santiago, Región Metropolitana, Chile"). Callers
+ * should debounce; this performs no caching of its own.
+ */
+export async function searchCities(query: string): Promise<string[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const rows = await request<CitySearchResult[]>(
+    `/api/cities?q=${encodeURIComponent(q)}`,
+  );
+  return rows.map((c) =>
+    [c.name, c.admin1, c.country].filter(Boolean).join(", "),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -372,6 +442,7 @@ export async function completeMission(
 export async function regenerateMission(
   topic: TopicId,
   level: number,
+  coords?: { lat: number; lng: number } | null,
 ): Promise<MissionsResponse> {
   if (isOffline()) {
     // Regenerate needs Claude; queueing it would be misleading because we
@@ -383,7 +454,11 @@ export async function regenerateMission(
   }
   return request<MissionsResponse>("/api/mission/regenerate", {
     method: "POST",
-    body: JSON.stringify({ topic, level }),
+    body: JSON.stringify({
+      topic,
+      level,
+      ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
+    }),
   });
 }
 
