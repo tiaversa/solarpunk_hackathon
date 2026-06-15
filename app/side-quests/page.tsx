@@ -25,7 +25,7 @@ type RawRequest = {
     city: string | null;
     email: string | null;
     website: string | null;
-  } | null;
+  }[] | null;
 };
 
 export default async function CitySideQuestPage() {
@@ -70,10 +70,10 @@ export default async function CitySideQuestPage() {
       capacityTotal: r.capacityTotal,
       expiresAt: r.expiresAt,
       createdAt: r.createdAt,
-      orgName: r.Organization?.name ?? "A community organisation",
-      orgCity: r.Organization?.city ?? null,
-      orgEmail: r.Organization?.email ?? null,
-      orgWebsite: r.Organization?.website ?? null,
+      orgName: r.Organization?.[0]?.name ?? "A community organisation",
+      orgCity: r.Organization?.[0]?.city ?? null,
+      orgEmail: r.Organization?.[0]?.email ?? null,
+      orgWebsite: r.Organization?.[0]?.website ?? null,
     }));
 
   return (
