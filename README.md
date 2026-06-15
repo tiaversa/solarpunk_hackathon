@@ -206,13 +206,47 @@ vercel env add SUPABASE_SERVICE_ROLE_KEY
 vercel deploy --prod
 ```
 
-### 6. Update the build script
+### 6. Deploy the mobile app (Android)
 
-The current `build` script references Prisma (leftover). Update `package.json`:
+The Android build uses a static export (`output: "export"`), distinct from the Vercel build.
 
-```json
-"build": "next build"
+#### Build and install via USB
+
+Enable **USB debugging** on the device (Settings → Developer options → USB debugging), then connect by cable.
+
+```bash
+# 1. Generate the static web bundle
+npm run build:mobile
+
+# 2. Copy web assets into the Android project and update plugins
+npx cap sync android
+
+# 3. Verify the device is detected
+adb devices
+
+# 4. Build the debug APK
+cd android && ./gradlew assembleDebug && cd ..
+
+# 5. Install on the connected device
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+# Or
+npm run build:mobile 2>&1 | tail -8 && npx cap sync && npx cap run android 2>&1 | tail -4
 ```
+
+Or let Capacitor handle steps 3–5 in one command (requires Android Studio installed):
+
+```bash
+npx cap run android
+```
+
+#### Open in Android Studio (for release builds or debugging)
+
+```bash
+npx cap open android
+```
+
+Then in Android Studio: **Run → Run 'app'** to install on a connected device, or **Build → Generate Signed Bundle/APK** for a release build.
 
 ---
 
