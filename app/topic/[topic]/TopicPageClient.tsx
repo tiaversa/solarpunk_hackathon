@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo, useRef, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/components/SessionProvider";
@@ -13,7 +13,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Backdrop } from "@/components/Backdrop";
 import { LevelStepper } from "@/components/LevelStepper";
 import { LocationTracker } from "@/components/LocationTracker";
-import { PHOTO_BUCKET } from "@/lib/supabase";
+
 import type { MissionOption } from "@/lib/api-client";
 
 type Phase1 = {
@@ -47,6 +47,7 @@ function TopicPageInner() {
   const [phase2, setPhase2] = useState<Phase2 | null>(null);
   const [missionsLoading, setMissionsLoading] = useState(false);
   const [missionsKey, setMissionsKey] = useState(0);
+  const prevLevelRef = useRef<Level | null>(null);
 
   const levelParam = searchParams.get("level");
   const level = useMemo<Level>(() => {
@@ -119,8 +120,12 @@ function TopicPageInner() {
     const functionsUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1`;
     const supabase = createClient();
 
+    const levelChanged = prevLevelRef.current !== level;
+    prevLevelRef.current = level;
+
+    let cancelled = false;
     setMissionsLoading(true);
-    setPhase2(null);
+    if (levelChanged) setPhase2(null);
 
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -206,30 +211,39 @@ function TopicPageInner() {
 
         if (completionRes.data?.photoUrl) {
           try {
-            const { data: signed } = await supabase.storage
-              .from(PHOTO_BUCKET)
-              .createSignedUrl(completionRes.data.photoUrl, 3600);
-            completionPhotoUrl = signed?.signedUrl ?? null;
+            const params = new URLSearchParams({ path: completionRes.data.photoUrl });
+            const res = await fetch(
+              `${functionsUrl}/photo?${params}`,
+              { headers: { Authorization: `Bearer ${token}`, apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! } },
+            );
+            if (res.ok) {
+              const { signedUrl } = (await res.json()) as { signedUrl: string };
+              completionPhotoUrl = signedUrl ?? null;
+            }
           } catch {
             completionPhotoUrl = null;
           }
         }
       }
 
-      setPhase2({
-        options,
-        aiGenerationId,
-        fromCache,
-        generationError,
-        initialChosenIndex,
-        isLevelCompleted,
-        completionNote,
-        completionPhotoUrl,
-        genCoordsLat,
-        genCoordsLng,
-      });
-      setMissionsLoading(false);
+      if (!cancelled) {
+        setPhase2({
+          options,
+          aiGenerationId,
+          fromCache,
+          generationError,
+          initialChosenIndex,
+          isLevelCompleted,
+          completionNote,
+          completionPhotoUrl,
+          genCoordsLat,
+          genCoordsLng,
+        });
+        setMissionsLoading(false);
+      }
     })();
+
+    return () => { cancelled = true; };
   }, [phase1, level, topicParam, missionsKey]);
 
   if (authLoading || !phase1 || !isTopicId(topicParam)) {
@@ -288,6 +302,14 @@ function TopicPageInner() {
           level={level}
           canRegenerate={Boolean(phase2?.options && phase2?.aiGenerationId)}
           onReloadMissions={() => setMissionsKey((k) => k + 1)}
+          onResetComplete={() => {
+            setPhase1((prev) =>
+              prev ? { ...prev, currentLevel: 1 as Level, completedLevels: [] } : prev,
+            );
+            setPhase2(null);
+            setMissionsKey((k) => k + 1);
+            router.push(`/topic/${topicId}`);
+          }}
         />
       </div>
 
@@ -350,7 +372,15 @@ function TopicPageInner() {
               completionPhotoUrl={phase2.completionPhotoUrl}
               onLevelComplete={(nextLevel) =>
                 setPhase1((prev) =>
-                  prev ? { ...prev, currentLevel: nextLevel as typeof prev.currentLevel } : prev,
+                  prev
+                    ? {
+                        ...prev,
+                        currentLevel: nextLevel as typeof prev.currentLevel,
+                        completedLevels: prev.completedLevels.includes(level)
+                          ? prev.completedLevels
+                          : [...prev.completedLevels, level],
+                      }
+                    : prev,
                 )
               }
             />

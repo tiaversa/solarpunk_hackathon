@@ -2,6 +2,9 @@ import { handleCors, json } from "../_shared/cors.ts";
 import { requireUser } from "../_shared/auth.ts";
 import { getSupabaseAdmin } from "../_shared/supabase.ts";
 
+const PHOTO_BUCKET = "hackathon_images";
+const SIGNED_URL_TTL = 60 * 60; // 1 hour
+
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -45,13 +48,33 @@ Deno.serve(async (req) => {
       }
     }
 
-    return { id: r.id, topic: r.topic, level: r.level, title, brief, duration, note: r.note, photoUrl: r.photoUrl, completedAt: r.createdAt };
+    return { id: r.id, topic: r.topic, level: r.level, title, brief, duration, note: r.note, photoPath: r.photoUrl, completedAt: r.createdAt };
   });
+
+  // Generate signed read URLs for any completion photos using the service-role
+  // key so bucket RLS policies are bypassed. The client can't do this itself
+  // with just the anon key on a private bucket.
+  const photoPaths = [...new Set(items.map((i) => i.photoPath).filter(Boolean) as string[])];
+  const signedUrlMap = new Map<string, string>();
+  if (photoPaths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .createSignedUrls(photoPaths, SIGNED_URL_TTL);
+    for (const entry of signed ?? []) {
+      if (entry.signedUrl && entry.path) signedUrlMap.set(entry.path, entry.signedUrl);
+    }
+  }
+
+  const itemsWithUrls = items.map((i) => ({
+    ...i,
+    photoUrl: i.photoPath ? (signedUrlMap.get(i.photoPath) ?? null) : null,
+    photoPath: undefined,
+  }));
 
   const totalsByTopic: Record<string, number> = {};
   for (const item of items) {
     totalsByTopic[item.topic] = (totalsByTopic[item.topic] ?? 0) + 1;
   }
 
-  return json({ items, totalsByTopic });
+  return json({ items: itemsWithUrls, totalsByTopic });
 });

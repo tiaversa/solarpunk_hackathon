@@ -96,22 +96,6 @@ export function LocationTracker({
         `[LocationTracker] Current coords: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
       );
 
-      if (!generationHasCoords) {
-        console.log(
-          "[LocationTracker] No coords on current generation → auto-regenerating…",
-        );
-        try {
-          await regenerateMission(topic, level, coords);
-          if (!cancelled) {
-            if (onReloadMissionsRef.current) onReloadMissionsRef.current();
-            else router.refresh();
-          }
-        } catch (err) {
-          console.error("[LocationTracker] Auto-regeneration failed:", err);
-        }
-        return;
-      }
-
       if (generationLat != null && generationLng != null) {
         const moved = distanceKm(
           { lat: generationLat, lng: generationLng },

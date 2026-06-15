@@ -47,7 +47,8 @@ function toFunctionUrl(path: string): string {
     .replace(/^\/api\/orgs(.*)$/, "/orgs$1")
     .replace(/^\/api\/geolocation$/, "/geolocation")
     .replace(/^\/api\/cities$/, "/cities")
-    .replace(/^\/api\/photo\/upload-url$/, "/photo");
+    .replace(/^\/api\/photo\/upload-url$/, "/photo")
+    .replace(/^\/api\/photo\/signed-url(\?.*)?$/, "/photo$1");
 
   return `${FUNCTIONS_URL}${mapped}`;
 }
@@ -552,20 +553,26 @@ export async function uploadPhoto(file: Blob): Promise<string> {
     { method: "POST" },
   );
 
-  // Lazy-import so server-only code paths don't pull in the supabase-js
-  // client bundle until something actually needs it.
-  const { getBrowserSupabase, PHOTO_BUCKET } = await import("@/lib/supabase");
-  const supabase = getBrowserSupabase();
+  const { PHOTO_BUCKET } = await import("@/lib/supabase");
+  const storageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1`;
+  const uploadUrl = `${storageUrl}/object/upload/sign/${PHOTO_BUCKET}/${path}?token=${token}`;
 
-  const { error } = await supabase.storage
-    .from(PHOTO_BUCKET)
-    .uploadToSignedUrl(path, token, file, {
-      contentType: file.type || "image/jpeg",
-      upsert: false,
-    });
+  // Upload raw bytes directly — avoids the SDK wrapping the Blob in FormData
+  // with an empty-string field name, which Capacitor's WebView doesn't handle
+  // correctly (returns 200 but the object is never stored).
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: {
+      "Content-Type": file.type || "image/jpeg",
+      "x-upsert": "false",
+    },
+  });
 
-  if (error) {
-    throw new ApiError(error.message, 502);
+  if (!res.ok) {
+    let detail: string | undefined;
+    try { detail = ((await res.json()) as { message?: string }).message; } catch { /* */ }
+    throw new ApiError(detail ?? `Photo upload failed (${res.status})`, 502);
   }
   return path;
 }

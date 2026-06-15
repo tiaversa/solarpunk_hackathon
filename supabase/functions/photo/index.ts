@@ -17,21 +17,40 @@ Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-
   const auth = await requireUser(req);
   if (auth.error) return auth.error;
 
-  const path = buildPhotoPath(auth.userId);
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase.storage
-    .from(PHOTO_BUCKET)
-    .createSignedUploadUrl(path);
-
-  if (error || !data?.token) {
-    return json({ error: error?.message ?? "Could not mint upload URL" }, 502);
+  // GET ?path=... → signed read URL (service-role bypasses bucket RLS)
+  if (req.method === "GET") {
+    const url = new URL(req.url);
+    const storagePath = url.searchParams.get("path");
+    if (!storagePath) return json({ error: "Missing path" }, 400);
+    // Enforce ownership: path must start with the authenticated user's ID
+    if (!storagePath.startsWith(`${auth.userId}/`)) {
+      return json({ error: "Forbidden" }, 403);
+    }
+    const { data, error } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .createSignedUrl(storagePath, 60 * 60);
+    if (error || !data?.signedUrl) {
+      return json({ error: error?.message ?? "Object not found" }, 404);
+    }
+    return json({ signedUrl: data.signedUrl });
   }
 
-  return json({ path, token: data.token });
+  // POST → signed upload URL
+  if (req.method === "POST") {
+    const path = buildPhotoPath(auth.userId);
+    const { data, error } = await supabase.storage
+      .from(PHOTO_BUCKET)
+      .createSignedUploadUrl(path);
+    if (error || !data?.token) {
+      return json({ error: error?.message ?? "Could not mint upload URL" }, 502);
+    }
+    return json({ path, token: data.token });
+  }
+
+  return json({ error: "Method not allowed" }, 405);
 });

@@ -28,6 +28,7 @@ export default function HomePage() {
   useEffect(() => {
     if (authLoading || !user) return;
 
+    let cancelled = false;
     const supabase = createClient();
 
     supabase
@@ -36,6 +37,7 @@ export default function HomePage() {
       .eq("authId", user.id)
       .single()
       .then(async ({ data: profileData }) => {
+        if (cancelled) return;
         if (!profileData) { router.push("/sign-in"); return; }
         setProfile(profileData as Profile);
 
@@ -45,10 +47,12 @@ export default function HomePage() {
           .eq("createdByUserId", profileData.id)
           .maybeSingle();
 
-        if (org) { router.push(`/org/${org.id}`); return; }
+        if (cancelled) return;
+        if (org) { router.push(`/org/_/?id=${org.id}`); return; }
 
         getProgress()
           .then((rows) => {
+            if (cancelled) return;
             const map: Record<string, { currentLevel: Level; completedLevels: number[] }> = {};
             for (const row of rows) {
               map[row.topic] = {
@@ -62,6 +66,8 @@ export default function HomePage() {
           })
           .catch(() => {});
       });
+
+    return () => { cancelled = true; };
   }, [user, authLoading, router]);
 
   if (authLoading || (user && !profile)) {

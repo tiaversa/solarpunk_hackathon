@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "@/components/SessionProvider";
 import { createClient } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
@@ -34,19 +34,20 @@ type ServiceRequest = {
 };
 
 export default function OrgPageClient() {
-  const params = useParams<{ orgId: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { user, loading: authLoading } = useSession();
   const [org, setOrg] = useState<Org | null>(null);
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
 
-  const orgId = params?.orgId ?? "";
+  const orgId = searchParams?.get("id") ?? "";
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push("/sign-in"); return; }
 
+    let cancelled = false;
     const supabase = createClient();
     (async () => {
       const { data: profile } = await supabase
@@ -54,6 +55,7 @@ export default function OrgPageClient() {
         .select("id, email")
         .eq("authId", user.id)
         .single();
+      if (cancelled) return;
       if (!profile) { router.push("/sign-in"); return; }
 
       setUserEmail(profile.email ?? user.email);
@@ -64,6 +66,7 @@ export default function OrgPageClient() {
         .eq("id", orgId)
         .single();
 
+      if (cancelled) return;
       if (!orgData) { router.push("/"); return; }
       if (orgData.createdByUserId !== profile.id) { router.push("/"); return; }
 
@@ -77,8 +80,11 @@ export default function OrgPageClient() {
         .eq("organizationId", orgId)
         .order("createdAt", { ascending: false });
 
+      if (cancelled) return;
       setRequests((serviceRequests ?? []) as ServiceRequest[]);
     })();
+
+    return () => { cancelled = true; };
   }, [user, authLoading, orgId, router]);
 
   if (authLoading || (user && !org)) {

@@ -15,10 +15,11 @@ type Props = {
   level: number;
   canRegenerate: boolean;
   onReloadMissions?: () => void;
+  onResetComplete?: () => void;
 };
 
 
-export function TopicHeaderActions({ topic, level, canRegenerate, onReloadMissions }: Props) {
+export function TopicHeaderActions({ topic, level, canRegenerate, onReloadMissions, onResetComplete }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState<null | "regen" | "reset">(null);
@@ -60,8 +61,12 @@ export function TopicHeaderActions({ topic, level, canRegenerate, onReloadMissio
     setError(null);
     try {
       await resetTopic(topic);
-      startTransition(() => router.refresh());
-      router.push(`/topic/${topic}`);
+      if (onResetComplete) {
+        onResetComplete();
+      } else {
+        startTransition(() => router.refresh());
+        router.push(`/topic/${topic}`);
+      }
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not reset topic.",
