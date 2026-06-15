@@ -30,6 +30,8 @@ model User {
   city              String?
   interests         String[] @default([])
   preferredDuration String? // 'short' | 'medium' | 'long'
+  bio               String?  // short personal description, max 300 chars
+  phone             String?  // contact number, max 30 chars
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

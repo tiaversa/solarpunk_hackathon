@@ -23,6 +23,8 @@ export type SessionUser = {
   city: string | null;
   interests: string[];
   preferredDuration: "short" | "medium" | "long" | null;
+  bio?: string | null;
+  phone?: string | null;
 };
 
 export type SessionResponse = { user: SessionUser | null };
@@ -44,6 +46,7 @@ function toFunctionUrl(path: string): string {
     .replace(/^\/api\/history$/, "/history")
     .replace(/^\/api\/topic\/reset$/, "/topic/reset")
     .replace(/^\/api\/user\/preferences$/, "/user/preferences")
+    .replace(/^\/api\/user\/profile$/, "/user/profile")
     .replace(/^\/api\/orgs(.*)$/, "/orgs$1")
     .replace(/^\/api\/geolocation$/, "/geolocation")
     .replace(/^\/api\/cities$/, "/cities")
@@ -156,6 +159,62 @@ export async function registerUser(payload: {
 }): Promise<{ user: { id: string; email: string }; org?: { id: string; name: string } }> {
   return request("/api/auth/register", {
     method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Profile
+// ---------------------------------------------------------------------------
+
+export type ProfileOrg = {
+  id: string;
+  name: string;
+  description: string | null;
+  phone: string | null;
+};
+
+export type ProfileUser = {
+  id: string;
+  email: string;
+  bio: string | null;
+  phone: string | null;
+};
+
+export type ProfileResponse = {
+  user: ProfileUser;
+  org: ProfileOrg | null;
+};
+
+export async function getProfile(): Promise<ProfileResponse> {
+  return request<ProfileResponse>("/api/user/profile");
+}
+
+export type UpdateProfilePayload = {
+  bio?: string | null;
+  phone?: string | null;
+};
+
+export async function updateProfile(
+  payload: UpdateProfilePayload,
+): Promise<{ user: ProfileUser }> {
+  return request<{ user: ProfileUser }>("/api/user/profile", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export type UpdateOrgProfilePayload = {
+  description?: string | null;
+  phone?: string | null;
+};
+
+export async function updateOrgProfile(
+  orgId: string,
+  payload: UpdateOrgProfilePayload,
+): Promise<void> {
+  await request(`/api/orgs/${orgId}`, {
+    method: "PATCH",
     body: JSON.stringify(payload),
   });
 }

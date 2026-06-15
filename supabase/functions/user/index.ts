@@ -14,6 +14,16 @@ const PrefsBody = z
     { message: "Provide at least one of city, interests or preferredDuration" },
   );
 
+const ProfileBody = z
+  .object({
+    bio: z.string().max(300).nullable().optional(),
+    phone: z.string().max(30).nullable().optional(),
+  })
+  .refine(
+    (v) => v.bio !== undefined || v.phone !== undefined,
+    { message: "Provide at least one of bio or phone" },
+  );
+
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -50,6 +60,54 @@ Deno.serve(async (req) => {
     }
 
     return json({ user });
+  }
+
+  if (req.method === "PATCH" && path === "/profile") {
+    const auth = await requireUser(req);
+    if (auth.error) return auth.error;
+
+    let body: unknown;
+    try { body = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+
+    const parsed = ProfileBody.safeParse(body);
+    if (!parsed.success) return json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, 400);
+
+    const update: Record<string, unknown> = {};
+    if (parsed.data.bio !== undefined) update["bio"] = parsed.data.bio;
+    if (parsed.data.phone !== undefined) update["phone"] = parsed.data.phone;
+
+    const supabase = getSupabaseAdmin();
+    const { data: user } = await supabase
+      .from("User")
+      .update(update)
+      .eq("id", auth.userId)
+      .select("id, email, bio, phone")
+      .single();
+
+    return json({ user });
+  }
+
+  if (req.method === "GET" && path === "/profile") {
+    const auth = await requireUser(req);
+    if (auth.error) return auth.error;
+
+    const supabase = getSupabaseAdmin();
+    const { data: user } = await supabase
+      .from("User")
+      .select("id, email, bio, phone")
+      .eq("id", auth.userId)
+      .single();
+
+    if (!user) return json({ error: "User not found" }, 404);
+
+    // Include the user's org if they have one
+    const { data: org } = await supabase
+      .from("Organization")
+      .select("id, name, description, phone")
+      .eq("createdByUserId", auth.userId)
+      .maybeSingle();
+
+    return json({ user, org: org ?? null });
   }
 
   return json({ error: "Not found" }, 404);
