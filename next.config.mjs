@@ -13,7 +13,7 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  ...(process.env.NEXT_OUTPUT === "export" ? { output: "export" } : {}),
   trailingSlash: true,
   reactStrictMode: true,
 };

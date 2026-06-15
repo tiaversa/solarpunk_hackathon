@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--dns-result-order=ipv4first' next dev",
     "build": "next build",
-    "start": "npx serve out",
+    "build:mobile": "NEXT_OUTPUT=export next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {

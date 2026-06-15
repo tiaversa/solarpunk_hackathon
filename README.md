@@ -1,6 +1,14 @@
-# Solarpunk Missions
+# Green Quest
 
-A gamified community action app. Pick a topic (food, energy, mobility…), climb 6 levels of hands-on missions — Explore → Make → Improve → Experiment → Connect → Teach — each one AI-generated and grounded in your city and interests.
+A gamified community action app. Pick a topic (food, energy, mobility…), climb 6 levels of hands-on missions — Explore → Make → Improve → Experiment → Connect → Teach — each one AI-generated and grounded in your city and interests.  
+
+Green quest is an aplication that gamify the help for your community, vinculating your learning path with the necesities of your local community.  
+
+It allows you to find new places where you can practice your new skills helping the ones surounding you.  
+
+To the organizations its a smiple way to ask for help to their neghtbords, loading Service Requests that are visible for all the near by users and gets included in their learning pathes as missions to accomplish.  
+
+
 
 ## Stack
 
