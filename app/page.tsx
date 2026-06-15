@@ -107,16 +107,13 @@ export default function HomePage() {
     );
   }
 
-  const emailName =
-    (profile!.email ?? user.email ?? "explorer").split("@")[0] ?? "explorer";
-
   return (
     <main className="relative mx-auto flex min-h-screen max-w-md flex-col gap-7 px-6 py-7">
       <Backdrop />
       <AppHeader username={user.email ?? undefined} />
 
       <div className="flex flex-col gap-1">
-        <Greeting fallbackName={emailName} />
+        <Greeting />
         <p className="text-sm text-solar-sage/70">
           Choose a topic to grow your next quest.
         </p>
