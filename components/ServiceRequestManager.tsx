@@ -276,14 +276,16 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
               key={t.id}
               type="button"
               onClick={() => setCategory(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-2xl border-2 py-2 text-xs font-medium normal-case tracking-normal transition ${
+              className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-2 py-2 text-center text-xs font-medium normal-case leading-tight tracking-normal transition ${
                 category === t.id
                   ? "border-solar-green bg-solar-field text-solar-cream"
                   : "border-solar-leafmd text-solar-sage/60 hover:border-solar-green/60 hover:text-solar-sage"
               }`}
             >
               <span className="text-lg">{t.emoji}</span>
-              {t.label}
+              <span className="w-full break-words text-[11px] leading-tight">
+                {t.label}
+              </span>
             </button>
           ))}
         </div>

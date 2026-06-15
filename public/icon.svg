@@ -1,21 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#dff3d2"/>
-      <stop offset="1" stop-color="#4a8d3c"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <path d="M256 96
-           C 156 96 96 176 96 272
-           c 0 56 28 100 60 132
-           c -8 -68 24 -128 80 -160
-           c -20 56 8 112 56 144
-           c 0 -40 12 -76 32 -108
-           c 0 56 -16 100 -48 132
-           c 76 -24 132 -96 132 -180
-           c 0 -96 -60 -176 -152 -176 z"
-        fill="#3a6e30" opacity="0.92"/>
-  <circle cx="380" cy="128" r="40" fill="#f5c451"/>
-  <circle cx="380" cy="128" r="20" fill="#e9ad27"/>
+  <style>
+    /* Display font for the GQ monogram; falls back to monospace if it can't load. */
+    @font-face {
+      font-family: 'Sixtyfour';
+      font-style: normal;
+      font-weight: 400;
+      src: url(https://fonts.gstatic.com/s/sixtyfour/v3/OD5vuMCT1numDm3nakXtp2h4jg463t9haG_3mBkVsV20uFT3BAE5f43flSU.woff2) format('woff2');
+    }
+    .gq-text { font-family: 'Sixtyfour', ui-monospace, monospace; white-space: pre; }
+    .leaf { fill: #9DB888; }
+    .stroke { fill: none; stroke: #9DB888; stroke-width: 23.2786; }
+    .g { fill: #E8F0D8; }
+    .q { fill: #2E4020; }
+  </style>
+  <rect width="512" height="512" rx="112" fill="#1A1F14"/>
+  <svg x="86" y="78" width="340" height="352" viewBox="0 0 308 319">
+    <path class="leaf" d="M284,8L271.0389404296875,30.4501953125L262.398193359375,52.900634765625C247.27685546875,99.8421630859375,275.359130859375,132.4970703125,267.9481201171875,178.32470703125L267.84326171875,179.4385986328125L267.795654296875,179.397216796875C264.558349609375,201.888916015625,256.83349609375,227.451171875,245.11669921875,242.7076416015625C212.55859375,285.10205078125,151.31103515625,290.7735595703125,120.30517578125,258.796142578125C104.7052001953125,242.707763671875,102.8780517578125,232.75439453125,98.2247314453125,218.21630859375C84.607666015625,217.361083984375,67.982177734375,220.2574462890625,52.8609619140625,210.052734375C34.9150390625,197.9415283203125,25.74365234375,178.3544921875,24.21826171875,157.14892578125C22.569091796875,134.2193603515625,30.262451171875,108.87939453125,47.1776123046875,86.8543701171875C67.863525390625,59.9188232421875,115.5062255859375,44.73681640625,143.58837890625,38.614013671875L186.7919921875,28.4093017578125L284,8"/>
+    <path class="stroke" d="M96.064453125,199.847900390625C96.064453125,199.847900390625,111.185791015625,263.116943359375,67.982177734375,285.5673828125C31.5201416015625,304.514404296875,26.938720703125,357,26.938720703125,357"/>
+    <text class="gq-text g" x="84" y="175.73152828216553" dominant-baseline="ideographic" textLength="100.00260925292969" lengthAdjust="spacingAndGlyphs" font-size="100">G</text>
+    <text class="gq-text q" x="129" y="255.5838742256169" dominant-baseline="ideographic" textLength="81.99978637695312" lengthAdjust="spacingAndGlyphs" font-size="80" letter-spacing="2">Q</text>
+  </svg>
 </svg>
