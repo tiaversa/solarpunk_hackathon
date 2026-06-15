@@ -39,6 +39,7 @@ export default function OrgPageClient() {
   const { user, loading: authLoading } = useSession();
   const [org, setOrg] = useState<Org | null>(null);
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [requestsLoaded, setRequestsLoaded] = useState(false);
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
 
   const orgId = searchParams?.get("id") ?? "";
@@ -82,12 +83,13 @@ export default function OrgPageClient() {
 
       if (cancelled) return;
       setRequests((serviceRequests ?? []) as ServiceRequest[]);
+      setRequestsLoaded(true);
     })();
 
     return () => { cancelled = true; };
   }, [user, authLoading, orgId, router]);
 
-  if (authLoading || (user && !org)) {
+  if (authLoading || (user && (!org || !requestsLoaded))) {
     return (
       <main className="relative mx-auto flex min-h-screen max-w-md items-center justify-center">
         <Backdrop />
@@ -105,21 +107,21 @@ export default function OrgPageClient() {
       <Backdrop />
       <AppHeader username={userEmail} />
 
-      <section className="rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl" aria-hidden="true">🏘️</span>
-              <h1 className="text-2xl font-bold text-solar-cream">{org.name}</h1>
+      <section className="rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-[clamp(1rem,4vw,1.25rem)]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex items-center gap-[clamp(0.375rem,1.5vw,0.5rem)]">
+              <span className="shrink-0 text-[clamp(1.2rem,5.5vw,1.5rem)]" aria-hidden="true">🏘️</span>
+              <h1 className="truncate text-[clamp(1.1rem,5.5vw,1.5rem)] font-bold leading-tight text-solar-cream">{org.name}</h1>
             </div>
             {org.description && (
-              <p className="text-sm text-solar-sage/80">{org.description}</p>
+              <p className="text-[clamp(0.7rem,3vw,0.875rem)] text-solar-sage/80 line-clamp-2">{org.description}</p>
             )}
-            {org.city && <p className="text-xs text-solar-sage/50">{org.city}</p>}
+            {org.city && <p className="text-[clamp(0.65rem,2.5vw,0.75rem)] text-solar-sage/50">{org.city}</p>}
           </div>
-          <div className="shrink-0 rounded-2xl bg-solar-field px-4 py-2 text-center ring-1 ring-solar-leafmd">
-            <p className="text-2xl font-bold text-solar-cream">{openCount}</p>
-            <p className="text-xs text-solar-sage/60">
+          <div className="shrink-0 rounded-2xl bg-solar-field px-[clamp(0.75rem,3.5vw,1rem)] py-[clamp(0.375rem,1.5vw,0.5rem)] text-center ring-1 ring-solar-leafmd">
+            <p className="text-[clamp(1.3rem,6vw,1.75rem)] font-bold leading-none text-solar-cream">{openCount}</p>
+            <p className="mt-0.5 text-[clamp(0.6rem,2.5vw,0.75rem)] text-solar-sage/60">
               open request{openCount !== 1 ? "s" : ""}
             </p>
           </div>

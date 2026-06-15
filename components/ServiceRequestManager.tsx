@@ -64,6 +64,7 @@ const labelClass =
 export function ServiceRequestManager({ orgId, topics, initialRequests }: Props) {
   const [requests, setRequests] = useState<ServiceRequest[]>(initialRequests);
   const [showForm, setShowForm] = useState(false);
+  const [detailRequest, setDetailRequest] = useState<ServiceRequest | null>(null);
 
   function onCreated(req: ServiceRequest) {
     setRequests((prev) => [req, ...prev]);
@@ -127,6 +128,7 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
               topics={topics}
               onStatusChange={onStatusChange}
               onDelete={onDelete}
+              onOpen={() => setDetailRequest(r)}
             />
           ))}
         </div>
@@ -145,10 +147,27 @@ export function ServiceRequestManager({ orgId, topics, initialRequests }: Props)
                 topics={topics}
                 onStatusChange={onStatusChange}
                 onDelete={onDelete}
+                onOpen={() => setDetailRequest(r)}
               />
             ))}
           </div>
         </details>
+      )}
+
+      {detailRequest && (
+        <RequestDetailModal
+          request={detailRequest}
+          topics={topics}
+          onClose={() => setDetailRequest(null)}
+          onStatusChange={async (id, status) => {
+            await onStatusChange(id, status);
+            setDetailRequest((prev) => prev && prev.id === id ? { ...prev, status } : prev);
+          }}
+          onDelete={async (id) => {
+            await onDelete(id);
+            setDetailRequest(null);
+          }}
+        />
       )}
     </div>
   );
@@ -276,16 +295,14 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
               key={t.id}
               type="button"
               onClick={() => setCategory(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-2 py-2 text-center text-xs font-medium normal-case leading-tight tracking-normal transition ${
+              className={`flex flex-col items-center gap-1 rounded-2xl border-2 py-2 text-xs font-medium normal-case tracking-normal transition ${
                 category === t.id
                   ? "border-solar-green bg-solar-field text-solar-cream"
                   : "border-solar-leafmd text-solar-sage/60 hover:border-solar-green/60 hover:text-solar-sage"
               }`}
             >
               <span className="text-lg">{t.emoji}</span>
-              <span className="w-full break-words text-[11px] leading-tight">
-                {t.label}
-              </span>
+              {t.label}
             </button>
           ))}
         </div>
@@ -362,7 +379,7 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
             </div>
 
             {manualMode && (
-              <div className="flex flex-col gap-2 rounded-field bg-solar-field/50 p-3">
+              <div className="flex flex-col gap-3 rounded-field bg-solar-field/50 p-3">
                 <p className="text-xs text-solar-sage/60">
                   Find your coordinates at{" "}
                   <a
@@ -375,31 +392,29 @@ function ServiceRequestForm({ orgId, topics, onCreated }: FormProps) {
                   </a>{" "}
                   or right-click on Google Maps.
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="Latitude (e.g. -33.4489)"
-                    value={manualLat}
-                    onChange={(e) => setManualLat(e.target.value)}
-                    className="flex-1 rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
-                  />
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="Longitude (e.g. -70.6693)"
-                    value={manualLng}
-                    onChange={(e) => setManualLng(e.target.value)}
-                    className="flex-1 rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={applyManualCoords}
-                    className="rounded-field bg-solar-green px-3 py-2 text-sm font-bold text-solar-cream transition hover:bg-solar-moss"
-                  >
-                    Set
-                  </button>
-                </div>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Latitude (e.g. -33.4489)"
+                  value={manualLat}
+                  onChange={(e) => setManualLat(e.target.value)}
+                  className="w-full rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
+                />
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Longitude (e.g. -70.6693)"
+                  value={manualLng}
+                  onChange={(e) => setManualLng(e.target.value)}
+                  className="w-full rounded-field border-2 border-solar-green/40 bg-solar-field/50 px-3 py-2 text-sm text-solar-sage placeholder:text-solar-sage/40 focus:border-solar-green focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={applyManualCoords}
+                  className="w-full rounded-field bg-solar-green py-2 text-sm font-bold text-solar-cream transition hover:bg-solar-moss"
+                >
+                  Set location
+                </button>
               </div>
             )}
           </div>
@@ -474,14 +489,19 @@ type CardProps = {
   topics: readonly Topic[];
   onStatusChange: (id: string, status: "open" | "filled" | "expired") => void;
   onDelete: (id: string) => void;
+  onOpen: () => void;
 };
 
-function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps) {
+function RequestCard({ request: r, topics, onStatusChange, onDelete, onOpen }: CardProps) {
   const topic = topics.find((t) => t.id === r.category);
 
   return (
     <div className="flex flex-col gap-3 rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-4">
-      <div className="flex items-start gap-3">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex items-start gap-3 text-left"
+      >
         <span className="mt-0.5 text-xl" aria-hidden="true">
           {topic?.emoji ?? "📌"}
         </span>
@@ -508,7 +528,8 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
             )}
           </div>
         </div>
-      </div>
+        <span className="mt-0.5 shrink-0 text-solar-sage/30">›</span>
+      </button>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2 border-t border-solar-leafmd pt-2">
@@ -546,6 +567,149 @@ function RequestCard({ request: r, topics, onStatusChange, onDelete }: CardProps
         >
           Delete
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Detail modal
+// ---------------------------------------------------------------------------
+
+type ModalProps = {
+  request: ServiceRequest;
+  topics: readonly Topic[];
+  onClose: () => void;
+  onStatusChange: (id: string, status: "open" | "filled" | "expired") => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+};
+
+function RequestDetailModal({ request: r, topics, onClose, onStatusChange, onDelete }: ModalProps) {
+  const topic = topics.find((t) => t.id === r.category);
+  const mapsUrl = `https://www.google.com/maps?q=${r.lat},${r.lng}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full max-w-md rounded-t-3xl border-t border-solar-leafmd bg-solar-dark pb-safe flex flex-col max-h-[85dvh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="h-1 w-10 rounded-full bg-solar-leafmd" />
+        </div>
+
+        <div className="overflow-y-auto px-6 py-4 flex flex-col gap-5">
+          {/* Header */}
+          <div className="flex items-start gap-3">
+            <span className="mt-1 text-2xl" aria-hidden="true">{topic?.emoji ?? "📌"}</span>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-solar-cream leading-snug">{r.title}</h2>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="text-sm text-solar-sage/60">{topic?.label ?? r.category}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[r.status] ?? STATUS_COLORS.expired}`}
+                >
+                  {STATUS_LABELS[r.status] ?? r.status}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-solar-sage/90 leading-relaxed whitespace-pre-wrap">{r.description}</p>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Spots left</p>
+              <p className="mt-1 text-lg font-bold text-solar-cream">
+                {r.capacityRemaining}
+                <span className="text-sm font-normal text-solar-sage/60"> / {r.capacityTotal}</span>
+              </p>
+            </div>
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Radius</p>
+              <p className="mt-1 text-lg font-bold text-solar-cream">
+                {r.radiusKm}
+                <span className="text-sm font-normal text-solar-sage/60"> km</span>
+              </p>
+            </div>
+            {r.expiresAt && (
+              <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+                <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Expires</p>
+                <p className="mt-1 text-sm font-semibold text-solar-cream">
+                  {new Date(r.expiresAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+                </p>
+              </div>
+            )}
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Published</p>
+              <p className="mt-1 text-sm font-semibold text-solar-cream">
+                {new Date(r.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+              </p>
+            </div>
+          </div>
+
+          {/* Location */}
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-2xl bg-solar-field/60 px-4 py-3 transition hover:bg-solar-field"
+          >
+            <span className="text-xl">📍</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Location</p>
+              <p className="mt-0.5 text-sm text-solar-sage font-mono">
+                {r.lat.toFixed(5)}, {r.lng.toFixed(5)}
+              </p>
+            </div>
+            <span className="text-xs text-solar-green">View map ›</span>
+          </a>
+
+          {/* Actions */}
+          <div className="flex flex-wrap gap-2 border-t border-solar-leafmd pt-2 pb-2">
+            {r.status === "open" && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onStatusChange(r.id, "filled")}
+                  className="rounded-field border border-solar-green/50 px-3 py-1.5 text-xs font-medium text-solar-green transition hover:bg-solar-green/10"
+                >
+                  Mark filled
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onStatusChange(r.id, "expired")}
+                  className="rounded-field border border-solar-leafmd px-3 py-1.5 text-xs font-medium text-solar-sage/60 transition hover:bg-solar-field/50 hover:text-solar-sage"
+                >
+                  Close
+                </button>
+              </>
+            )}
+            {r.status !== "open" && (
+              <button
+                type="button"
+                onClick={() => onStatusChange(r.id, "open")}
+                className="rounded-field border border-solar-leafmd px-3 py-1.5 text-xs font-medium text-solar-sage transition hover:bg-solar-field/50"
+              >
+                Reopen
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onDelete(r.id)}
+              className="ml-auto rounded-field border border-solar-danger/40 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-solar-danger/15"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

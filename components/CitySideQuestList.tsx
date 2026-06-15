@@ -25,6 +25,7 @@ export type SideQuest = {
   orgName: string;
   orgCity: string | null;
   orgEmail: string | null;
+  orgPhone: string | null;
   orgWebsite: string | null;
 };
 
@@ -48,6 +49,7 @@ export function CitySideQuestList({ quests, userCity }: Props) {
   const [locationState, setLocationState] = useState<LocationState>("idle");
   const [topicFilter, setTopicFilter] = useState<TopicId | "all">("all");
   const [maxKm, setMaxKm] = useState<number>(0);
+  const [detailQuest, setDetailQuest] = useState<SideQuest | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -180,9 +182,21 @@ export function CitySideQuestList({ quests, userCity }: Props) {
       ) : (
         <ol className="flex flex-col gap-4">
           {decorated.map(({ quest, distance }) => (
-            <QuestCard key={quest.id} quest={quest} distance={distance} />
+            <QuestCard
+              key={quest.id}
+              quest={quest}
+              distance={distance}
+              onOpen={() => setDetailQuest(quest)}
+            />
           ))}
         </ol>
+      )}
+
+      {detailQuest && (
+        <QuestDetailModal
+          quest={detailQuest}
+          onClose={() => setDetailQuest(null)}
+        />
       )}
     </div>
   );
@@ -223,16 +237,17 @@ function EmptyState({ message }: { message: string }) {
 function QuestCard({
   quest: q,
   distance,
+  onOpen,
 }: {
   quest: SideQuest;
   distance: number | null;
+  onOpen: () => void;
 }) {
   const topic = isTopicId(q.category) ? getTopic(q.category) : null;
-  const websiteUrl = safeHttpUrl(q.orgWebsite);
 
   return (
     <li className="flex flex-col gap-3 rounded-3xl border border-solar-leafmd bg-solar-panel/70 p-5">
-      <div className="flex items-start gap-3">
+      <button type="button" onClick={onOpen} className="flex items-start gap-3 text-left">
         <span className="mt-0.5 text-2xl" aria-hidden="true">
           {topic?.emoji ?? "📌"}
         </span>
@@ -249,45 +264,170 @@ function QuestCard({
             {q.orgName}
             {q.orgCity ? ` · ${q.orgCity}` : ""}
           </p>
+          <p className="mt-1.5 text-sm text-solar-sage/80 line-clamp-2">{q.description}</p>
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-solar-sage/50">
+            <span>{topic?.label ?? q.category}</span>
+            <span>
+              {q.capacityRemaining}/{q.capacityTotal} spot
+              {q.capacityTotal !== 1 ? "s" : ""} left
+            </span>
+            {q.expiresAt && (
+              <span>Expires {new Date(q.expiresAt).toLocaleDateString()}</span>
+            )}
+          </div>
         </div>
-      </div>
+        <span className="mt-0.5 shrink-0 text-solar-sage/30">›</span>
+      </button>
+    </li>
+  );
+}
 
-      <p className="text-sm text-solar-sage/80">{q.description}</p>
+function QuestDetailModal({
+  quest: q,
+  onClose,
+}: {
+  quest: SideQuest;
+  onClose: () => void;
+}) {
+  const topic = isTopicId(q.category) ? getTopic(q.category) : null;
+  const websiteUrl = safeHttpUrl(q.orgWebsite);
+  const mapsUrl = `https://www.google.com/maps?q=${q.lat},${q.lng}`;
 
-      <div className="flex flex-wrap gap-3 text-xs text-solar-sage/50">
-        <span>{topic?.label ?? q.category}</span>
-        <span>
-          {q.capacityRemaining}/{q.capacityTotal} spot
-          {q.capacityTotal !== 1 ? "s" : ""} left
-        </span>
-        {q.expiresAt && (
-          <span>Expires {new Date(q.expiresAt).toLocaleDateString()}</span>
-        )}
-      </div>
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full max-w-md rounded-t-3xl border-t border-solar-leafmd bg-solar-dark flex flex-col max-h-[85dvh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="h-1 w-10 rounded-full bg-solar-leafmd" />
+        </div>
 
-      {(q.orgEmail || websiteUrl) && (
-        <div className="flex flex-wrap gap-2 border-t border-solar-leafmd pt-3">
+        <div className="overflow-y-auto px-6 py-4 flex flex-col gap-5 pb-8">
+          {/* Header */}
+          <div className="flex items-start gap-3">
+            <span className="mt-1 text-2xl" aria-hidden="true">{topic?.emoji ?? "📌"}</span>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-solar-cream leading-snug">{q.title}</h2>
+              <p className="mt-0.5 text-sm text-solar-sage/60">
+                {q.orgName}{q.orgCity ? ` · ${q.orgCity}` : ""}
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-solar-sage/90 leading-relaxed whitespace-pre-wrap">{q.description}</p>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Spots left</p>
+              <p className="mt-1 text-lg font-bold text-solar-cream">
+                {q.capacityRemaining}
+                <span className="text-sm font-normal text-solar-sage/60"> / {q.capacityTotal}</span>
+              </p>
+            </div>
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Radius</p>
+              <p className="mt-1 text-lg font-bold text-solar-cream">
+                {q.radiusKm}
+                <span className="text-sm font-normal text-solar-sage/60"> km</span>
+              </p>
+            </div>
+            {q.expiresAt && (
+              <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+                <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Expires</p>
+                <p className="mt-1 text-sm font-semibold text-solar-cream">
+                  {new Date(q.expiresAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+                </p>
+              </div>
+            )}
+            <div className="rounded-2xl bg-solar-field/60 px-4 py-3">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Category</p>
+              <p className="mt-1 text-sm font-semibold text-solar-cream">{topic?.label ?? q.category}</p>
+            </div>
+          </div>
+
+          {/* Location */}
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-2xl bg-solar-field/60 px-4 py-3 transition hover:bg-solar-field"
+          >
+            <span className="text-xl">📍</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Location</p>
+              <p className="mt-0.5 text-sm text-solar-sage font-mono">
+                {q.lat.toFixed(5)}, {q.lng.toFixed(5)}
+              </p>
+            </div>
+            <span className="text-xs text-solar-green">View map ›</span>
+          </a>
+
+          {/* Organisation contact */}
+          <div className="flex flex-col gap-2">
+            <p className="text-xs uppercase tracking-wide text-solar-sage/50">Contact</p>
+            {q.orgPhone && (
+              <a
+                href={`tel:${q.orgPhone}`}
+                className="flex items-center gap-3 rounded-2xl bg-solar-field/60 px-4 py-3 transition hover:bg-solar-field"
+              >
+                <span className="text-xl">📞</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Phone</p>
+                  <p className="mt-0.5 text-sm text-solar-sage">{q.orgPhone}</p>
+                </div>
+                <span className="text-xs text-solar-green">Call ›</span>
+              </a>
+            )}
+            {q.orgEmail && (
+              <a
+                href={`mailto:${q.orgEmail}?subject=${encodeURIComponent(`Helping with: ${q.title}`)}`}
+                className="flex items-center gap-3 rounded-2xl bg-solar-field/60 px-4 py-3 transition hover:bg-solar-field"
+              >
+                <span className="text-xl">✉️</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Email</p>
+                  <p className="mt-0.5 truncate text-sm text-solar-sage">{q.orgEmail}</p>
+                </div>
+                <span className="text-xs text-solar-green">Write ›</span>
+              </a>
+            )}
+            {websiteUrl && (
+              <a
+                href={websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-2xl bg-solar-field/60 px-4 py-3 transition hover:bg-solar-field"
+              >
+                <span className="text-xl">🌐</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-solar-sage/50 uppercase tracking-wide">Website</p>
+                  <p className="mt-0.5 truncate text-sm text-solar-sage">{websiteUrl}</p>
+                </div>
+                <span className="text-xs text-solar-green">Visit ›</span>
+              </a>
+            )}
+          </div>
+
+          {/* CTA */}
           {q.orgEmail && (
             <a
               href={`mailto:${q.orgEmail}?subject=${encodeURIComponent(`Helping with: ${q.title}`)}`}
-              className="rounded-field bg-solar-green px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.15em] text-solar-cream transition hover:bg-solar-moss"
+              className="w-full rounded-field bg-solar-green py-3 text-center text-sm font-extrabold uppercase tracking-[0.15em] text-solar-cream transition hover:bg-solar-moss"
             >
               Offer to help
             </a>
           )}
-          {websiteUrl && (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-field border border-solar-leafmd px-3 py-1.5 text-xs font-medium text-solar-sage transition hover:bg-solar-field/50 hover:text-solar-cream"
-            >
-              Visit org
-            </a>
-          )}
         </div>
-      )}
-    </li>
+      </div>
+    </div>
   );
 }
 

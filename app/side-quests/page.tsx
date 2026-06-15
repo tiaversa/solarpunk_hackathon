@@ -24,8 +24,9 @@ type RawRequest = {
     name: string;
     city: string | null;
     email: string | null;
+    phone: string | null;
     website: string | null;
-  }[] | null;
+  } | null;
 };
 
 export default async function CitySideQuestPage() {
@@ -49,7 +50,7 @@ export default async function CitySideQuestPage() {
   const { data: rows } = await admin
     .from("ServiceRequest")
     .select(
-      "id, category, title, description, lat, lng, radiusKm, capacityTotal, capacityRemaining, expiresAt, status, createdAt, Organization(name, city, email, website)",
+      "id, category, title, description, lat, lng, radiusKm, capacityTotal, capacityRemaining, expiresAt, status, createdAt, Organization(name, city, email, phone, website)",
     )
     .eq("status", "open")
     .gt("capacityRemaining", 0)
@@ -57,7 +58,7 @@ export default async function CitySideQuestPage() {
     .order("createdAt", { ascending: false })
     .limit(200);
 
-  const quests: SideQuest[] = ((rows ?? []) as RawRequest[])
+  const quests: SideQuest[] = ((rows ?? []) as unknown as RawRequest[])
     .map((r) => ({
       id: r.id,
       category: r.category,
@@ -70,10 +71,11 @@ export default async function CitySideQuestPage() {
       capacityTotal: r.capacityTotal,
       expiresAt: r.expiresAt,
       createdAt: r.createdAt,
-      orgName: r.Organization?.[0]?.name ?? "A community organisation",
-      orgCity: r.Organization?.[0]?.city ?? null,
-      orgEmail: r.Organization?.[0]?.email ?? null,
-      orgWebsite: r.Organization?.[0]?.website ?? null,
+      orgName: r.Organization?.name ?? "A community organisation",
+      orgCity: r.Organization?.city ?? null,
+      orgEmail: r.Organization?.email ?? null,
+      orgPhone: r.Organization?.phone ?? null,
+      orgWebsite: r.Organization?.website ?? null,
     }));
 
   return (
